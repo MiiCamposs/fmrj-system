@@ -54,7 +54,7 @@ describe('computePlayerStats', () => {
 });
 
 describe('winRate (aproveitamento)', () => {
-  it('calcula percentual sobre o maximo possivel', () => {
+  it('calcula percentual sobre o maximo possível', () => {
     // 7 pontos em 3 jogos, vitoria vale 3 -> 7/9 = 77.8%
     expect(winRate(7, 3, 3)).toBe(77.8);
     expect(winRate(0, 0, 3)).toBe(0);

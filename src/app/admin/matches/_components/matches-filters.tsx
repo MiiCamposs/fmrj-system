@@ -34,7 +34,7 @@ export function MatchesFilters({
     <div className="mb-4 flex flex-wrap items-end gap-3">
       <div>
         <label className="mb-1 block text-xs font-medium text-neutral-500">
-          Competicao
+          Competição
         </label>
         <select
           className={`${inputClasses} w-auto`}

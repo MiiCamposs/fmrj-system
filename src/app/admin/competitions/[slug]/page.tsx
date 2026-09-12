@@ -56,7 +56,7 @@ export default async function CompetitionDetailPage({
     <div>
       <Breadcrumbs
         items={[
-          { label: 'Competicoes', href: '/admin/competitions' },
+          { label: 'Competições', href: '/admin/competitions' },
           { label: competition.name },
         ]}
       />
@@ -82,7 +82,7 @@ export default async function CompetitionDetailPage({
 
       <TabNav slug={slug} seasonId={selectedSeason?.id ?? null} active={tab} />
 
-      {/* Sem temporada: so permite criar uma (e ir para Configuracoes). */}
+      {/* Sem temporada: so permite criar uma (e ir para Configurações). */}
       {!selectedSeason && tab !== 'settings' ? (
         <EmptyState
           title="Nenhuma temporada cadastrada."
@@ -276,7 +276,7 @@ async function TabContent({
         c.seasonId === scope.seasonId,
     );
     if (conflicts.length === 0) {
-      return <EmptyState title="Nenhum conflito nesta competicao/temporada." />;
+      return <EmptyState title="Nenhum conflito nesta competição/temporada." />;
     }
     return (
       <div className="space-y-2">
@@ -316,7 +316,7 @@ async function TabContent({
         {matches.length === 0 ? (
           <EmptyState
             title="Nenhuma partida cadastrada nesta temporada."
-            description="Crie partidas para gerar classificacao e artilharia automaticamente."
+            description="Crie partidas para gerar classificação e artilharia automaticamente."
           />
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -379,7 +379,7 @@ async function TabContent({
       </div>
       {standings.length > 0 && (
         <div>
-          <h3 className="mb-2 font-semibold text-neutral-800">Classificacao</h3>
+          <h3 className="mb-2 font-semibold text-neutral-800">Classificação</h3>
           <StandingsTable rows={standings} />
         </div>
       )}

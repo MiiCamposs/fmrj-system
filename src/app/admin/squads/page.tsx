@@ -70,7 +70,7 @@ export default async function SquadsPage() {
       squads.length === 0 ? (
         <EmptyState
           title="Nenhum elenco montado ainda."
-          description="Adicione times a uma competicao/temporada e depois gerencie o elenco."
+          description="Adicione times a uma competição/temporada e depois gerencie o elenco."
         />
       ) : (
         <Card>
@@ -78,7 +78,7 @@ export default async function SquadsPage() {
             <table className="w-full min-w-[640px] text-left text-sm">
               <thead className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase text-neutral-500">
                 <tr>
-                  <th className="px-4 py-3">Competicao</th>
+                  <th className="px-4 py-3">Competição</th>
                   <th className="px-4 py-3">Temporada</th>
                   <th className="px-4 py-3">Time</th>
                   <th className="px-4 py-3 text-center">Jogadores</th>
@@ -119,7 +119,7 @@ export default async function SquadsPage() {
     body = (
       <ErrorState
         message={
-          'Nao foi possivel carregar os elencos. ' +
+          'Não foi possível carregar os elencos. ' +
           (e instanceof Error ? e.message : '')
         }
       />
@@ -130,7 +130,7 @@ export default async function SquadsPage() {
     <div>
       <PageHeader
         title="Elencos"
-        description="Elencos por time em cada competicao e temporada."
+        description="Elencos por time em cada competição e temporada."
       />
       {body}
     </div>

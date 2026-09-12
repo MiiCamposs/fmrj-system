@@ -6,17 +6,17 @@ import {
 } from './status';
 
 describe('effectiveRegistrationStatus', () => {
-  it('marca como irregular quando ha conflito pendente', () => {
+  it('marca como irregular quando há conflito pendente', () => {
     expect(effectiveRegistrationStatus('approved', true)).toBe('irregular');
     expect(effectiveRegistrationStatus('pending', true)).toBe('irregular');
   });
 
-  it('mantem o status quando nao ha conflito', () => {
+  it('mantem o status quando não há conflito', () => {
     expect(effectiveRegistrationStatus('approved', false)).toBe('approved');
     expect(effectiveRegistrationStatus('suspended', false)).toBe('suspended');
   });
 
-  it('inscricao removida nunca vira irregular', () => {
+  it('inscrição removida nunca vira irregular', () => {
     expect(effectiveRegistrationStatus('removed', true)).toBe('removed');
   });
 });

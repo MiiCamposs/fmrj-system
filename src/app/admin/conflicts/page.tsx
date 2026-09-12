@@ -28,7 +28,7 @@ export default async function ConflictsPage({
       conflicts.length === 0 ? (
         <EmptyState
           title="Nenhum conflito encontrado."
-          description="Conflitos aparecem automaticamente quando um jogador e inscrito em mais de uma equipe na mesma competicao e temporada."
+          description="Conflitos aparecem automaticamente quando um jogador é inscrito em mais de uma equipe na mesma competição e temporada."
         />
       ) : (
         <Card>
@@ -39,7 +39,7 @@ export default async function ConflictsPage({
                   <th className="px-4 py-3">Jogador</th>
                   <th className="px-4 py-3">Nick</th>
                   <th className="px-4 py-3">ID</th>
-                  <th className="px-4 py-3">Competicao</th>
+                  <th className="px-4 py-3">Competição</th>
                   <th className="px-4 py-3">Temp.</th>
                   <th className="px-4 py-3">Equipes</th>
                   <th className="px-4 py-3">Status</th>
@@ -96,7 +96,7 @@ export default async function ConflictsPage({
     body = (
       <ErrorState
         message={
-          'Nao foi possivel carregar os conflitos. ' +
+          'Não foi possível carregar os conflitos. ' +
           (e instanceof Error ? e.message : '')
         }
       />
@@ -107,7 +107,7 @@ export default async function ConflictsPage({
     <div>
       <PageHeader
         title="Conflitos de jogadores"
-        description="Jogadores inscritos em mais de uma equipe na mesma competicao e temporada."
+        description="Jogadores inscritos em mais de uma equipe na mesma competição e temporada."
       />
       <ConflictsFilters />
       {body}

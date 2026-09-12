@@ -61,7 +61,7 @@ export function PlayersFilters({
 
       <div>
         <label className="mb-1 block text-xs font-medium text-neutral-500">
-          Competicao
+          Competição
         </label>
         <select
           className={`${inputClasses} w-auto`}

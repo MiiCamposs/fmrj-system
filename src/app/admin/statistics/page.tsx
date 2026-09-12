@@ -6,12 +6,12 @@ export default function StatisticsPage() {
   return (
     <div>
       <PageHeader
-        title="Estatisticas"
-        description="Classificacao, artilharia e estatisticas das competicoes."
+        title="Estatísticas"
+        description="Classificação, artilharia e estatísticas das competições."
       />
       <EmptyState
-        title="Estatisticas em breve."
-        description="Classificacao automatica, artilharia e estatisticas avancadas serao implementadas em uma etapa posterior. A base de dados (partidas, inscricoes) ja suporta esses recursos."
+        title="Estatísticas em breve."
+        description="Classificação automática, artilharia e estatísticas avançadas serão implementadas em uma etapa posterior. A base de dados (partidas, inscrições) já suporta esses recursos."
       />
     </div>
   );

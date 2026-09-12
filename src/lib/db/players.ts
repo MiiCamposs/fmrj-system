@@ -48,8 +48,8 @@ export async function getPlayerById(
 }
 
 /**
- * Inscricoes NAO removidas do jogador no escopo (competicao + temporada),
- * ja no formato de dominio, prontas para evaluateRegistration.
+ * Inscrições NAO removidas do jogador no escopo (competicao + temporada),
+ * já no formato de dominio, prontas para evaluateRegistration.
  */
 export async function getRegistrationsInScope(
   supabase: DbClient,
@@ -79,8 +79,8 @@ export async function getRegistrationsInScope(
 }
 
 /**
- * Verifica, ANTES de inserir, qual seria o resultado da inscricao:
- * allowed | duplicate | conflict. Nao grava nada.
+ * Verifica, ANTES de inserir, qual seria o resultado da inscrição:
+ * allowed | duplicate | conflict. Não grava nada.
  */
 export async function checkRegistration(
   supabase: DbClient,
@@ -156,8 +156,8 @@ export interface PlayerListFilters {
 }
 
 /**
- * Lista jogadores com dados agregados de inscricoes. Faz poucas queries e
- * agrega em memoria (escala de uma federacao). Evita embeds do PostgREST para
+ * Lista jogadores com dados agregados de inscrições. Faz poucas queries e
+ * agrega em memoria (escala de uma federação). Evita embeds do PostgREST para
  * manter a tipagem simples.
  */
 export async function listPlayers(
@@ -179,7 +179,7 @@ export async function listPlayers(
 
   const playerIds = players.map((p) => p.id);
 
-  // Inscricoes ativas desses jogadores (nao removidas).
+  // Inscrições ativas desses jogadores (não removidas).
   const { data: regs, error: regError } = await supabase
     .from('registrations')
     .select('player_id, team_id, competition_id, status')
@@ -230,7 +230,7 @@ export async function listPlayers(
 
   let result = Array.from(byPlayer.values());
 
-  // Filtros que dependem das inscricoes.
+  // Filtros que dependem das inscrições.
   if (filters.onlyConflicts) {
     result = result.filter((i) => i.hasPendingConflict);
   }

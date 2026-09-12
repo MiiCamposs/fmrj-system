@@ -10,7 +10,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 /**
  * Sitemap dinamico. Sempre inclui as rotas publicas estaticas; tenta adicionar
  * competicoes e times reais do banco (best-effort — nunca quebra a geracao).
- * Rotas administrativas ficam de fora (nao indexaveis).
+ * Rotas administrativas ficam de fora (não indexaveis).
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
@@ -54,7 +54,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       });
     }
   } catch {
-    // Banco indisponivel na geracao: retorna apenas as rotas estaticas.
+    // Banco indisponível na geracao: retorna apenas as rotas estaticas.
   }
 
   return [...staticRoutes, ...dynamicRoutes];

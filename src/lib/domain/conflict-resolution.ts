@@ -1,8 +1,8 @@
 /**
- * Logica PURA de resolucao de conflito e de remocao de inscricao.
+ * Logica PURA de resolucao de conflito e de remocao de inscrição.
  *
  * Mantida fora da interface e do banco para poder ser testada isoladamente
- * (secao 15) e reutilizada pelas server actions. As acoes de banco apenas
+ * (secao 15) e reutilizada pelas server actions. As ações de banco apenas
  * aplicam o plano que estas funcoes descrevem.
  */
 import type { Uuid, RegistrationStatus } from '@/types/domain';
@@ -16,24 +16,24 @@ export interface ConflictRegistrationInput {
 export interface ConflictResolutionPlan {
   /** Inscricao que permanece regular (o time escolhido pelo admin). */
   keptRegistrationId: Uuid | null;
-  /** Inscricoes que serao removidas (remocao logica, preserva historico). */
+  /** Inscrições que serão removidas (remocao logica, preserva histórico). */
   removedRegistrationIds: Uuid[];
-  /** Inscricoes que voltam a ficar aprovadas (deixam de ser irregulares). */
+  /** Inscrições que voltam a ficar aprovadas (deixam de ser irregulares). */
   approvedRegistrationIds: Uuid[];
 }
 
 /**
- * Dado o conjunto de inscricoes envolvidas num conflito e o time que o admin
- * decidiu manter, descreve o que acontece com cada inscricao.
+ * Dado o conjunto de inscrições envolvidas num conflito e o time que o admin
+ * decidiu manter, descreve o que acontece com cada inscrição.
  *
- * - a inscricao do time mantido volta a 'approved';
- * - as demais viram 'removed' (nunca apagadas: historico preservado, secao 15);
+ * - a inscrição do time mantido volta a 'approved';
+ * - as demais viram 'removed' (nunca apagadas: histórico preservado, secao 15);
  * - se nenhum time for escolhido (keepTeamId = null), o admin apenas marca o
- *   conflito como resolvido sem mexer nas inscricoes (decisao registrada em
- *   observacao). Nesse caso nada muda de status.
+ *   conflito como resolvido sem mexer nas inscrições (decisao registrada em
+ *   observação). Nesse caso nada muda de status.
  *
  * A funcao NAO decide sobre o registro do conflito em si (que sempre passa a
- * 'resolved' e permanece no historico); isso e responsabilidade da action.
+ * 'resolved' e permanece no histórico); isso e responsabilidade da action.
  */
 export function planConflictResolution(
   registrations: readonly ConflictRegistrationInput[],
@@ -61,7 +61,7 @@ export function planConflictResolution(
 
 /**
  * Semantica da remocao de um jogador do elenco (secao 19): o jogador GLOBAL
- * nunca e apagado; apenas a inscricao vira 'removed'. Retorna o efeito
+ * nunca e apagado; apenas a inscrição vira 'removed'. Retorna o efeito
  * esperado, usado para deixar a regra explicita e testavel.
  */
 export interface SquadRemovalEffect {

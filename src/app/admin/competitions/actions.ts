@@ -24,11 +24,11 @@ export async function createCompetitionAction(input: {
 }): Promise<ActionResult<{ slug: string }>> {
   try {
     const ctx = await requireAdmin();
-    if (!input.name?.trim()) throw new Error('Nome e obrigatorio.');
+    if (!input.name?.trim()) throw new Error('Nome e obrigatório.');
 
     const supabase = createAdminClient();
     const slug = (input.slug?.trim() || slugify(input.name)).trim();
-    if (!slug) throw new Error('Slug invalido.');
+    if (!slug) throw new Error('Slug inválido.');
 
     const competition = await createCompetition(supabase, {
       name: input.name,
@@ -120,7 +120,7 @@ export async function createSeasonAction(input: {
 }): Promise<ActionResult<{ seasonId: string }>> {
   try {
     const ctx = await requireAdmin();
-    if (!input.year || input.year < 1900) throw new Error('Ano invalido.');
+    if (!input.year || input.year < 1900) throw new Error('Ano inválido.');
     const supabase = createAdminClient();
     const season = await createSeason(supabase, {
       competitionId: input.competitionId,

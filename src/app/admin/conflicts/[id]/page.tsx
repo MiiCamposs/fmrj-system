@@ -58,7 +58,7 @@ export default async function ConflictDetailPage({
             <Row label="ID MamoBall">
               <span className="font-mono">{conflict.mamoball_player_id}</span>
             </Row>
-            <Row label="Competicao">{detail.competitionName}</Row>
+            <Row label="Competição">{detail.competitionName}</Row>
             <Row label="Temporada">{detail.seasonYear}</Row>
             <Row label="Detectado em">
               {formatDateTime(conflict.created_at)}
@@ -73,11 +73,11 @@ export default async function ConflictDetailPage({
                 </Row>
               </>
             )}
-            {conflict.note && <Row label="Observacao">{conflict.note}</Row>}
+            {conflict.note && <Row label="Observação">{conflict.note}</Row>}
           </dl>
         </Card>
 
-        {/* Equipes envolvidas + historico */}
+        {/* Equipes envolvidas + histórico */}
         <Card className="p-5">
           <h2 className="mb-3 font-semibold text-neutral-800">
             Equipes envolvidas
@@ -116,8 +116,8 @@ export default async function ConflictDetailPage({
           />
         ) : (
           <p className="text-sm text-neutral-500">
-            Este conflito ja foi resolvido. O registro permanece no historico e
-            nao e apagado.
+            Este conflito já foi resolvido. O registro permanece no histórico e
+            não e apagado.
           </p>
         )}
       </Card>

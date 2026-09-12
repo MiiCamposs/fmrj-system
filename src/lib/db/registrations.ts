@@ -1,8 +1,8 @@
 /**
- * Inscricoes (elenco): adicionar jogador, remover (logico) e listar elenco.
+ * Inscrições (elenco): adicionar jogador, remover (logico) e listar elenco.
  *
  * A deteccao de conflito e feita pelo banco (trigger). Aqui apenas inserimos a
- * inscricao e, em seguida, consultamos se um conflito pendente passou a existir
+ * inscrição e, em seguida, consultamos se um conflito pendente passou a existir
  * naquele escopo, para reportar imediatamente na interface (secao 12).
  */
 import type { PlayerRow, RegistrationRow, RegistrationStatus } from '@/types/database';
@@ -41,7 +41,7 @@ export interface AddPlayerResult {
   player: PlayerRow;
   playerWasCreated: boolean;
   registration: RegistrationRow | null;
-  /** true quando a mesma inscricao (mesmo time) ja existia (idempotente). */
+  /** true quando a mesma inscrição (mesmo time) já existia (idempotente). */
   duplicate: boolean;
   /** true quando um conflito pendente existe no escopo apos a operacao. */
   conflict: boolean;
@@ -51,10 +51,10 @@ export interface AddPlayerResult {
  * Adiciona um jogador ao elenco de um time numa competicao/temporada.
  *
  * Fluxo (secao 10):
- *  - resolve o jogador pelo mamoball_player_id (cria se nao existir);
- *  - insere a inscricao (status 'approved'); o banco impede a duplicata exata e
+ *  - resolve o jogador pelo mamoball_player_id (cria se não existir);
+ *  - insere a inscrição (status 'approved'); o banco impede a duplicata exata e
  *    detecta conflito via trigger;
- *  - consulta se ha conflito pendente no escopo para reportar na hora.
+ *  - consulta se há conflito pendente no escopo para reportar na hora.
  */
 export async function addPlayerToSquad(
   supabase: DbClient,
@@ -72,7 +72,7 @@ export async function addPlayerToSquad(
 
   if (!player) {
     if (!input.name || !input.name.trim()) {
-      throw new Error('Nome obrigatorio para cadastrar um novo jogador.');
+      throw new Error('Nome obrigatório para cadastrar um novo jogador.');
     }
     player = await createPlayer(supabase, {
       name: input.name,
@@ -88,7 +88,7 @@ export async function addPlayerToSquad(
     teamId: input.teamId,
   });
 
-  // Insere a inscricao. A constraint UNIQUE trata a duplicata exata (Caso 2).
+  // Insere a inscrição. A constraint UNIQUE trata a duplicata exata (Caso 2).
   const { data: registration, error } = await supabase
     .from('registrations')
     .insert({
@@ -102,10 +102,10 @@ export async function addPlayerToSquad(
 
   let duplicate = false;
   if (error) {
-    // 23505 = unique_violation -> ja inscrito neste mesmo time (idempotente).
+    // 23505 = unique_violation -> já inscrito neste mesmo time (idempotente).
     if (error.code === '23505') {
       duplicate = true;
-      // Reativa a inscricao se estava removida (re-adicionar ao elenco).
+      // Reativa a inscrição se estava removida (re-adicionar ao elenco).
       await supabase
         .from('registrations')
         .update({ status: 'approved' })
@@ -149,7 +149,7 @@ async function hasPendingConflict(
   return (count ?? 0) > 0;
 }
 
-/** Remocao logica: preserva historico, nunca apaga o jogador global (secao 19). */
+/** Remocao logica: preserva histórico, nunca apaga o jogador global (secao 19). */
 export async function removeRegistration(
   supabase: DbClient,
   registrationId: string,
@@ -191,7 +191,7 @@ export interface SeasonPlayerItem {
   effectiveStatus: RegistrationStatus;
 }
 
-/** Todos os jogadores inscritos numa competicao/temporada (nao removidos). */
+/** Todos os jogadores inscritos numa competicao/temporada (não removidos). */
 export async function getSeasonPlayers(
   supabase: DbClient,
   scope: { competitionId: string; seasonId: string },
@@ -245,7 +245,7 @@ export async function getSeasonPlayers(
   });
 }
 
-/** Elenco de um time numa competicao/temporada (inscricoes nao removidas). */
+/** Elenco de um time numa competicao/temporada (inscrições não removidas). */
 export async function getSquad(
   supabase: DbClient,
   scope: { competitionId: string; seasonId: string; teamId: string },

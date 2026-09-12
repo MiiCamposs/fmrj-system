@@ -15,11 +15,11 @@ export default async function CompetitionsPage() {
     body =
       items.length === 0 ? (
         <EmptyState
-          title="Nenhuma competicao cadastrada ainda."
-          description="Crie a primeira competicao para comecar."
+          title="Nenhuma competição cadastrada ainda."
+          description="Crie a primeira competição para começar."
           action={
             <Link href="/admin/competitions/new" className={buttonClasses.primary}>
-              Nova competicao
+              Nova competição
             </Link>
           }
         />
@@ -28,7 +28,7 @@ export default async function CompetitionsPage() {
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase tracking-wide text-neutral-500">
               <tr>
-                <th className="px-4 py-3">Competicao</th>
+                <th className="px-4 py-3">Competição</th>
                 <th className="px-4 py-3">Temporada</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-center">Times</th>
@@ -89,7 +89,7 @@ export default async function CompetitionsPage() {
     body = (
       <ErrorState
         message={
-          'Nao foi possivel carregar as competicoes. ' +
+          'Não foi possível carregar as competicoes. ' +
           (e instanceof Error ? e.message : '')
         }
       />
@@ -99,11 +99,11 @@ export default async function CompetitionsPage() {
   return (
     <div>
       <PageHeader
-        title="Competicoes"
-        description="Todas as competicoes da federacao."
+        title="Competições"
+        description="Todas as competições da federação."
         action={
           <Link href="/admin/competitions/new" className={buttonClasses.primary}>
-            Nova competicao
+            Nova competição
           </Link>
         }
       />

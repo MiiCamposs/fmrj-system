@@ -41,7 +41,7 @@ export default async function JogosPage({
     (m) => m.status !== 'scheduled' && m.status !== 'finished',
   );
 
-  // Quando ha filtro de status, mostra uma lista unica; senao, separa.
+  // Quando há filtro de status, mostra uma lista unica; senao, separa.
   const showSplit = !status;
 
   return (
@@ -57,7 +57,7 @@ export default async function JogosPage({
         <div className="space-y-8">
           {upcoming.length > 0 && (
             <section>
-              <h2 className="mb-3 font-bold text-neutral-900">Proximos jogos</h2>
+              <h2 className="mb-3 font-bold text-neutral-900">Próximos jogos</h2>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {upcoming.map((m) => (
                   <Fixture key={m.id} match={m} href={`/jogos/${m.id}`} />

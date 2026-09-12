@@ -59,32 +59,28 @@ export default async function PublicHome() {
     <div>
       {/* Hero */}
       <div className="relative overflow-hidden rounded-2xl bg-fmrj-dark text-white">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/banner.png"
-          alt=""
+        <div
           aria-hidden
-          className="absolute inset-0 h-full w-full object-cover opacity-30"
+          className="absolute inset-0 bg-gradient-to-br from-fmrj-dark via-fmrj to-fmrj-dark opacity-90"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-fmrj-dark via-fmrj-dark/90 to-fmrj-dark/40" />
         <div className="relative flex items-center gap-6 px-6 py-12 sm:px-10 sm:py-14">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/escudo.jpg"
             alt="Escudo da FMRJ"
-            className="hidden h-24 w-24 shrink-0 rounded-xl object-cover shadow-lg ring-1 ring-white/20 sm:block"
+            className="hidden h-28 w-28 shrink-0 rounded-xl object-cover shadow-lg ring-1 ring-white/20 sm:block"
           />
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
               Portal oficial
             </p>
             <h1 className="mt-2 font-display text-3xl font-black leading-[1.05] sm:text-5xl">
-              Federacao de MamoBall
+              Federação de MamoBall
               <br />
               do Rio de Janeiro
             </h1>
-            <p className="mt-3 max-w-xl text-sm text-white/70 sm:text-base">
-              Competicoes, classificacoes, jogos, times, jogadores e artilharia.
+            <p className="mt-3 max-w-xl text-sm text-white/75 sm:text-base">
+              Competições, classificações, jogos, times, jogadores e artilharia.
             </p>
           </div>
         </div>
@@ -92,16 +88,16 @@ export default async function PublicHome() {
 
       {!configured && (
         <div className="mt-6 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800">
-          Banco de dados nao configurado. Configure o Supabase (.env.local) e as
+          Banco de dados não configurado. Configure o Supabase (.env.local) e as
           migrations.
         </div>
       )}
 
-      {/* Competicoes */}
-      <Section title="Competicoes">
+      {/* Competições */}
+      <Section title="Competições">
         {visibleCompetitions.length === 0 ? (
           <p className="text-sm text-neutral-500">
-            Nenhuma competicao disponivel.
+            Nenhuma competição disponível.
           </p>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -129,8 +125,8 @@ export default async function PublicHome() {
       </Section>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Proximos jogos */}
-        <Section title="Proximos jogos" href="/jogos">
+        {/* Próximos jogos */}
+        <Section title="Próximos jogos" href="/jogos">
           {upcoming.length === 0 ? (
             <p className="text-sm text-neutral-500">Nenhum jogo agendado.</p>
           ) : (
@@ -142,8 +138,8 @@ export default async function PublicHome() {
           )}
         </Section>
 
-        {/* Ultimos resultados */}
-        <Section title="Ultimos resultados" href="/jogos?status=finished">
+        {/* Últimos resultados */}
+        <Section title="Últimos resultados" href="/jogos?status=finished">
           {results.length === 0 ? (
             <p className="text-sm text-neutral-500">Nenhum resultado ainda.</p>
           ) : (
@@ -192,8 +188,8 @@ export default async function PublicHome() {
         )}
       </Section>
 
-      {/* Classificacoes - acesso rapido */}
-      <Section title="Classificacoes">
+      {/* Classificações - acesso rápido */}
+      <Section title="Classificações">
         <div className="flex flex-wrap gap-2">
           {visibleCompetitions.map((c) => (
             <Link

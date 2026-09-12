@@ -58,7 +58,7 @@ export default async function AdminMatchesPage({
     body = (
       <ErrorState
         message={
-          'Nao foi possivel carregar as partidas. ' +
+          'Não foi possível carregar as partidas. ' +
           (e instanceof Error ? e.message : '')
         }
       />
@@ -69,7 +69,7 @@ export default async function AdminMatchesPage({
     <div>
       <PageHeader
         title="Partidas"
-        description="Agenda, resultados e eventos das competicoes."
+        description="Agenda, resultados e eventos das competições."
         action={
           <Link href="/admin/matches/new" className={buttonClasses.primary}>
             Nova partida

@@ -88,9 +88,9 @@ export function AddPlayerFlow(props: Props) {
 
     const data = result.data;
     if (data.duplicate) {
-      toast.show('Jogador ja estava neste elenco.', 'info');
+      toast.show('Jogador já estava neste elenco.', 'info');
     } else if (data.conflict) {
-      toast.show('Conflito de inscricao detectado.', 'error');
+      toast.show('Conflito de inscrição detectado.', 'error');
       setConflict(data);
     } else {
       toast.show('Jogador adicionado ao elenco.', 'success');
@@ -117,7 +117,7 @@ export function AddPlayerFlow(props: Props) {
             ID MamoBall {conflict.mamoballPlayerId}
           </p>
           <p className="mt-2 text-sm text-red-700">
-            Inscricoes encontradas: {conflict.conflictTeams.join(', ')}
+            Inscrições encontradas: {conflict.conflictTeams.join(', ')}
           </p>
           <p className="mt-1 text-sm text-red-700">
             Este jogador esta inscrito em mais de uma equipe nesta competicao.
@@ -197,7 +197,7 @@ export function AddPlayerFlow(props: Props) {
                   ID: {found.mamoballPlayerId}
                 </p>
                 <p className="mt-2 text-xs text-emerald-700">
-                  Este jogador ja esta cadastrado no banco da FMRJ. Nao sera
+                  Este jogador já esta cadastrado no banco da FMRJ. Não será
                   criado um segundo registro.
                 </p>
               </div>

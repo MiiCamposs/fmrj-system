@@ -21,7 +21,7 @@ export type BadgeVariant =
 
 export const competitionStatusLabel: Record<CompetitionStatus, string> = {
   planning: 'Planejamento',
-  registration_open: 'Inscricoes abertas',
+  registration_open: 'Inscrições abertas',
   ongoing: 'Em andamento',
   finished: 'Encerrada',
   archived: 'Arquivada',
@@ -73,9 +73,9 @@ export const matchStatusVariant: Record<MatchStatus, BadgeVariant> = {
 
 export const matchEventTypeLabel: Record<MatchEventType, string> = {
   goal: 'Gol',
-  assist: 'Assistencia',
-  yellow_card: 'Cartao amarelo',
-  red_card: 'Cartao vermelho',
+  assist: 'Assistência',
+  yellow_card: 'Cartão amarelo',
+  red_card: 'Cartão vermelho',
 };
 
 export const conflictStatusLabel: Record<ConflictStatus, string> = {
@@ -90,10 +90,10 @@ export const seasonStatusLabel: Record<SeasonStatus, string> = {
 };
 
 /**
- * Status EFETIVO de uma inscricao para exibicao.
+ * Status EFETIVO de uma inscrição para exibicao.
  *
- * Uma inscricao envolvida num conflito PENDENTE e mostrada como "irregular",
- * independentemente do status persistido (a menos que ja esteja removida).
+ * Uma inscrição envolvida num conflito PENDENTE e mostrada como "irregular",
+ * independentemente do status persistido (a menos que já esteja removida).
  * Isso torna o conflito impossivel de ignorar (secao 13) sem precisar mutar o
  * status no banco a cada deteccao.
  */

@@ -25,7 +25,7 @@ export type {
 } from '@/types/database';
 
 /**
- * Dados minimos de uma inscricao (vinculo jogador -> time -> competicao ->
+ * Dados minimos de uma inscrição (vinculo jogador -> time -> competicao ->
  * temporada) necessarios para avaliar conflitos. Mapeia a tabela registrations.
  */
 export interface RegistrationScope {
@@ -35,22 +35,22 @@ export interface RegistrationScope {
   teamId: Uuid;
 }
 
-/** Uma inscricao ja existente e persistida. */
+/** Uma inscrição já existente e persistida. */
 export interface ExistingRegistration extends RegistrationScope {
   id: Uuid;
   playerId: Uuid;
 }
 
-/** Uma tentativa de inscricao (ainda nao persistida). */
+/** Uma tentativa de inscrição (ainda não persistida). */
 export type RegistrationCandidate = RegistrationScope;
 
 /**
- * Resultado da avaliacao de uma tentativa de inscricao.
+ * Resultado da avaliacao de uma tentativa de inscrição.
  *
  * - allowed:   pode inscrever normalmente.
- * - duplicate: exatamente a mesma inscricao ja existe (mesmo jogador, time,
- *              competicao e temporada). Nao criar de novo (idempotente).
- * - conflict:  o mesmo jogador (mesmo mamoballPlayerId) ja esta inscrito em
+ * - duplicate: exatamente a mesma inscrição já existe (mesmo jogador, time,
+ *              competicao e temporada). Não criar de novo (idempotente).
+ * - conflict:  o mesmo jogador (mesmo mamoballPlayerId) já esta inscrito em
  *              OUTRO time na MESMA competicao e temporada. Deve gerar conflito.
  */
 export type RegistrationEvaluation =
@@ -58,9 +58,9 @@ export type RegistrationEvaluation =
   | { kind: 'duplicate'; existingRegistrationId: Uuid }
   | {
       kind: 'conflict';
-      /** Times ja envolvidos (existentes) alem do time candidato. */
+      /** Times já envolvidos (existentes) alem do time candidato. */
       conflictingTeamIds: Uuid[];
-      /** Ids das inscricoes existentes que compoem o conflito. */
+      /** Ids das inscrições existentes que compoem o conflito. */
       conflictingRegistrationIds: Uuid[];
     };
 

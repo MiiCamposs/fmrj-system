@@ -43,7 +43,7 @@ export function MatchCreateForm({ context }: { context: MatchFormContext }) {
       return;
     }
     if (homeTeamId === awayTeamId) {
-      setError('Um time nao pode jogar contra si mesmo.');
+      setError('Um time não pode jogar contra si mesmo.');
       return;
     }
     setLoading(true);
@@ -75,7 +75,7 @@ export function MatchCreateForm({ context }: { context: MatchFormContext }) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="mb-1 block text-sm font-medium text-neutral-700">
-            Competicao *
+            Competição *
           </label>
           <select
             className={inputClasses}
@@ -170,7 +170,7 @@ export function MatchCreateForm({ context }: { context: MatchFormContext }) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="mb-1 block text-sm font-medium text-neutral-700">
-            Rodada (numero)
+            Rodada (número)
           </label>
           <input
             className={inputClasses}

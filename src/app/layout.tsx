@@ -15,15 +15,15 @@ const archivo = Archivo({
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
-const siteName = 'FMRJ — Federacao de MamoBall do Rio de Janeiro';
+const siteName = 'FMRJ — Federação de MamoBall do Rio de Janeiro';
 const siteDescription =
-  'Portal oficial da Federacao de MamoBall do Rio de Janeiro: competicoes, temporadas, times, jogadores, classificacao e artilharia.';
+  'Portal oficial da Federação de MamoBall do Rio de Janeiro: competicoes, temporadas, times, jogadores, classificacao e artilharia.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: siteName,
-    // Paginas ja definem titulos completos terminando em "— FMRJ".
+    // Paginas já definem titulos completos terminando em "— FMRJ".
     template: '%s',
   },
   description: siteDescription,

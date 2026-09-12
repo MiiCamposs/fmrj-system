@@ -7,8 +7,8 @@ import { CompetitionStatusBadge } from '@/components/ui/badge';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Competicoes — FMRJ',
-  description: 'Competicoes da Federacao de MamoBall do Rio de Janeiro.',
+  title: 'Competições — FMRJ',
+  description: 'Competições da Federação de MamoBall do Rio de Janeiro.',
 };
 
 export default async function CompetitionsIndex() {
@@ -23,9 +23,9 @@ export default async function CompetitionsIndex() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-neutral-900">Competicoes</h1>
+      <h1 className="mb-6 text-2xl font-bold text-neutral-900">Competições</h1>
       {visible.length === 0 ? (
-        <p className="text-sm text-neutral-500">Nenhuma competicao disponivel.</p>
+        <p className="text-sm text-neutral-500">Nenhuma competição disponível.</p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((c) => (

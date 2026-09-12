@@ -20,8 +20,8 @@ export default async function NewMatchPage() {
       <PageHeader title="Nova partida" />
       {context.competitions.length === 0 ? (
         <EmptyState
-          title="Cadastre uma competicao primeiro."
-          description="Crie competicao, temporada e adicione times antes de criar partidas."
+          title="Cadastre uma competição primeiro."
+          description="Crie competição, temporada e adicione times antes de criar partidas."
         />
       ) : (
         <MatchCreateForm context={context} />

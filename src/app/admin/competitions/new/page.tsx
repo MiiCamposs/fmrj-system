@@ -8,11 +8,11 @@ export default function NewCompetitionPage() {
     <div>
       <Breadcrumbs
         items={[
-          { label: 'Competicoes', href: '/admin/competitions' },
+          { label: 'Competições', href: '/admin/competitions' },
           { label: 'Nova' },
         ]}
       />
-      <PageHeader title="Nova competicao" />
+      <PageHeader title="Nova competição" />
       <CompetitionForm />
     </div>
   );

@@ -27,7 +27,7 @@ export function TeamForm({ team }: { team?: TeamRow }) {
     e.preventDefault();
     setError(null);
     if (!name.trim()) {
-      setError('O nome e obrigatorio.');
+      setError('O nome e obrigatório.');
       return;
     }
     setLoading(true);

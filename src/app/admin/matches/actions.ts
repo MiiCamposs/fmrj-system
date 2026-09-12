@@ -49,7 +49,7 @@ export async function createMatchAction(input: {
       throw new Error('Selecione mandante e visitante.');
     }
     if (input.homeTeamId === input.awayTeamId) {
-      throw new Error('Um time nao pode jogar contra si mesmo.');
+      throw new Error('Um time não pode jogar contra si mesmo.');
     }
     const supabase = createAdminClient();
 
@@ -107,7 +107,7 @@ export async function updateMatchAction(
   try {
     const ctx = await requireAdmin();
     if (input.homeTeamId === input.awayTeamId) {
-      throw new Error('Um time nao pode jogar contra si mesmo.');
+      throw new Error('Um time não pode jogar contra si mesmo.');
     }
     const supabase = createAdminClient();
     await updateMatch(supabase, id, {
@@ -147,7 +147,7 @@ export async function setResultAction(input: {
       input.homeScore < 0 ||
       input.awayScore < 0
     ) {
-      throw new Error('Placar invalido.');
+      throw new Error('Placar inválido.');
     }
     const supabase = createAdminClient();
     await setMatchResult(supabase, input.id, input.homeScore, input.awayScore);
@@ -226,12 +226,12 @@ export async function addMatchEventAction(input: {
     const ctx = await requireAdmin();
     const supabase = createAdminClient();
     const match = await getMatchById(supabase, input.matchId);
-    if (!match) throw new Error('Partida nao encontrada.');
+    if (!match) throw new Error('Partida não encontrada.');
     if (
       input.teamId !== match.home_team_id &&
       input.teamId !== match.away_team_id
     ) {
-      throw new Error('Time do evento nao participa desta partida.');
+      throw new Error('Time do evento não participa desta partida.');
     }
 
     await addMatchEvent(supabase, {

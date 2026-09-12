@@ -10,8 +10,8 @@
  *   + teams diferentes
  *   = CONFLITO
  *
- * Competicoes/temporadas diferentes NUNCA geram conflito automatico (secao 6);
- * sao apenas historico.
+ * Competições/temporadas diferentes NUNCA geram conflito automatico (secao 6);
+ * sao apenas histórico.
  *
  * Esta funcao e PURA (sem I/O). A mesma regra tambem e garantida no banco via
  * constraint UNIQUE + trigger (defesa em profundidade, secao 14). Aqui ela
@@ -26,7 +26,7 @@ import type {
 
 /**
  * Identidade do jogador e definida SOMENTE pelo mamoballPlayerId.
- * Nome e nickname podem mudar; o id oficial nao. (secoes 3, 7 e caso 6.)
+ * Nome e nickname podem mudar; o id oficial não. (secoes 3, 7 e caso 6.)
  */
 export function isSamePlayer(a: string, b: string): boolean {
   return normalizeMamoballId(a) === normalizeMamoballId(b);
@@ -38,11 +38,11 @@ export function normalizeMamoballId(id: string): string {
 }
 
 /**
- * Avalia uma tentativa de inscricao contra as inscricoes ja existentes.
+ * Avalia uma tentativa de inscrição contra as inscrições já existentes.
  *
- * O conjunto `existing` pode conter inscricoes de qualquer competicao/temporada;
+ * O conjunto `existing` pode conter inscrições de qualquer competicao/temporada;
  * a funcao filtra internamente o escopo relevante (mesmo jogador + mesma
- * competicao + mesma temporada), entao e seguro passar o historico completo.
+ * competicao + mesma temporada), entao e seguro passar o histórico completo.
  */
 export function evaluateRegistration(
   candidate: RegistrationCandidate,
@@ -57,18 +57,18 @@ export function evaluateRegistration(
   );
 
   if (sameScope.length === 0) {
-    // Nenhuma inscricao do jogador nesta competicao/temporada -> pode inscrever.
+    // Nenhuma inscrição do jogador nesta competicao/temporada -> pode inscrever.
     // (Cobre jogador novo e jogador vindo de outra competicao — secoes 4 e 6.)
     return { kind: 'allowed' };
   }
 
-  // Ja existe inscricao no MESMO time -> inscricao duplicada, operacao idempotente.
+  // Ja existe inscrição no MESMO time -> inscrição duplicada, operacao idempotente.
   const sameTeam = sameScope.find((r) => r.teamId === candidate.teamId);
   if (sameTeam) {
     return { kind: 'duplicate', existingRegistrationId: sameTeam.id };
   }
 
-  // Existe inscricao em time DIFERENTE dentro do mesmo escopo -> CONFLITO.
+  // Existe inscrição em time DIFERENTE dentro do mesmo escopo -> CONFLITO.
   const conflicting = sameScope.filter((r) => r.teamId !== candidate.teamId);
   return {
     kind: 'conflict',
@@ -78,7 +78,7 @@ export function evaluateRegistration(
 }
 
 /**
- * Dado o historico completo de inscricoes, encontra todos os conflitos
+ * Dado o histórico completo de inscrições, encontra todos os conflitos
  * existentes (grupos com mesmo jogador + competicao + temporada em >1 time).
  * Util para auditorias/varreduras administrativas.
  */

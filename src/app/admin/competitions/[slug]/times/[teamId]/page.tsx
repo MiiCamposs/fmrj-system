@@ -39,12 +39,12 @@ export default async function SquadPage({
       <div>
         <Breadcrumbs
           items={[
-            { label: 'Competicoes', href: '/admin/competitions' },
+            { label: 'Competições', href: '/admin/competitions' },
             { label: competition.name, href: `/admin/competitions/${slug}` },
             { label: team.name },
           ]}
         />
-        <EmptyState title="Esta competicao ainda nao tem temporada." />
+        <EmptyState title="Esta competição ainda não tem temporada." />
       </div>
     );
   }
@@ -59,7 +59,7 @@ export default async function SquadPage({
     <div>
       <Breadcrumbs
         items={[
-          { label: 'Competicoes', href: '/admin/competitions' },
+          { label: 'Competições', href: '/admin/competitions' },
           {
             label: competition.name,
             href: `/admin/competitions/${slug}?season=${season.id}&tab=squads`,

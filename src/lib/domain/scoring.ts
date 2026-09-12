@@ -46,9 +46,9 @@ export function parseTiebreakers(raw: string[] | null | undefined): Tiebreaker[]
 
 export const tiebreakerLabel: Record<Tiebreaker, string> = {
   points: 'Pontos',
-  wins: 'Vitorias',
+  wins: 'Vitórias',
   goal_difference: 'Saldo de gols',
-  goals_for: 'Gols pro',
+  goals_for: 'Gols pró',
   draws: 'Empates',
   losses: 'Derrotas',
 };

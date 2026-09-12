@@ -36,13 +36,13 @@ export async function generateMetadata({
         title: `${competition.name} — FMRJ`,
         description:
           competition.description ??
-          `${competition.name} — Federacao de MamoBall do Rio de Janeiro.`,
+          `${competition.name} — Federação de MamoBall do Rio de Janeiro.`,
       };
     }
   } catch {
     /* ignore */
   }
-  return { title: 'Competicao — FMRJ' };
+  return { title: 'Competição — FMRJ' };
 }
 
 export default async function PublicCompetitionPage({
@@ -71,7 +71,7 @@ export default async function PublicCompetitionPage({
             href="/competicoes"
             className="text-sm text-neutral-400 hover:text-fmrj"
           >
-            ← Competicoes
+            ← Competições
           </Link>
           <h1 className="mt-1 text-3xl font-black text-neutral-900">
             {competition.name}
@@ -94,7 +94,7 @@ export default async function PublicCompetitionPage({
       />
 
       {!selectedSeason && tab !== 'regulamento' ? (
-        <EmptyState title="Esta competicao ainda nao tem temporada publicada." />
+        <EmptyState title="Esta competição ainda não tem temporada publicada." />
       ) : (
         <PublicTabContent
           tab={tab}
@@ -123,7 +123,7 @@ async function PublicTabContent({
         {competition.regulation}
       </div>
     ) : (
-      <EmptyState title="Regulamento nao publicado." description="O regulamento desta competicao ainda nao foi disponibilizado." />
+      <EmptyState title="Regulamento não publicado." description="O regulamento desta competição ainda não foi disponibilizado." />
     );
   }
 
@@ -135,7 +135,7 @@ async function PublicTabContent({
     return rows.length ? (
       <StandingsTable rows={rows} linkTeams />
     ) : (
-      <EmptyState title="Classificacao indisponivel." description="Ainda nao ha partidas encerradas nesta temporada." />
+      <EmptyState title="Classificação indisponível." description="Ainda não há partidas encerradas nesta temporada." />
     );
   }
 
@@ -304,13 +304,13 @@ async function PublicTabContent({
     <div className="space-y-8">
       {standings.length > 0 && (
         <section>
-          <h2 className="mb-2 font-bold text-neutral-900">Classificacao</h2>
+          <h2 className="mb-2 font-bold text-neutral-900">Classificação</h2>
           <StandingsTable rows={standings.slice(0, 6)} linkTeams />
         </section>
       )}
       <div className="grid gap-6 lg:grid-cols-2">
         <section>
-          <h2 className="mb-2 font-bold text-neutral-900">Proximos jogos</h2>
+          <h2 className="mb-2 font-bold text-neutral-900">Próximos jogos</h2>
           {upcoming.length ? (
             <div className="space-y-3">
               {upcoming.slice(0, 4).map((m) => (
@@ -322,7 +322,7 @@ async function PublicTabContent({
           )}
         </section>
         <section>
-          <h2 className="mb-2 font-bold text-neutral-900">Ultimos resultados</h2>
+          <h2 className="mb-2 font-bold text-neutral-900">Últimos resultados</h2>
           {results.length ? (
             <div className="space-y-3">
               {results.slice(0, 4).map((m) => (
@@ -361,7 +361,7 @@ function ScorersTable({
             <th className="px-4 py-2 text-left">Time</th>
             <th className="px-2 py-2 text-center">Gols</th>
             <th className="px-2 py-2 text-center">Jogos</th>
-            <th className="px-2 py-2 text-center">Media</th>
+            <th className="px-2 py-2 text-center">Média</th>
           </tr>
         </thead>
         <tbody>

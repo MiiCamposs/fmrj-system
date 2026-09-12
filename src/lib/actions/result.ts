@@ -1,4 +1,4 @@
-/** Resultado padrao de uma server action (sempre serializavel). */
+/** Resultado padrão de uma server action (sempre serializavel). */
 export type ActionResult<T = undefined> =
   | ({ ok: true } & (T extends undefined ? object : { data: T }))
   | { ok: false; error: string };

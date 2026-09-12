@@ -9,8 +9,8 @@ export default async function SettingsPage() {
   return (
     <div>
       <PageHeader
-        title="Configuracoes"
-        description="Preferencias e informacoes do painel."
+        title="Configurações"
+        description="Preferências e informações do painel."
       />
 
       <Card className="max-w-lg p-5">
@@ -30,8 +30,8 @@ export default async function SettingsPage() {
       </Card>
 
       <p className="mt-6 max-w-lg text-sm text-neutral-500">
-        A gestao de administradores, integracoes (ex.: Discord) e demais
-        preferencias serao adicionadas em etapas futuras. Novos administradores
+        A gestão de administradores, integracoes (ex.: Discord) e demais
+        preferências serão adicionadas em etapas futuras. Novos administradores
         sao criados no Supabase e vinculados na tabela <code>admins</code> (ver
         README).
       </p>

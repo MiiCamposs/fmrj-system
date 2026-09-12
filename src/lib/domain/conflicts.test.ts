@@ -31,7 +31,7 @@ function reg(
 
 describe('evaluateRegistration - regra principal de conflito', () => {
   // CASO 1: jogador novo -> cadastro permitido.
-  it('Caso 1: jogador novo, sem inscricoes previas -> allowed', () => {
+  it('Caso 1: jogador novo, sem inscrições previas -> allowed', () => {
     const result = evaluateRegistration(
       {
         mamoballPlayerId: JOAO,
@@ -45,7 +45,7 @@ describe('evaluateRegistration - regra principal de conflito', () => {
   });
 
   // CASO 2: mesmo jogador, mesmo time, mesma competicao/temporada -> duplicado.
-  it('Caso 2: inscricao no mesmo time/comp/temporada -> duplicate (idempotente)', () => {
+  it('Caso 2: inscrição no mesmo time/comp/temporada -> duplicate (idempotente)', () => {
     const existing = [reg('r1', { teamId: FURIA })];
     const result = evaluateRegistration(
       {
@@ -78,8 +78,8 @@ describe('evaluateRegistration - regra principal de conflito', () => {
     }
   });
 
-  // CASO 4: mesmo jogador em competicoes DIFERENTES -> nao e conflito (historico).
-  it('Caso 4: mesmo jogador em competicoes diferentes -> allowed (nao gera conflito)', () => {
+  // CASO 4: mesmo jogador em competicoes DIFERENTES -> não e conflito (histórico).
+  it('Caso 4: mesmo jogador em competicoes diferentes -> allowed (não gera conflito)', () => {
     const existing = [
       reg('r1', { competitionId: CARIOCA_A1, teamId: FURIA }),
     ];
@@ -115,8 +115,8 @@ describe('evaluateRegistration - regra principal de conflito', () => {
   });
 
   // CASO 6: jogador muda o nickname -> continua o mesmo (identidade = id oficial).
-  it('Caso 6: mudanca de nickname nao altera identidade (mesmo mamoball id)', () => {
-    // A identidade depende exclusivamente do mamoballPlayerId; nickname nao entra
+  it('Caso 6: mudanca de nickname não altera identidade (mesmo mamoball id)', () => {
+    // A identidade depende exclusivamente do mamoballPlayerId; nickname não entra
     // na avaliacao. Reinscrever no mesmo time continua sendo duplicate.
     const existing = [reg('r1', { teamId: FURIA })];
     const result = evaluateRegistration(
@@ -132,7 +132,7 @@ describe('evaluateRegistration - regra principal de conflito', () => {
     expect(isSamePlayer(' 847291 ', '847291')).toBe(true);
   });
 
-  it('conflito envolvendo tres times lista todos os times/inscricoes existentes', () => {
+  it('conflito envolvendo tres times lista todos os times/inscrições existentes', () => {
     const existing = [
       reg('r1', { teamId: FURIA }),
       reg('r2', { teamId: REAL_MAMO }),
@@ -155,7 +155,7 @@ describe('evaluateRegistration - regra principal de conflito', () => {
     }
   });
 
-  it('temporadas diferentes na mesma competicao nao geram conflito', () => {
+  it('temporadas diferentes na mesma competicao não geram conflito', () => {
     const existing = [reg('r1', { seasonId: 'season-2026', teamId: FURIA })];
     const result = evaluateRegistration(
       {
@@ -170,7 +170,7 @@ describe('evaluateRegistration - regra principal de conflito', () => {
   });
 });
 
-describe('findExistingConflicts - varredura de historico', () => {
+describe('findExistingConflicts - varredura de histórico', () => {
   it('detecta apenas grupos com mesmo jogador/comp/temporada em times distintos', () => {
     const registrations: ExistingRegistration[] = [
       reg('r1', { teamId: FURIA }), // Joao / A1 / 2026 / Furia

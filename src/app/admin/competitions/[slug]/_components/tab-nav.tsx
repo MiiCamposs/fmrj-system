@@ -3,14 +3,14 @@
 import Link from 'next/link';
 
 const TABS: { key: string; label: string }[] = [
-  { key: 'overview', label: 'Visao geral' },
-  { key: 'standings', label: 'Classificacao' },
+  { key: 'overview', label: 'Visão geral' },
+  { key: 'standings', label: 'Classificação' },
   { key: 'teams', label: 'Times' },
   { key: 'players', label: 'Jogadores' },
   { key: 'squads', label: 'Elencos' },
   { key: 'matches', label: 'Partidas' },
   { key: 'conflicts', label: 'Conflitos' },
-  { key: 'settings', label: 'Configuracoes' },
+  { key: 'settings', label: 'Configurações' },
 ];
 
 export function TabNav({

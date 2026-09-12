@@ -32,8 +32,8 @@ const DEFAULT_SIMILARITY_THRESHOLD = 0.82;
 
 /**
  * Compara um jogador candidato com os jogadores existentes e retorna alertas
- * de possivel duplicidade. Jogadores com o MESMO mamoballPlayerId sao ignorados
- * (sao a mesma pessoa por definicao, nao duplicidade).
+ * de possível duplicidade. Jogadores com o MESMO mamoballPlayerId sao ignorados
+ * (sao a mesma pessoa por definicao, não duplicidade).
  */
 export function findPotentialDuplicates(
   candidate: PlayerLike,
@@ -43,7 +43,7 @@ export function findPotentialDuplicates(
   const alerts: DuplicateAlert[] = [];
 
   for (const other of existing) {
-    // Mesma pessoa (mesmo id oficial) nao e duplicidade.
+    // Mesma pessoa (mesmo id oficial) não e duplicidade.
     if (
       other.mamoballPlayerId.trim().toLowerCase() ===
       candidate.mamoballPlayerId.trim().toLowerCase()

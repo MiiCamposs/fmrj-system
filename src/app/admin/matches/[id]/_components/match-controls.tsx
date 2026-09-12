@@ -90,7 +90,7 @@ export function MatchControls({
         danger
         loading={loading}
         title="Excluir partida?"
-        description="A partida e seus eventos serao removidos permanentemente. Esta acao nao pode ser desfeita."
+        description="A partida e seus eventos serão removidos permanentemente. Esta ação não pode ser desfeita."
         confirmLabel="Excluir"
         onConfirm={handleDelete}
         onCancel={() => setConfirmDelete(false)}

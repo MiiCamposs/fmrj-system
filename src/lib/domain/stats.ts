@@ -1,6 +1,6 @@
 /**
  * Artilharia e estatisticas calculadas a partir dos eventos das partidas
- * (secoes 8 e 9). Puro e testavel. Nao existe tabela manual de artilharia:
+ * (secoes 8 e 9). Puro e testavel. Não existe tabela manual de artilharia:
  * tudo deriva de match_events.
  */
 import type { MatchEventType } from '@/types/database';
@@ -20,8 +20,8 @@ export interface ScorerRow {
 }
 
 /**
- * Ranking de artilheiros. "matches" e o numero de partidas distintas em que o
- * jogador teve algum evento registrado (nao ha controle de escalacao no
+ * Ranking de artilheiros. "matches" e o número de partidas distintas em que o
+ * jogador teve algum evento registrado (não há controle de escalacao no
  * sistema); a media e gols/partidas.
  */
 export function computeTopScorers(events: readonly EventLite[]): ScorerRow[] {

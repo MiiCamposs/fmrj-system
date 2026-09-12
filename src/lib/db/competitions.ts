@@ -146,7 +146,7 @@ export async function createSeason(
 }
 
 // ---------------------------------------------------------------------------
-// Estatisticas por competicao (listagem e visao geral).
+// Estatísticas por competicao (listagem e visao geral).
 // ---------------------------------------------------------------------------
 
 export interface CompetitionStats {

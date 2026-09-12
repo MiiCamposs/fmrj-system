@@ -60,7 +60,7 @@ export function EditPlayerForm({
       </div>
       <div>
         <label className="mb-1 block text-sm font-medium text-neutral-700">
-          ID MamoBall (identificador — nao editavel)
+          ID MamoBall (identificador — não editavel)
         </label>
         <input
           className={`${inputClasses} bg-neutral-50 font-mono`}

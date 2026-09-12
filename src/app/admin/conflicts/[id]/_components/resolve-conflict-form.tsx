@@ -76,14 +76,14 @@ export function ResolveConflictForm({
               checked={keepTeamId === ''}
               onChange={() => setKeepTeamId('')}
             />
-            Nao alterar inscricoes (apenas marcar como resolvido)
+            Não alterar inscrições (apenas marcar como resolvido)
           </label>
         </div>
       </div>
 
       <div>
         <label className="mb-1 block text-sm font-medium text-neutral-700">
-          Observacao administrativa
+          Observação administrativa
         </label>
         <textarea
           className={inputClasses}
@@ -107,8 +107,8 @@ export function ResolveConflictForm({
         title="Resolver conflito?"
         description={
           keepTeamId
-            ? `As demais inscricoes serao removidas do elenco (historico preservado), mantendo ${keptName}.`
-            : 'O conflito sera marcado como resolvido sem alterar as inscricoes. O registro permanece no historico.'
+            ? `As demais inscrições serão removidas do elenco (histórico preservado), mantendo ${keptName}.`
+            : 'O conflito será marcado como resolvido sem alterar as inscrições. O registro permanece no histórico.'
         }
         confirmLabel="Resolver"
         onConfirm={handleConfirm}

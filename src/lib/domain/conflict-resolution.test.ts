@@ -21,14 +21,14 @@ describe('planConflictResolution (Teste 8)', () => {
     expect(plan.removedRegistrationIds).toEqual(['reg-real']);
   });
 
-  it('sem time escolhido: nao altera inscricoes (apenas marca resolvido)', () => {
+  it('sem time escolhido: não altera inscrições (apenas marca resolvido)', () => {
     const plan = planConflictResolution(involved, null);
     expect(plan.keptRegistrationId).toBeNull();
     expect(plan.approvedRegistrationIds).toEqual([]);
     expect(plan.removedRegistrationIds).toEqual([]);
   });
 
-  it('nao remove inscricoes ja removidas', () => {
+  it('não remove inscrições já removidas', () => {
     const withRemoved: ConflictRegistrationInput[] = [
       { registrationId: 'reg-furia', teamId: FURIA, status: 'approved' },
       { registrationId: 'reg-real', teamId: REAL_MAMO, status: 'removed' },
@@ -39,7 +39,7 @@ describe('planConflictResolution (Teste 8)', () => {
 });
 
 describe('describeSquadRemoval (Teste 7)', () => {
-  it('nunca apaga o jogador global; apenas remove a inscricao e preserva historico', () => {
+  it('nunca apaga o jogador global; apenas remove a inscrição e preserva histórico', () => {
     const effect = describeSquadRemoval();
     expect(effect.deletePlayerGlobally).toBe(false);
     expect(effect.newRegistrationStatus).toBe('removed');

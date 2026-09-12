@@ -29,7 +29,7 @@ export async function getCurrentUser(): Promise<User | null> {
 
 /**
  * Retorna o contexto administrativo se o usuario logado for admin; senao null.
- * Nao lanca (use em paginas que decidem redirecionar).
+ * Não lanca (use em paginas que decidem redirecionar).
  */
 export async function getAdminContext(): Promise<AdminContext | null> {
   const supabase = await createClient();
@@ -49,13 +49,13 @@ export async function getAdminContext(): Promise<AdminContext | null> {
 }
 
 /**
- * Garante que o chamador e admin; lanca se nao for. Use no inicio de toda
+ * Garante que o chamador e admin; lanca se não for. Use no inicio de toda
  * server action / route handler que modifica dados.
  */
 export async function requireAdmin(): Promise<AdminContext> {
   const ctx = await getAdminContext();
   if (!ctx) {
-    throw new Error('Acesso negado: administrador autenticado obrigatorio.');
+    throw new Error('Acesso negado: administrador autenticado obrigatório.');
   }
   return ctx;
 }

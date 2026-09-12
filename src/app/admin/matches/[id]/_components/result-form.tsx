@@ -41,7 +41,7 @@ export function ResultForm({
       toast.show(result.error, 'error');
       return;
     }
-    toast.show('Resultado salvo. Classificacao atualizada.', 'success');
+    toast.show('Resultado salvo. Classificação atualizada.', 'success');
     router.refresh();
   }
 

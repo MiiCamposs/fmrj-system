@@ -49,7 +49,7 @@ export function CompetitionForm({
     e.preventDefault();
     setError(null);
     if (!name.trim()) {
-      setError('O nome e obrigatorio.');
+      setError('O nome e obrigatório.');
       return;
     }
     setLoading(true);
@@ -80,7 +80,7 @@ export function CompetitionForm({
     }
 
     toast.show(
-      isEdit ? 'Competicao atualizada.' : 'Competicao criada.',
+      isEdit ? 'Competição atualizada.' : 'Competição criada.',
       'success',
     );
     router.push(`/admin/competitions/${result.data.slug}`);
@@ -178,7 +178,7 @@ export function CompetitionForm({
 
       <div className="flex gap-2">
         <button type="submit" className={buttonClasses.primary} disabled={loading}>
-          {loading ? 'Salvando...' : isEdit ? 'Salvar alteracoes' : 'Criar competicao'}
+          {loading ? 'Salvando...' : isEdit ? 'Salvar alterações' : 'Criar competicao'}
         </button>
         <button
           type="button"

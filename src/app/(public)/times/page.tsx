@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Times — FMRJ',
-  description: 'Clubes da Federacao de MamoBall do Rio de Janeiro.',
+  description: 'Clubes da Federação de MamoBall do Rio de Janeiro.',
 };
 
 export default async function TimesPage() {

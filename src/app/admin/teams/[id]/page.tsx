@@ -77,7 +77,7 @@ export default async function TeamDetailPage({
           </h2>
           {participations.length === 0 ? (
             <p className="text-sm text-neutral-500">
-              Este time ainda nao participa de nenhuma competicao.
+              Este time ainda não participa de nenhuma competicao.
             </p>
           ) : (
             <Card>

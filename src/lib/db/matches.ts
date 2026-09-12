@@ -100,7 +100,7 @@ export async function listMatches(
   return enrichMatches(supabase, rows);
 }
 
-/** Proximas partidas (agendadas), globais ou por escopo. Para home e /jogos. */
+/** Próximas partidas (agendadas), globais ou por escopo. Para home e /jogos. */
 export async function listUpcomingMatches(
   supabase: DbClient,
   opts: { limit?: number; competitionId?: string; seasonId?: string } = {},
@@ -118,7 +118,7 @@ export async function listUpcomingMatches(
   return enrichMatches(supabase, data ?? []);
 }
 
-/** Ultimos resultados (encerrados). */
+/** Últimos resultados (encerrados). */
 export async function listRecentResults(
   supabase: DbClient,
   opts: { limit?: number; competitionId?: string; seasonId?: string } = {},

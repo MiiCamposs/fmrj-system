@@ -60,10 +60,10 @@ describe('computeStandings', () => {
     expect(table.find((r) => r.teamId === 'A')!.points).toBe(2);
   });
 
-  it('ignora partidas de times fora do escopo (A1 nao mistura com A2)', () => {
+  it('ignora partidas de times fora do escopo (A1 não mistura com A2)', () => {
     const matches: FinishedMatch[] = [
       { homeTeamId: 'A', awayTeamId: 'B', homeScore: 1, awayScore: 0 },
-      // 'X' e 'Y' nao pertencem a este escopo -> ignorados
+      // 'X' e 'Y' não pertencem a este escopo -> ignorados
       { homeTeamId: 'X', awayTeamId: 'Y', homeScore: 5, awayScore: 0 },
     ];
     const table = computeStandings(teams, matches, DEFAULT_SCORING);

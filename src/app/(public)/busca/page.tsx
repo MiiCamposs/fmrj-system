@@ -34,7 +34,7 @@ export default async function BuscaPage({
         <input
           name="q"
           defaultValue={q ?? ''}
-          placeholder="Time, jogador, nickname, ID MamoBall ou competicao..."
+          placeholder="Time, jogador, nickname, ID MamoBall ou competição..."
           className="w-full max-w-lg rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-fmrj"
         />
         <button
@@ -52,7 +52,7 @@ export default async function BuscaPage({
       )}
 
       {results.competitions.length > 0 && (
-        <Section title="Competicoes">
+        <Section title="Competições">
           {results.competitions.map((c) => (
             <Link
               key={c.id}

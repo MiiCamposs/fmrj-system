@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 
 const STAT_META: { key: keyof Awaited<ReturnType<typeof getDashboardCounts>>; label: string }[] =
   [
-    { key: 'activeCompetitions', label: 'Competicoes ativas' },
+    { key: 'activeCompetitions', label: 'Competições ativas' },
     { key: 'activeSeasons', label: 'Temporadas ativas' },
     { key: 'teams', label: 'Times cadastrados' },
     { key: 'players', label: 'Jogadores cadastrados' },
@@ -117,7 +117,7 @@ export default async function AdminDashboard() {
             </h2>
             {recentActivity.length === 0 ? (
               <p className="text-sm text-neutral-500">
-                Nenhuma acao registrada ainda.
+                Nenhuma ação registrada ainda.
               </p>
             ) : (
               <ul className="divide-y divide-neutral-100">
@@ -150,7 +150,7 @@ export default async function AdminDashboard() {
     content = (
       <ErrorState
         message={
-          'Nao foi possivel carregar o dashboard. Verifique a configuracao do banco (.env.local e migrations). ' +
+          'Não foi possível carregar o dashboard. Verifique a configuracao do banco (.env.local e migrations). ' +
           (e instanceof Error ? e.message : '')
         }
       />
@@ -161,7 +161,7 @@ export default async function AdminDashboard() {
     <div>
       <PageHeader
         title="Painel"
-        description="Visao geral da Federacao de MamoBall do Rio de Janeiro."
+        description="Visão geral da Federação de MamoBall do Rio de Janeiro."
       />
       {content}
     </div>

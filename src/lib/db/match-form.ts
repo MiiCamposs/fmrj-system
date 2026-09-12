@@ -1,7 +1,7 @@
 /**
  * Contexto para os formularios de partida: competicoes, suas temporadas e os
  * times participantes de cada temporada. Uma consulta enxuta por tabela,
- * agregada em memoria (escala de federacao).
+ * agregada em memoria (escala de federação).
  */
 import type { DbClient } from '@/lib/supabase/types';
 

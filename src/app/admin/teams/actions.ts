@@ -17,10 +17,10 @@ export async function createTeamAction(input: {
 }): Promise<ActionResult<{ id: string }>> {
   try {
     const ctx = await requireAdmin();
-    if (!input.name?.trim()) throw new Error('Nome e obrigatorio.');
+    if (!input.name?.trim()) throw new Error('Nome e obrigatório.');
     const supabase = createAdminClient();
     const slug = (input.slug?.trim() || slugify(input.name)).trim();
-    if (!slug) throw new Error('Slug invalido.');
+    if (!slug) throw new Error('Slug inválido.');
 
     const team = await createTeam(supabase, {
       name: input.name,

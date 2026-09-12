@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Jogadores — FMRJ',
-  description: 'Jogadores da Federacao de MamoBall do Rio de Janeiro.',
+  description: 'Jogadores da Federação de MamoBall do Rio de Janeiro.',
 };
 
 export default async function JogadoresPage({

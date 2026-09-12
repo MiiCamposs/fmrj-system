@@ -1,8 +1,8 @@
 /**
- * Consulta e resolucao de conflitos de inscricao.
+ * Consulta e resolucao de conflitos de inscrição.
  *
  * O registro do conflito NUNCA e apagado (secao 15): resolver apenas muda o
- * status para 'resolved' e guarda quem resolveu, quando e a observacao.
+ * status para 'resolved' e guarda quem resolveu, quando e a observação.
  */
 import type { ConflictRow, ConflictStatus, RegistrationStatus } from '@/types/database';
 import type { DbClient } from '@/lib/supabase/types';
@@ -172,7 +172,7 @@ export async function getConflictDetail(
         .eq('conflict_id', conflictId),
     ]);
 
-  // Detalhes das inscricoes envolvidas (status/data atuais).
+  // Detalhes das inscrições envolvidas (status/data atuais).
   const regIds = (cregs ?? []).map((c) => c.registration_id);
   const teamIds = (cregs ?? []).map((c) => c.team_id);
   const [{ data: regs }, { data: teams }] = await Promise.all([
@@ -217,9 +217,9 @@ export async function getConflictDetail(
 }
 
 /**
- * Resolve o conflito. Se keepTeamId for informado, mantem a inscricao daquele
+ * Resolve o conflito. Se keepTeamId for informado, mantem a inscrição daquele
  * time (aprovada) e remove logicamente as demais; senao, apenas marca resolvido.
- * O registro do conflito e preservado no historico.
+ * O registro do conflito e preservado no histórico.
  */
 export async function resolveConflict(
   supabase: DbClient,
@@ -231,9 +231,9 @@ export async function resolveConflict(
   },
 ): Promise<void> {
   const detail = await getConflictDetail(supabase, input.conflictId);
-  if (!detail) throw new Error('Conflito nao encontrado.');
+  if (!detail) throw new Error('Conflito não encontrado.');
   if (detail.conflict.status === 'resolved') {
-    throw new Error('Conflito ja resolvido.');
+    throw new Error('Conflito já resolvido.');
   }
 
   const plan = planConflictResolution(
@@ -245,7 +245,7 @@ export async function resolveConflict(
     input.keepTeamId,
   );
 
-  // Aplica o plano (remocao logica preserva historico).
+  // Aplica o plano (remocao logica preserva histórico).
   if (plan.removedRegistrationIds.length > 0) {
     const { error } = await supabase
       .from('registrations')

@@ -1,5 +1,5 @@
 /**
- * Classificacao calculada por competicao + temporada (nunca mistura escopos).
+ * Classificação calculada por competicao + temporada (nunca mistura escopos).
  * Junta config de pontuacao, times participantes e partidas encerradas, e
  * delega o calculo a funcao pura computeStandings.
  */

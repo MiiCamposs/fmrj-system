@@ -38,7 +38,7 @@ export function ScoringForm({
       pointsWin: Number(pw),
       pointsDraw: Number(pd),
       pointsLoss: Number(pl),
-      tiebreakers: initial.tiebreakers, // ordem padrao (configuravel no futuro)
+      tiebreakers: initial.tiebreakers, // ordem padrão (configuravel no futuro)
       regulation,
     });
     setLoading(false);
@@ -99,7 +99,7 @@ export function ScoringForm({
           rows={6}
           value={regulation}
           onChange={(e) => setRegulation(e.target.value)}
-          placeholder="Cole aqui o regulamento da competicao (opcional)."
+          placeholder="Cole aqui o regulamento da competição (opcional)."
         />
       </div>
       <button type="submit" className={buttonClasses.primary} disabled={loading}>

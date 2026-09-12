@@ -102,7 +102,7 @@ export default async function PlayersPage({
                     <th className="px-4 py-3">Nick</th>
                     <th className="px-4 py-3">ID MamoBall</th>
                     <th className="px-4 py-3">Times</th>
-                    <th className="px-4 py-3">Competicoes</th>
+                    <th className="px-4 py-3">Competições</th>
                     <th className="px-4 py-3">Cadastro</th>
                     <th className="px-4 py-3 text-right">Acoes</th>
                   </tr>
@@ -164,7 +164,7 @@ export default async function PlayersPage({
     body = (
       <ErrorState
         message={
-          'Nao foi possivel carregar os jogadores. ' +
+          'Não foi possível carregar os jogadores. ' +
           (e instanceof Error ? e.message : '')
         }
       />

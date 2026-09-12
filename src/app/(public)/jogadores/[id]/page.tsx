@@ -64,7 +64,7 @@ export default async function PlayerPublicPage({
         </div>
       </div>
 
-      {/* Estatisticas */}
+      {/* Estatísticas */}
       <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-5">
         {[
           { label: 'Jogos', value: stats.matches },
@@ -87,7 +87,7 @@ export default async function PlayerPublicPage({
       <section className="mb-8">
         <h2 className="mb-3 font-bold text-neutral-900">Equipes atuais</h2>
         {current.length === 0 ? (
-          <p className="text-sm text-neutral-500">Sem inscricoes ativas.</p>
+          <p className="text-sm text-neutral-500">Sem inscrições ativas.</p>
         ) : (
           <div className="space-y-2">
             {current.map((r) => (
@@ -108,17 +108,17 @@ export default async function PlayerPublicPage({
         )}
       </section>
 
-      {/* Historico */}
+      {/* Histórico */}
       <section>
-        <h2 className="mb-3 font-bold text-neutral-900">Historico</h2>
+        <h2 className="mb-3 font-bold text-neutral-900">Histórico</h2>
         {registrations.length === 0 ? (
-          <p className="text-sm text-neutral-500">Sem historico.</p>
+          <p className="text-sm text-neutral-500">Sem histórico.</p>
         ) : (
           <div className="overflow-x-auto rounded-lg border border-neutral-200 bg-white">
             <table className="w-full min-w-[520px] text-sm">
               <thead className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase text-neutral-500">
                 <tr>
-                  <th className="px-4 py-2 text-left">Competicao</th>
+                  <th className="px-4 py-2 text-left">Competição</th>
                   <th className="px-4 py-2 text-left">Temporada</th>
                   <th className="px-4 py-2 text-left">Time</th>
                 </tr>

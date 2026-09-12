@@ -83,7 +83,7 @@ export default async function ArtilhariaPage({
                 <th className="px-4 py-2 text-left">Time</th>
                 <th className="px-2 py-2 text-center">Gols</th>
                 <th className="px-2 py-2 text-center">Jogos</th>
-                <th className="px-2 py-2 text-center">Media</th>
+                <th className="px-2 py-2 text-center">Média</th>
               </tr>
             </thead>
             <tbody>

@@ -56,7 +56,7 @@ export function MatchEditForm({
     e.preventDefault();
     setError(null);
     if (homeTeamId === awayTeamId) {
-      setError('Um time nao pode jogar contra si mesmo.');
+      setError('Um time não pode jogar contra si mesmo.');
       return;
     }
     setLoading(true);

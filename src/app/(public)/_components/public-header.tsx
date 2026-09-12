@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const LINKS: { href: string; label: string }[] = [
-  { href: '/', label: 'Inicio' },
-  { href: '/competicoes', label: 'Competicoes' },
+  { href: '/', label: 'Início' },
+  { href: '/competicoes', label: 'Competições' },
   { href: '/jogos', label: 'Jogos' },
   { href: '/times', label: 'Times' },
   { href: '/jogadores', label: 'Jogadores' },

@@ -5,7 +5,7 @@
  * redireciona para /login quem tentar acessar /admin sem estar autenticado como
  * administrador. A checagem definitiva de admin (tabela admins) ocorre no
  * servidor via getAdminContext/requireAdmin; aqui bloqueamos o caso obvio de
- * usuario nao autenticado para nao renderizar o painel a toa.
+ * usuario não autenticado para não renderizar o painel a toa.
  */
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';

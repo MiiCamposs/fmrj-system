@@ -25,14 +25,14 @@ interface NavItem {
 
 const NAV: NavItem[] = [
   { label: 'Dashboard', href: '/admin' },
-  { label: 'Competicoes', href: '/admin/competitions' },
+  { label: 'Competições', href: '/admin/competitions' },
   { label: 'Clubes', href: '/admin/teams' },
   { label: 'Jogadores', href: '/admin/players' },
   { label: 'Elencos', href: '/admin/squads' },
   { label: 'Conflitos', href: '/admin/conflicts' },
   { label: 'Partidas', href: '/admin/matches' },
-  { label: 'Estatisticas', href: '/admin/statistics' },
-  { label: 'Configuracoes', href: '/admin/settings' },
+  { label: 'Estatísticas', href: '/admin/statistics' },
+  { label: 'Configurações', href: '/admin/settings' },
 ];
 
 function isActive(pathname: string, href: string): boolean {
@@ -132,7 +132,7 @@ export function AdminShell({
                   FMRJ
                 </span>
                 <span className="hidden text-sm text-neutral-400 sm:inline">
-                  Administracao
+                  Administração
                 </span>
               </Link>
             </div>

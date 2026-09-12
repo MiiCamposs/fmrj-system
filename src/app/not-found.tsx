@@ -7,10 +7,10 @@ export default function NotFound() {
         FMRJ
       </p>
       <h1 className="mt-2 text-3xl font-bold text-neutral-900">
-        Pagina nao encontrada
+        Pagina não encontrada
       </h1>
       <p className="mt-2 max-w-md text-neutral-500">
-        O conteudo que voce procura nao existe ou foi movido.
+        O conteudo que voce procura não existe ou foi movido.
       </p>
       <Link
         href="/"

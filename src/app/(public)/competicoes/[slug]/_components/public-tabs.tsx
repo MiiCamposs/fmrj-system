@@ -4,14 +4,14 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 export const PUBLIC_TABS: { key: string; label: string }[] = [
-  { key: 'visao-geral', label: 'Visao geral' },
-  { key: 'classificacao', label: 'Classificacao' },
+  { key: 'visao-geral', label: 'Visão geral' },
+  { key: 'classificacao', label: 'Classificação' },
   { key: 'jogos', label: 'Jogos' },
   { key: 'resultados', label: 'Resultados' },
   { key: 'times', label: 'Times' },
   { key: 'jogadores', label: 'Jogadores' },
   { key: 'artilharia', label: 'Artilharia' },
-  { key: 'estatisticas', label: 'Estatisticas' },
+  { key: 'estatisticas', label: 'Estatísticas' },
   { key: 'regulamento', label: 'Regulamento' },
 ];
 

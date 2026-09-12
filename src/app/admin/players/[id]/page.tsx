@@ -59,13 +59,13 @@ export default async function PlayerDetailPage({
           />
         </section>
 
-        {/* Inscricoes atuais */}
+        {/* Inscrições atuais */}
         <section>
           <h2 className="mb-3 font-semibold text-neutral-800">
-            Inscricoes atuais
+            Inscrições atuais
           </h2>
           {current.length === 0 ? (
-            <p className="text-sm text-neutral-500">Nenhuma inscricao ativa.</p>
+            <p className="text-sm text-neutral-500">Nenhuma inscrição ativa.</p>
           ) : (
             <Card>
               <ul className="divide-y divide-neutral-100">
@@ -97,20 +97,20 @@ export default async function PlayerDetailPage({
         </section>
       </div>
 
-      {/* Historico */}
+      {/* Histórico */}
       <section className="mt-8">
         <h2 className="mb-3 font-semibold text-neutral-800">
-          Historico de inscricoes
+          Histórico de inscrições
         </h2>
         {registrations.length === 0 ? (
-          <p className="text-sm text-neutral-500">Sem historico.</p>
+          <p className="text-sm text-neutral-500">Sem histórico.</p>
         ) : (
           <Card>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[640px] text-left text-sm">
                 <thead className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase text-neutral-500">
                   <tr>
-                    <th className="px-4 py-3">Competicao</th>
+                    <th className="px-4 py-3">Competição</th>
                     <th className="px-4 py-3">Temporada</th>
                     <th className="px-4 py-3">Time</th>
                     <th className="px-4 py-3">Status</th>

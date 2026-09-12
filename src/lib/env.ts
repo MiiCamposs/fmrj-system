@@ -38,7 +38,7 @@ export const publicEnv = {
 export function getServiceRoleKey(): string {
   if (typeof window !== 'undefined') {
     throw new Error(
-      'SUPABASE_SERVICE_ROLE_KEY nao pode ser acessada no browser.',
+      'SUPABASE_SERVICE_ROLE_KEY não pode ser acessada no browser.',
     );
   }
   return required(

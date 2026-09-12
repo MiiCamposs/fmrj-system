@@ -1,8 +1,8 @@
 /**
  * Trilha de auditoria (secao 9).
  *
- * Registra acoes administrativas relevantes. Deve ser chamada DENTRO das server
- * actions, apos a operacao, usando o cliente admin (service role) para nao
+ * Registra ações administrativas relevantes. Deve ser chamada DENTRO das server
+ * actions, apos a operacao, usando o cliente admin (service role) para não
  * depender de RLS. O admin_id vem do contexto autenticado.
  */
 import 'server-only';
@@ -58,7 +58,7 @@ export interface AuditLogItem {
   adminEmail: string | null;
 }
 
-/** Ultimas acoes registradas (atividade recente do dashboard). */
+/** Últimas ações registradas (atividade recente do dashboard). */
 export async function listRecentAudit(limit = 8): Promise<AuditLogItem[]> {
   const supabase = createAdminClient();
   const { data, error } = await supabase

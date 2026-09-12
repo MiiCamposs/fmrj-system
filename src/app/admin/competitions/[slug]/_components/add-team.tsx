@@ -31,7 +31,7 @@ export function AddTeam({
   if (availableTeams.length === 0) {
     return (
       <p className="text-sm text-neutral-400">
-        Todos os times cadastrados ja participam desta temporada.{' '}
+        Todos os times cadastrados já participam desta temporada.{' '}
         <Link href="/admin/teams/new" className="text-fmrj hover:underline">
           Cadastrar novo time
         </Link>

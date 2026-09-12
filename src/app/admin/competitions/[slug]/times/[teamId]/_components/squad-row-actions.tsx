@@ -61,8 +61,8 @@ export function SquadRowActions({
         title="Remover do elenco?"
         description={
           <>
-            <strong>{playerName}</strong> sera removido deste elenco. O jogador
-            global e o historico sao preservados; apenas esta inscricao fica
+            <strong>{playerName}</strong> será removido deste elenco. O jogador
+            global e o histórico sao preservados; apenas esta inscrição fica
             inativa.
           </>
         }

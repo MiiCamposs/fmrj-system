@@ -22,7 +22,7 @@ export default function GlobalError({
         Algo deu errado
       </h1>
       <p className="mt-2 max-w-md text-neutral-500">
-        Nao foi possivel carregar esta pagina. Verifique a conexao ou tente
+        Não foi possível carregar esta pagina. Verifique a conexao ou tente
         novamente.
       </p>
       <button

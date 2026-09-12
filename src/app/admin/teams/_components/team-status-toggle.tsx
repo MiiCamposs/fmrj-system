@@ -52,7 +52,7 @@ export function TeamStatusToggle({
         title={next === 'inactive' ? 'Desativar time?' : 'Reativar time?'}
         description={
           next === 'inactive'
-            ? 'O clube e o historico sao preservados; ele apenas fica marcado como inativo.'
+            ? 'O clube e o histórico sao preservados; ele apenas fica marcado como inativo.'
             : 'O time voltara a ficar ativo.'
         }
         confirmLabel={next === 'inactive' ? 'Desativar' : 'Reativar'}

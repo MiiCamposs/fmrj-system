@@ -22,7 +22,7 @@ export function ArchiveCompetition({ competitionId }: { competitionId: string })
       toast.show(result.error, 'error');
       return;
     }
-    toast.show('Competicao arquivada.', 'success');
+    toast.show('Competição arquivada.', 'success');
     router.refresh();
   }
 
@@ -39,8 +39,8 @@ export function ArchiveCompetition({ competitionId }: { competitionId: string })
         open={open}
         danger
         loading={loading}
-        title="Arquivar competicao?"
-        description="A competicao deixara de aparecer como ativa. O historico e preservado e ela pode ser reativada depois."
+        title="Arquivar competição?"
+        description="A competição deixará de aparecer como ativa. O histórico é preservado e ela pode ser reativada depois."
         confirmLabel="Arquivar"
         onConfirm={handleConfirm}
         onCancel={() => setOpen(false)}

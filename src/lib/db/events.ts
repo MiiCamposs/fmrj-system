@@ -1,6 +1,6 @@
 /**
  * Eventos de partida (gols, assistencias, cartoes). Base da artilharia e das
- * estatisticas, que sao calculadas (nao ha tabela manual).
+ * estatisticas, que sao calculadas (não há tabela manual).
  */
 import type { MatchEventRow, MatchEventType } from '@/types/database';
 import type { DbClient } from '@/lib/supabase/types';

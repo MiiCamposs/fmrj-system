@@ -14,11 +14,9 @@ export default function PublicLayout({
       </div>
       <footer className="border-t border-neutral-200 bg-white">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-6 text-sm text-neutral-500 sm:flex-row">
-          <span>
-            Federacao de MamoBall do Rio de Janeiro — FMRJ
-          </span>
+          <span>Federação de MamoBall do Rio de Janeiro — FMRJ</span>
           <Link href="/admin" className="hover:text-fmrj">
-            Area administrativa
+            Área administrativa
           </Link>
         </div>
       </footer>

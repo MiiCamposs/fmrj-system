@@ -36,7 +36,7 @@ export default async function TeamsPage() {
                 <tr>
                   <th className="px-4 py-3">Time</th>
                   <th className="px-4 py-3">Sigla</th>
-                  <th className="px-4 py-3">Competicoes</th>
+                  <th className="px-4 py-3">Competições</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3 text-right">Acoes</th>
                 </tr>
@@ -100,7 +100,7 @@ export default async function TeamsPage() {
     body = (
       <ErrorState
         message={
-          'Nao foi possivel carregar os times. ' +
+          'Não foi possível carregar os times. ' +
           (e instanceof Error ? e.message : '')
         }
       />
@@ -111,7 +111,7 @@ export default async function TeamsPage() {
     <div>
       <PageHeader
         title="Clubes"
-        description="Times da federacao (entidades globais, reutilizadas entre competicoes)."
+        description="Times da federação (entidades globais, reutilizadas entre competições)."
         action={
           <Link href="/admin/teams/new" className={buttonClasses.primary}>
             Cadastrar time

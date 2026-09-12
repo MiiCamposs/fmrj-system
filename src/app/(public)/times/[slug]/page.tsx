@@ -34,7 +34,7 @@ export default async function TeamPublicPage({
   const team = await getTeamBySlug(supabase, slug);
   if (!team) notFound();
 
-  // Competicoes que o time participa (via season_teams).
+  // Competições que o time participa (via season_teams).
   const { data: st } = await supabase
     .from('season_teams')
     .select('competition_id, season_id')
@@ -115,7 +115,7 @@ export default async function TeamPublicPage({
 
       {(comps ?? []).length > 0 && (
         <section className="mb-8">
-          <h2 className="mb-3 font-bold text-neutral-900">Competicoes</h2>
+          <h2 className="mb-3 font-bold text-neutral-900">Competições</h2>
           <div className="flex flex-wrap gap-2">
             {(comps ?? []).map((c) => (
               <Link
@@ -132,7 +132,7 @@ export default async function TeamPublicPage({
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section>
-          <h2 className="mb-3 font-bold text-neutral-900">Proximos jogos</h2>
+          <h2 className="mb-3 font-bold text-neutral-900">Próximos jogos</h2>
           {upcoming.length ? (
             <div className="space-y-3">
               {upcoming.map((m) => (
@@ -144,7 +144,7 @@ export default async function TeamPublicPage({
           )}
         </section>
         <section>
-          <h2 className="mb-3 font-bold text-neutral-900">Ultimos resultados</h2>
+          <h2 className="mb-3 font-bold text-neutral-900">Últimos resultados</h2>
           {finished.length ? (
             <div className="space-y-3">
               {finished.map((m) => (
