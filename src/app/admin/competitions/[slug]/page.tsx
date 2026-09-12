@@ -234,7 +234,7 @@ async function TabContent({
             <tr>
               <th className="px-4 py-3">Jogador</th>
               <th className="px-4 py-3">Nick</th>
-              <th className="px-4 py-3">ID MamoBall</th>
+              <th className="px-4 py-3">ID Mamoball</th>
               <th className="px-4 py-3">Time</th>
               <th className="px-4 py-3">Status</th>
             </tr>

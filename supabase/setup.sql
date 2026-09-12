@@ -8,7 +8,7 @@
 
 -- =============================================================================
 -- FMRJ - Migration 0001: Schema base
--- Federacao de MamoBall do Rio de Janeiro
+-- Federacao de Mamoball do Rio de Janeiro
 --
 -- Cria enums, tabelas, constraints e indices. As regras ativas (triggers) e as
 -- policies de seguranca (RLS) ficam nas migrations 0002 e 0003.
@@ -109,7 +109,7 @@ create trigger trg_teams_updated_at
   for each row execute function set_updated_at();
 
 -- -----------------------------------------------------------------------------
--- players: pessoa/jogador do MamoBall.
+-- players: pessoa/jogador do Mamoball.
 -- O mamoball_player_id e o UNICO identificador oficial. UNIQUE obrigatorio.
 -- Nome e nickname NAO sao identificadores (podem mudar).
 -- -----------------------------------------------------------------------------
@@ -121,7 +121,7 @@ create table players (
   avatar_url         text,
   created_at         timestamptz not null default now(),
   updated_at         timestamptz not null default now(),
-  -- Nunca dois jogadores com o mesmo id oficial do MamoBall.
+  -- Nunca dois jogadores com o mesmo id oficial do Mamoball.
   constraint uq_players_mamoball_id unique (mamoball_player_id)
 );
 
@@ -763,10 +763,10 @@ create policy "admin write match_events" on match_events
 -- =============================================================================
 
 insert into competitions (name, slug, description, status) values
-  ('Carioca A1', 'carioca-a1', 'Primeira divisão do Campeonato Carioca de MamoBall.', 'ongoing'),
-  ('Carioca A2', 'carioca-a2', 'Segunda divisão do Campeonato Carioca de MamoBall.', 'ongoing'),
-  ('Carioca B1', 'carioca-b1', 'Terceira divisão do Campeonato Carioca de MamoBall.', 'ongoing'),
-  ('Carioca B2', 'carioca-b2', 'Quarta divisão do Campeonato Carioca de MamoBall.', 'ongoing'),
-  ('Carioca C',  'carioca-c',  'Quinta divisão do Campeonato Carioca de MamoBall.', 'ongoing')
+  ('Carioca A1', 'carioca-a1', 'Primeira divisão do Campeonato Carioca de Mamoball.', 'ongoing'),
+  ('Carioca A2', 'carioca-a2', 'Segunda divisão do Campeonato Carioca de Mamoball.', 'ongoing'),
+  ('Carioca B1', 'carioca-b1', 'Terceira divisão do Campeonato Carioca de Mamoball.', 'ongoing'),
+  ('Carioca B2', 'carioca-b2', 'Quarta divisão do Campeonato Carioca de Mamoball.', 'ongoing'),
+  ('Carioca C',  'carioca-c',  'Quinta divisão do Campeonato Carioca de Mamoball.', 'ongoing')
 on conflict (slug) do nothing;
 

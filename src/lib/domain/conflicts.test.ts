@@ -95,7 +95,7 @@ describe('evaluateRegistration - regra principal de conflito', () => {
     expect(result.kind).toBe('allowed');
   });
 
-  // CASO 5: nomes iguais, IDs MamoBall diferentes -> pessoas diferentes.
+  // CASO 5: nomes iguais, IDs Mamoball diferentes -> pessoas diferentes.
   it('Caso 5: mesmo nome, ids diferentes -> jogadores distintos, sem conflito', () => {
     const outroJoaoId = '999999';
     const existing = [

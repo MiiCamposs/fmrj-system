@@ -44,7 +44,7 @@ export default async function PlayerDetailPage({
       />
       <PageHeader
         title={player.name}
-        description={`ID MamoBall ${player.mamoball_player_id}`}
+        description={`ID Mamoball ${player.mamoball_player_id}`}
       />
 
       <div className="grid gap-8 lg:grid-cols-2">

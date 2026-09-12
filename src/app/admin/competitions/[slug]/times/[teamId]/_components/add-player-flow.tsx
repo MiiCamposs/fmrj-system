@@ -48,7 +48,7 @@ export function AddPlayerFlow(props: Props) {
     e.preventDefault();
     setError(null);
     if (!mamoId.trim()) {
-      setError('Informe o ID MamoBall.');
+      setError('Informe o ID Mamoball.');
       return;
     }
     setLoading(true);
@@ -114,7 +114,7 @@ export function AddPlayerFlow(props: Props) {
           <p className="mt-1 text-sm text-red-700">
             {conflict.playerName}
             {conflict.playerNickname ? ` (@${conflict.playerNickname})` : ''} —
-            ID MamoBall {conflict.mamoballPlayerId}
+            ID Mamoball {conflict.mamoballPlayerId}
           </p>
           <p className="mt-2 text-sm text-red-700">
             Inscrições encontradas: {conflict.conflictTeams.join(', ')}
@@ -162,7 +162,7 @@ export function AddPlayerFlow(props: Props) {
             <form onSubmit={handleSearch} className="space-y-3">
               <div>
                 <label className="mb-1 block text-sm font-medium text-neutral-700">
-                  ID MamoBall
+                  ID Mamoball
                 </label>
                 <input
                   className={inputClasses}

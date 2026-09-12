@@ -75,7 +75,7 @@ export default async function PublicHome() {
               Portal oficial
             </p>
             <h1 className="mt-2 font-display text-3xl font-black leading-[1.05] sm:text-5xl">
-              Federação de MamoBall
+              Federação de Mamoball
               <br />
               do Rio de Janeiro
             </h1>

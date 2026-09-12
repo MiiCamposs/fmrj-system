@@ -26,13 +26,13 @@ export interface PlayerLookup {
   } | null;
 }
 
-/** Passo 2 do fluxo (secao 10): procura o ID MamoBall no banco. */
+/** Passo 2 do fluxo (secao 10): procura o ID Mamoball no banco. */
 export async function lookupPlayerAction(
   mamoballPlayerId: string,
 ): Promise<ActionResult<PlayerLookup>> {
   try {
     await requireAdmin();
-    if (!mamoballPlayerId?.trim()) throw new Error('Informe o ID MamoBall.');
+    if (!mamoballPlayerId?.trim()) throw new Error('Informe o ID Mamoball.');
     const supabase = createAdminClient();
     const player = await findPlayerByMamoballId(supabase, mamoballPlayerId);
     return {
@@ -78,7 +78,7 @@ export async function addPlayerToSquadAction(input: {
   try {
     const ctx = await requireAdmin();
     if (!input.mamoballPlayerId?.trim()) {
-      throw new Error('Informe o ID MamoBall.');
+      throw new Error('Informe o ID Mamoball.');
     }
     const supabase = createAdminClient();
 

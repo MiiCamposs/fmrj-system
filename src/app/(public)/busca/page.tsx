@@ -34,7 +34,7 @@ export default async function BuscaPage({
         <input
           name="q"
           defaultValue={q ?? ''}
-          placeholder="Time, jogador, nickname, ID MamoBall ou competição..."
+          placeholder="Time, jogador, nickname, ID Mamoball ou competição..."
           className="w-full max-w-lg rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-fmrj"
         />
         <button

@@ -10,7 +10,7 @@
 export type Uuid = string;
 
 /**
- * Identificador OFICIAL do jogador dentro do MamoBall.
+ * Identificador OFICIAL do jogador dentro do Mamoball.
  * E o UNICO identificador confiavel de identidade. Nome e nickname NAO sao.
  */
 export type MamoballPlayerId = string;

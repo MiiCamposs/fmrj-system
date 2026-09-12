@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Jogadores — FMRJ',
-  description: 'Jogadores da Federação de MamoBall do Rio de Janeiro.',
+  description: 'Jogadores da Federação de Mamoball do Rio de Janeiro.',
 };
 
 export default async function JogadoresPage({
@@ -28,7 +28,7 @@ export default async function JogadoresPage({
         <input
           name="q"
           defaultValue={q ?? ''}
-          placeholder="Buscar por nome, nickname ou ID MamoBall..."
+          placeholder="Buscar por nome, nickname ou ID Mamoball..."
           className="w-full max-w-md rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-fmrj"
         />
         <button
@@ -41,7 +41,7 @@ export default async function JogadoresPage({
 
       {!q ? (
         <p className="text-sm text-neutral-500">
-          Digite um nome, nickname ou ID MamoBall para buscar jogadores.
+          Digite um nome, nickname ou ID Mamoball para buscar jogadores.
         </p>
       ) : players.length === 0 ? (
         <EmptyState title="Nenhum jogador encontrado." />
@@ -52,7 +52,7 @@ export default async function JogadoresPage({
               <tr>
                 <th className="px-4 py-2 text-left">Nome</th>
                 <th className="px-4 py-2 text-left">Nick</th>
-                <th className="px-4 py-2 text-left">ID MamoBall</th>
+                <th className="px-4 py-2 text-left">ID Mamoball</th>
                 <th className="px-4 py-2 text-left">Times</th>
               </tr>
             </thead>

@@ -73,7 +73,7 @@ export default async function PlayersPage({
               Possiveis duplicidades ({duplicates.length})
             </p>
             <p className="text-xs text-amber-700">
-              Apenas alerta. Verifique manualmente; ids MamoBall diferentes sao
+              Apenas alerta. Verifique manualmente; ids Mamoball diferentes sao
               pessoas diferentes.
             </p>
             <ul className="mt-2 space-y-1 text-sm text-amber-800">
@@ -100,7 +100,7 @@ export default async function PlayersPage({
                   <tr>
                     <th className="px-4 py-3">Nome</th>
                     <th className="px-4 py-3">Nick</th>
-                    <th className="px-4 py-3">ID MamoBall</th>
+                    <th className="px-4 py-3">ID Mamoball</th>
                     <th className="px-4 py-3">Times</th>
                     <th className="px-4 py-3">Competições</th>
                     <th className="px-4 py-3">Cadastro</th>
@@ -175,7 +175,7 @@ export default async function PlayersPage({
     <div>
       <PageHeader
         title="Jogadores"
-        description="Jogadores globais da FMRJ, identificados pelo ID MamoBall."
+        description="Jogadores globais da FMRJ, identificados pelo ID Mamoball."
       />
       {body}
     </div>

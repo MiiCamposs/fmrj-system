@@ -1,6 +1,6 @@
 -- =============================================================================
 -- FMRJ - Migration 0001: Schema base
--- Federacao de MamoBall do Rio de Janeiro
+-- Federacao de Mamoball do Rio de Janeiro
 --
 -- Cria enums, tabelas, constraints e indices. As regras ativas (triggers) e as
 -- policies de seguranca (RLS) ficam nas migrations 0002 e 0003.
@@ -101,7 +101,7 @@ create trigger trg_teams_updated_at
   for each row execute function set_updated_at();
 
 -- -----------------------------------------------------------------------------
--- players: pessoa/jogador do MamoBall.
+-- players: pessoa/jogador do Mamoball.
 -- O mamoball_player_id e o UNICO identificador oficial. UNIQUE obrigatorio.
 -- Nome e nickname NAO sao identificadores (podem mudar).
 -- -----------------------------------------------------------------------------
@@ -113,7 +113,7 @@ create table players (
   avatar_url         text,
   created_at         timestamptz not null default now(),
   updated_at         timestamptz not null default now(),
-  -- Nunca dois jogadores com o mesmo id oficial do MamoBall.
+  -- Nunca dois jogadores com o mesmo id oficial do Mamoball.
   constraint uq_players_mamoball_id unique (mamoball_player_id)
 );
 

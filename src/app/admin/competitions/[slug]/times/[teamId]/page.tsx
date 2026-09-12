@@ -98,7 +98,7 @@ export default async function SquadPage({
                 <tr>
                   <th className="px-4 py-3">Jogador</th>
                   <th className="px-4 py-3">Nick</th>
-                  <th className="px-4 py-3">ID MamoBall</th>
+                  <th className="px-4 py-3">ID Mamoball</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Inscricao</th>
                   <th className="px-4 py-3 text-right">Acoes</th>

@@ -19,7 +19,7 @@ import { evaluateRegistration } from '@/lib/domain/conflicts';
 import { ACTIVE_REGISTRATION_STATUSES } from '@/lib/domain/status';
 import type { DbClient } from '@/lib/supabase/types';
 
-/** Busca um jogador pelo id oficial do MamoBall (identidade unica). */
+/** Busca um jogador pelo id oficial do Mamoball (identidade unica). */
 export async function findPlayerByMamoballId(
   supabase: DbClient,
   mamoballPlayerId: string,

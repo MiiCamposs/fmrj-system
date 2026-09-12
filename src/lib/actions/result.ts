@@ -13,7 +13,7 @@ export function actionError(error: unknown): { ok: false; error: string } {
   if (message.includes('duplicate key') && message.includes('mamoball')) {
     return {
       ok: false,
-      error: 'Ja existe um jogador com esse ID MamoBall.',
+      error: 'Ja existe um jogador com esse ID Mamoball.',
     };
   }
   return { ok: false, error: message };

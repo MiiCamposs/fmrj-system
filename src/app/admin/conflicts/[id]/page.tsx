@@ -55,7 +55,7 @@ export default async function ConflictDetailPage({
               </Link>
             </Row>
             <Row label="Nick">{detail.playerNickname ?? '—'}</Row>
-            <Row label="ID MamoBall">
+            <Row label="ID Mamoball">
               <span className="font-mono">{conflict.mamoball_player_id}</span>
             </Row>
             <Row label="Competição">{detail.competitionName}</Row>

@@ -36,7 +36,7 @@ export async function generateMetadata({
         title: `${competition.name} — FMRJ`,
         description:
           competition.description ??
-          `${competition.name} — Federação de MamoBall do Rio de Janeiro.`,
+          `${competition.name} — Federação de Mamoball do Rio de Janeiro.`,
       };
     }
   } catch {

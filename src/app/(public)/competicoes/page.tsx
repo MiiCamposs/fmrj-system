@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Competições — FMRJ',
-  description: 'Competições da Federação de MamoBall do Rio de Janeiro.',
+  description: 'Competições da Federação de Mamoball do Rio de Janeiro.',
 };
 
 export default async function CompetitionsIndex() {

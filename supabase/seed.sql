@@ -11,9 +11,9 @@
 -- =============================================================================
 
 insert into competitions (name, slug, description, status) values
-  ('Carioca A1', 'carioca-a1', 'Primeira divisão do Campeonato Carioca de MamoBall.', 'ongoing'),
-  ('Carioca A2', 'carioca-a2', 'Segunda divisão do Campeonato Carioca de MamoBall.', 'ongoing'),
-  ('Carioca B1', 'carioca-b1', 'Terceira divisão do Campeonato Carioca de MamoBall.', 'ongoing'),
-  ('Carioca B2', 'carioca-b2', 'Quarta divisão do Campeonato Carioca de MamoBall.', 'ongoing'),
-  ('Carioca C',  'carioca-c',  'Quinta divisão do Campeonato Carioca de MamoBall.', 'ongoing')
+  ('Carioca A1', 'carioca-a1', 'Primeira divisão do Campeonato Carioca de Mamoball.', 'ongoing'),
+  ('Carioca A2', 'carioca-a2', 'Segunda divisão do Campeonato Carioca de Mamoball.', 'ongoing'),
+  ('Carioca B1', 'carioca-b1', 'Terceira divisão do Campeonato Carioca de Mamoball.', 'ongoing'),
+  ('Carioca B2', 'carioca-b2', 'Quarta divisão do Campeonato Carioca de Mamoball.', 'ongoing'),
+  ('Carioca C',  'carioca-c',  'Quinta divisão do Campeonato Carioca de Mamoball.', 'ongoing')
 on conflict (slug) do nothing;
