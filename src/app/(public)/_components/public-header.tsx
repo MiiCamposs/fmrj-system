@@ -25,11 +25,16 @@ export function PublicHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-fmrj-dark/40 bg-fmrj-dark text-white">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded bg-white/10 text-sm font-black">
-            F
+        <Link href="/" className="flex items-center gap-2.5">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/escudo.jpg"
+            alt="Escudo da FMRJ"
+            className="h-9 w-9 rounded-md object-cover ring-1 ring-white/20"
+          />
+          <span className="font-display text-lg font-extrabold tracking-tight">
+            FMRJ
           </span>
-          <span className="text-lg font-black tracking-tight">FMRJ</span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">

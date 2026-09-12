@@ -58,17 +58,36 @@ export default async function PublicHome() {
   return (
     <div>
       {/* Hero */}
-      <div className="rounded-xl bg-fmrj-dark px-6 py-10 text-white sm:px-10">
-        <p className="text-sm font-semibold uppercase tracking-widest text-white/60">
-          FMRJ
-        </p>
-        <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">
-          Federacao de MamoBall do Rio de Janeiro
-        </h1>
-        <p className="mt-3 max-w-2xl text-white/70">
-          Competicoes, classificacoes, jogos, times, jogadores e artilharia da
-          FMRJ.
-        </p>
+      <div className="relative overflow-hidden rounded-2xl bg-fmrj-dark text-white">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/banner.png"
+          alt=""
+          aria-hidden
+          className="absolute inset-0 h-full w-full object-cover opacity-30"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-fmrj-dark via-fmrj-dark/90 to-fmrj-dark/40" />
+        <div className="relative flex items-center gap-6 px-6 py-12 sm:px-10 sm:py-14">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/escudo.jpg"
+            alt="Escudo da FMRJ"
+            className="hidden h-24 w-24 shrink-0 rounded-xl object-cover shadow-lg ring-1 ring-white/20 sm:block"
+          />
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
+              Portal oficial
+            </p>
+            <h1 className="mt-2 font-display text-3xl font-black leading-[1.05] sm:text-5xl">
+              Federacao de MamoBall
+              <br />
+              do Rio de Janeiro
+            </h1>
+            <p className="mt-3 max-w-xl text-sm text-white/70 sm:text-base">
+              Competicoes, classificacoes, jogos, times, jogadores e artilharia.
+            </p>
+          </div>
+        </div>
       </div>
 
       {!configured && (

@@ -5,12 +5,17 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Paleta base da federacao (ajustavel no brandbook).
+        // Identidade oficial da FMRJ (escudo): azul royal + marinho + vermelho.
         fmrj: {
-          DEFAULT: '#0b5d3b',
-          dark: '#083f28',
-          light: '#12995f',
+          DEFAULT: '#1d40b0', // azul royal (cor principal)
+          dark: '#0b1a5e', // azul marinho (cabecalhos/hero)
+          light: '#3b5ee0', // azul claro (hover/detalhes)
+          red: '#e11d28', // vermelho (destaque/acento)
         },
+      },
+      fontFamily: {
+        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-display)', 'var(--font-sans)', 'sans-serif'],
       },
     },
   },

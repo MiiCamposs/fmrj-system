@@ -122,10 +122,15 @@ export function AdminShell({
                 ☰
               </button>
               <Link href="/admin" className="flex items-center gap-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-md bg-fmrj text-sm font-bold text-white">
-                  F
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/escudo.jpg"
+                  alt="Escudo da FMRJ"
+                  className="h-8 w-8 rounded-md object-cover"
+                />
+                <span className="font-display font-extrabold text-neutral-900">
+                  FMRJ
                 </span>
-                <span className="font-bold text-neutral-900">FMRJ</span>
                 <span className="hidden text-sm text-neutral-400 sm:inline">
                   Administracao
                 </span>
