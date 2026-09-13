@@ -16,6 +16,7 @@ export type AuditAction =
   | 'team.create'
   | 'team.update'
   | 'team.deactivate'
+  | 'team.delete'
   | 'season_team.add'
   | 'player.create'
   | 'player.update'

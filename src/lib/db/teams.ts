@@ -104,6 +104,41 @@ export async function createTeam(
   return data;
 }
 
+/** Uso do time no sistema — para decidir se pode ser excluido com seguranca. */
+export async function getTeamUsage(
+  supabase: DbClient,
+  id: string,
+): Promise<{ registrations: number; matches: number }> {
+  const [{ count: regCount }, homeRes, awayRes] = await Promise.all([
+    supabase
+      .from('registrations')
+      .select('id', { count: 'exact', head: true })
+      .eq('team_id', id),
+    supabase
+      .from('matches')
+      .select('id', { count: 'exact', head: true })
+      .eq('home_team_id', id),
+    supabase
+      .from('matches')
+      .select('id', { count: 'exact', head: true })
+      .eq('away_team_id', id),
+  ]);
+  return {
+    registrations: regCount ?? 0,
+    matches: (homeRes.count ?? 0) + (awayRes.count ?? 0),
+  };
+}
+
+/**
+ * Exclui um time. So deve ser chamado quando o time NAO tem historico
+ * (nenhuma inscricao nem partida). As participacoes (season_teams) sao
+ * removidas automaticamente pelo banco (on delete cascade).
+ */
+export async function deleteTeam(supabase: DbClient, id: string): Promise<void> {
+  const { error } = await supabase.from('teams').delete().eq('id', id);
+  if (error) throw error;
+}
+
 export async function updateTeam(
   supabase: DbClient,
   id: string,

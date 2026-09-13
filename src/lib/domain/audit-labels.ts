@@ -7,6 +7,7 @@ const LABELS: Record<string, string> = {
   'team.create': 'Time cadastrado',
   'team.update': 'Time atualizado',
   'team.deactivate': 'Time desativado/ativado',
+  'team.delete': 'Time excluído',
   'season_team.add': 'Time adicionado à competição',
   'player.create': 'Jogador cadastrado',
   'player.update': 'Jogador atualizado',

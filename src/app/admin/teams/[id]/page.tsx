@@ -6,6 +6,7 @@ import { Breadcrumbs, PageHeader, Card } from '@/components/ui/ui';
 import { TeamStatusBadge } from '@/components/ui/badge';
 import { TeamForm } from '../_components/team-form';
 import { TeamStatusToggle } from '../_components/team-status-toggle';
+import { DeleteTeamButton } from '../_components/delete-team-button';
 
 export const dynamic = 'force-dynamic';
 
@@ -59,7 +60,12 @@ export default async function TeamDetailPage({
       />
       <PageHeader
         title={team.name}
-        action={<TeamStatusToggle teamId={team.id} status={team.status} />}
+        action={
+          <div className="flex gap-2">
+            <TeamStatusToggle teamId={team.id} status={team.status} />
+            <DeleteTeamButton teamId={team.id} teamName={team.name} />
+          </div>
+        }
       />
       <div className="mb-6">
         <TeamStatusBadge status={team.status} />

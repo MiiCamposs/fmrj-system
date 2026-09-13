@@ -3,7 +3,12 @@
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { createTeam, updateTeam } from '@/lib/db/teams';
+import {
+  createTeam,
+  updateTeam,
+  deleteTeam,
+  getTeamUsage,
+} from '@/lib/db/teams';
 import { writeAuditLog } from '@/lib/db/audit';
 import { actionError, type ActionResult } from '@/lib/actions/result';
 import { slugify } from '@/lib/domain/slug';
@@ -67,6 +72,36 @@ export async function updateTeamAction(
     });
     revalidatePath('/admin/teams');
     revalidatePath(`/admin/teams/${id}`);
+    return { ok: true };
+  } catch (e) {
+    return actionError(e);
+  }
+}
+
+export async function deleteTeamAction(id: string): Promise<ActionResult> {
+  try {
+    const ctx = await requireAdmin();
+    const supabase = createAdminClient();
+
+    // Trava de seguranca: nao apaga time com historico (preserva registros).
+    const usage = await getTeamUsage(supabase, id);
+    if (usage.registrations > 0 || usage.matches > 0) {
+      throw new Error(
+        'Este time tem histórico (inscrições ou partidas) e não pode ser excluído. Desative-o para preservar os registros.',
+      );
+    }
+
+    await deleteTeam(supabase, id);
+    await writeAuditLog({
+      adminId: ctx.admin.id,
+      action: 'team.delete',
+      entity: 'team',
+      entityId: id,
+    });
+    revalidatePath('/admin/teams');
+    revalidatePath('/admin');
+    revalidatePath('/times');
+    revalidatePath('/');
     return { ok: true };
   } catch (e) {
     return actionError(e);
