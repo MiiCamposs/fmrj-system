@@ -25,7 +25,6 @@ export function DeleteTeamButton({
     setLoading(false);
     setOpen(false);
     if (!result.ok) {
-      // Ex.: time com historico -> orienta a desativar.
       toast.show(result.error, 'error');
       return;
     }
@@ -50,9 +49,9 @@ export function DeleteTeamButton({
         title="Excluir time?"
         description={
           <>
-            <strong>{teamName}</strong> será removido permanentemente. Só é
-            possível excluir times sem histórico (sem inscrições nem partidas);
-            caso contrário, use <em>Desativar</em> para preservar os registros.
+            <strong>{teamName}</strong> será removido permanentemente, junto com
+            as inscrições desse time. As partidas em que ele aparece ficarão sem
+            o time. Esta ação não pode ser desfeita.
           </>
         }
         confirmLabel="Excluir"

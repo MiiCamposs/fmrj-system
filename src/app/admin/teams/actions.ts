@@ -3,12 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
-import {
-  createTeam,
-  updateTeam,
-  deleteTeam,
-  getTeamUsage,
-} from '@/lib/db/teams';
+import { createTeam, updateTeam, deleteTeam } from '@/lib/db/teams';
 import { writeAuditLog } from '@/lib/db/audit';
 import { actionError, type ActionResult } from '@/lib/actions/result';
 import { slugify } from '@/lib/domain/slug';
@@ -83,13 +78,14 @@ export async function deleteTeamAction(id: string): Promise<ActionResult> {
     const ctx = await requireAdmin();
     const supabase = createAdminClient();
 
-    // Trava de seguranca: nao apaga time com historico (preserva registros).
-    const usage = await getTeamUsage(supabase, id);
-    if (usage.registrations > 0 || usage.matches > 0) {
-      throw new Error(
-        'Este time tem histórico (inscrições ou partidas) e não pode ser excluído. Desative-o para preservar os registros.',
-      );
-    }
+    // Exclusao livre (sem trava). Remove as inscricoes do time (o banco tem
+    // FK "restrict" nelas), depois apaga o time. As partidas do time ficam com
+    // o time em branco (FK set null) e as participacoes saem em cascata.
+    const { error: regErr } = await supabase
+      .from('registrations')
+      .delete()
+      .eq('team_id', id);
+    if (regErr) throw regErr;
 
     await deleteTeam(supabase, id);
     await writeAuditLog({
