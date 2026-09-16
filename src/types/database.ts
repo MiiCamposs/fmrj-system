@@ -411,6 +411,28 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['news_posts']['Insert']>;
         Relationships: [];
       };
+      player_accounts: {
+        Row: {
+          id: string;
+          player_id: string;
+          mamoball_player_id: string;
+          nick: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id: string;
+          player_id: string;
+          mamoball_player_id: string;
+          nick: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<
+          Database['public']['Tables']['player_accounts']['Insert']
+        >;
+        Relationships: [];
+      };
     };
     Views: {
       v_pending_conflicts: {
@@ -462,5 +484,7 @@ export type CompetitionResultRow =
 export type SeasonAwardRow =
   Database['public']['Tables']['season_awards']['Row'];
 export type NewsPostRow = Database['public']['Tables']['news_posts']['Row'];
+export type PlayerAccountRow =
+  Database['public']['Tables']['player_accounts']['Row'];
 export type PendingConflictRow =
   Database['public']['Views']['v_pending_conflicts']['Row'];

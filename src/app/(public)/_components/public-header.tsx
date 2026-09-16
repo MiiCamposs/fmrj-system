@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 
 const LINKS: { href: string; label: string }[] = [
   { href: '/', label: 'Início' },
@@ -23,6 +24,23 @@ function active(pathname: string, href: string): boolean {
 export function PublicHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth
+      .getSession()
+      .then(({ data }) => setLoggedIn(!!data.session))
+      .catch(() => setLoggedIn(false));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setLoggedIn(!!session);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  const accountLink = loggedIn
+    ? { href: '/perfil', label: 'Minha conta' }
+    : { href: '/entrar', label: 'Entrar' };
 
   return (
     <header className="sticky top-0 z-30 border-b border-fmrj-dark/40 bg-fmrj-dark text-white">
@@ -63,6 +81,12 @@ export function PublicHeader() {
           >
             Buscar
           </Link>
+          <Link
+            href={accountLink.href}
+            className="ml-1 rounded-md bg-fmrj-green px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-fmrj-green/90"
+          >
+            {accountLink.label}
+          </Link>
         </nav>
 
         <button
@@ -76,7 +100,7 @@ export function PublicHeader() {
 
       {open && (
         <nav className="border-t border-white/10 px-4 py-2 md:hidden">
-          {[...LINKS, { href: '/busca', label: 'Buscar' }].map((l) => (
+          {[...LINKS, { href: '/busca', label: 'Buscar' }, accountLink].map((l) => (
             <Link
               key={l.href}
               href={l.href}

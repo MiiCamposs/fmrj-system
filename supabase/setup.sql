@@ -1,6 +1,6 @@
 -- =============================================================================
 -- UBM - Setup completo (banco novo). Cole TUDO isto no SQL Editor do Supabase
--- e rode uma unica vez. Contem migrations 0001..0007 + seed (Copa UBM).
+-- e rode uma unica vez. Contem migrations 0001..0008 + seed (Copa UBM).
 -- =============================================================================
 
 
@@ -836,6 +836,34 @@ create policy "admin all news" on news_posts
 insert into storage.buckets (id, name, public)
 values ('news', 'news', true)
 on conflict (id) do nothing;
+
+
+-- >>>>>>>>>>>>>>>>>>>>>> supabase/migrations/0008_player_accounts.sql <<<<<<<<<<<<<<<<<<<<<<
+
+-- =============================================================================
+-- UBM - Migration 0008: Contas de jogador (cadastro/login publico)
+-- =============================================================================
+
+create table player_accounts (
+  id                 uuid primary key references auth.users (id) on delete cascade,
+  player_id          uuid not null references players (id) on delete cascade,
+  mamoball_player_id text not null unique,
+  nick               text not null,
+  created_at         timestamptz not null default now(),
+  updated_at         timestamptz not null default now(),
+  constraint uq_account_player unique (player_id)
+);
+
+create trigger trg_player_accounts_updated_at
+  before update on player_accounts
+  for each row execute function set_updated_at();
+
+alter table player_accounts enable row level security;
+
+create policy "own read account" on player_accounts
+  for select using (auth.uid() = id);
+create policy "admin read accounts" on player_accounts
+  for select using (is_admin());
 
 
 -- >>>>>>>>>>>>>>>>>>>>>> supabase/seed.sql <<<<<<<<<<<<<<<<<<<<<<
