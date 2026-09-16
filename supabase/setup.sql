@@ -1,6 +1,6 @@
 -- =============================================================================
 -- UBM - Setup completo (banco novo). Cole TUDO isto no SQL Editor do Supabase
--- e rode uma unica vez. Contem migrations 0001..0006 + seed (Copa UBM).
+-- e rode uma unica vez. Contem migrations 0001..0007 + seed (Copa UBM).
 -- =============================================================================
 
 
@@ -799,6 +799,43 @@ create policy "public read season_awards" on season_awards
   for select using (true);
 create policy "admin write season_awards" on season_awards
   for all using (is_admin()) with check (is_admin());
+
+
+-- >>>>>>>>>>>>>>>>>>>>>> supabase/migrations/0007_noticias.sql <<<<<<<<<<<<<<<<<<<<<<
+
+-- =============================================================================
+-- UBM - Migration 0007: Jornal / Noticias
+-- =============================================================================
+
+create table news_posts (
+  id              uuid primary key default gen_random_uuid(),
+  title           text not null,
+  slug            text not null unique,
+  excerpt         text,
+  content         text not null default '',
+  cover_image_url text,
+  status          text not null default 'draft' check (status in ('draft', 'published')),
+  published_at    timestamptz,
+  created_at      timestamptz not null default now(),
+  updated_at      timestamptz not null default now()
+);
+
+create index idx_news_published on news_posts (published_at desc);
+
+create trigger trg_news_updated_at
+  before update on news_posts
+  for each row execute function set_updated_at();
+
+alter table news_posts enable row level security;
+
+create policy "public read published news" on news_posts
+  for select using (status = 'published');
+create policy "admin all news" on news_posts
+  for all using (is_admin()) with check (is_admin());
+
+insert into storage.buckets (id, name, public)
+values ('news', 'news', true)
+on conflict (id) do nothing;
 
 
 -- >>>>>>>>>>>>>>>>>>>>>> supabase/seed.sql <<<<<<<<<<<<<<<<<<<<<<

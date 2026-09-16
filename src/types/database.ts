@@ -32,6 +32,7 @@ export type MatchStatus =
   | 'postponed'
   | 'cancelled';
 export type MatchEventType = 'goal' | 'assist' | 'yellow_card' | 'red_card';
+export type NewsStatus = 'draft' | 'published';
 
 export interface Database {
   public: {
@@ -382,6 +383,34 @@ export interface Database {
         >;
         Relationships: [];
       };
+      news_posts: {
+        Row: {
+          id: string;
+          title: string;
+          slug: string;
+          excerpt: string | null;
+          content: string;
+          cover_image_url: string | null;
+          status: NewsStatus;
+          published_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          slug: string;
+          excerpt?: string | null;
+          content?: string;
+          cover_image_url?: string | null;
+          status?: NewsStatus;
+          published_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['news_posts']['Insert']>;
+        Relationships: [];
+      };
     };
     Views: {
       v_pending_conflicts: {
@@ -432,5 +461,6 @@ export type CompetitionResultRow =
   Database['public']['Tables']['competition_results']['Row'];
 export type SeasonAwardRow =
   Database['public']['Tables']['season_awards']['Row'];
+export type NewsPostRow = Database['public']['Tables']['news_posts']['Row'];
 export type PendingConflictRow =
   Database['public']['Views']['v_pending_conflicts']['Row'];

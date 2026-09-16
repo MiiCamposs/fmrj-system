@@ -25,7 +25,10 @@ export type AuditAction =
   | 'match.update'
   | 'result.update'
   | 'conflict.resolve'
-  | 'museu.update';
+  | 'museu.update'
+  | 'news.create'
+  | 'news.update'
+  | 'news.delete';
 
 export interface AuditInput {
   adminId: string | null;

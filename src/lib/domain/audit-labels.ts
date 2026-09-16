@@ -17,6 +17,9 @@ const LABELS: Record<string, string> = {
   'result.update': 'Resultado atualizado',
   'conflict.resolve': 'Conflito resolvido',
   'museu.update': 'Museu atualizado',
+  'news.create': 'Notícia publicada',
+  'news.update': 'Notícia atualizada',
+  'news.delete': 'Notícia excluída',
 };
 
 export function auditActionLabel(action: string): string {

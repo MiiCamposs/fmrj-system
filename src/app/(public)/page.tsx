@@ -3,8 +3,10 @@ import { createClient } from '@/lib/supabase/server';
 import { listCompetitions } from '@/lib/db/competitions';
 import { listUpcomingMatches, listRecentResults } from '@/lib/db/matches';
 import { getTopScorers } from '@/lib/db/stats';
+import { listPublishedNews } from '@/lib/db/news';
 import { Fixture } from '@/components/match/fixture';
 import { CompetitionStatusBadge } from '@/components/ui/badge';
+import { formatDate } from '@/lib/format';
 
 export const dynamic = 'force-dynamic';
 
@@ -54,6 +56,16 @@ export default async function PublicHome() {
   const visibleCompetitions = competitions.filter(
     (c) => c.status !== 'archived',
   );
+
+  // Noticias em try/catch separado: se a tabela ainda nao existir (migration
+  // 0007 nao aplicada), a home continua funcionando normalmente.
+  let news: Awaited<ReturnType<typeof listPublishedNews>> = [];
+  try {
+    const supabase = await createClient();
+    news = await listPublishedNews(supabase, { limit: 3 });
+  } catch {
+    news = [];
+  }
 
   return (
     <div>
@@ -166,6 +178,49 @@ export default async function PublicHome() {
           </nav>
         </div>
       </div>
+
+      {/* Últimas notícias */}
+      {news.length > 0 && (
+        <Section title="Últimas notícias" href="/noticias">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {news.map((p) => (
+              <Link
+                key={p.id}
+                href={`/noticias/${p.slug}`}
+                className="group flex flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white transition hover:border-fmrj hover:shadow-sm"
+              >
+                <div className="aspect-[16/10] bg-neutral-100">
+                  {p.cover_image_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={p.cover_image_url}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center bg-fmrj-dark text-white/30">
+                      UBM
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-1 flex-col p-4">
+                  <span className="text-xs font-medium text-neutral-400">
+                    {formatDate(p.published_at)}
+                  </span>
+                  <h3 className="mt-1 font-bold leading-snug text-neutral-900 group-hover:text-fmrj">
+                    {p.title}
+                  </h3>
+                  {p.excerpt && (
+                    <p className="mt-1 line-clamp-2 text-sm text-neutral-500">
+                      {p.excerpt}
+                    </p>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </Section>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Próximos jogos */}
