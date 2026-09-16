@@ -27,11 +27,14 @@ export function PublicHeader() {
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-2.5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/escudo.png"
-            alt="Escudo da UBM"
-            className="h-10 w-10 shrink-0 object-contain"
-          />
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white p-1">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/escudo.png"
+              alt="Escudo da UBM"
+              className="h-full w-full object-contain"
+            />
+          </span>
           <span className="font-display text-lg font-extrabold tracking-tight">
             UBM
           </span>
