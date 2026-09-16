@@ -35,6 +35,9 @@ export function PublicHeader() {
           <span className="font-display text-lg font-extrabold tracking-tight">
             UBM
           </span>
+          <span className="hidden text-sm font-medium text-white/60 lg:inline">
+            União Brasileira de Mamoball
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
