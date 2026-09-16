@@ -1,6 +1,6 @@
 -- =============================================================================
 -- UBM - Setup completo (banco novo). Cole TUDO isto no SQL Editor do Supabase
--- e rode uma unica vez. Contem migrations 0001..0008 + seed (Copa UBM).
+-- e rode uma unica vez. Contem migrations 0001..0009 + seed (Copa UBM).
 -- =============================================================================
 
 
@@ -864,6 +864,17 @@ create policy "own read account" on player_accounts
   for select using (auth.uid() = id);
 create policy "admin read accounts" on player_accounts
   for select using (is_admin());
+
+
+-- >>>>>>>>>>>>>>>>>>>>>> supabase/migrations/0009_avatars_bucket.sql <<<<<<<<<<<<<<<<<<<<<<
+
+-- =============================================================================
+-- UBM - Migration 0009: Bucket de avatares
+-- =============================================================================
+
+insert into storage.buckets (id, name, public)
+values ('avatars', 'avatars', true)
+on conflict (id) do nothing;
 
 
 -- >>>>>>>>>>>>>>>>>>>>>> supabase/seed.sql <<<<<<<<<<<<<<<<<<<<<<

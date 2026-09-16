@@ -16,9 +16,28 @@ export function ProfileForm({
   const router = useRouter();
   const toast = useToast();
   const [nick, setNick] = useState(initialNick);
-  const [avatarUrl, setAvatarUrl] = useState(initialAvatar);
+
+  const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    initialAvatar || null,
+  );
+  const [removeAvatar, setRemoveAvatar] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0] ?? null;
+    setFile(f);
+    setRemoveAvatar(false);
+    setPreviewUrl(f ? URL.createObjectURL(f) : initialAvatar || null);
+  }
+
+  function clearAvatar() {
+    setFile(null);
+    setPreviewUrl(null);
+    setRemoveAvatar(true);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -28,13 +47,21 @@ export function ProfileForm({
       return;
     }
     setLoading(true);
-    const result = await updateProfileAction({ nick, avatarUrl });
+
+    const form = new FormData();
+    form.set('nick', nick);
+    if (file) form.set('avatar', file);
+    if (removeAvatar) form.set('removeAvatar', '1');
+
+    const result = await updateProfileAction(form);
     setLoading(false);
     if (!result.ok) {
       setError(result.error);
       toast.show(result.error, 'error');
       return;
     }
+    setFile(null);
+    setRemoveAvatar(false);
     toast.show('Perfil atualizado.', 'success');
     router.refresh();
   }
@@ -58,16 +85,45 @@ export function ProfileForm({
           required
         />
       </div>
+
       <div>
         <label className="mb-1 block text-sm font-medium text-neutral-700">
-          Avatar (URL)
+          Foto / avatar
         </label>
-        <input
-          className={inputClasses}
-          value={avatarUrl}
-          onChange={(e) => setAvatarUrl(e.target.value)}
-          placeholder="https://..."
-        />
+        <div className="flex items-center gap-4">
+          {previewUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={previewUrl}
+              alt="Avatar"
+              className="h-16 w-16 shrink-0 rounded-full border border-neutral-200 object-cover"
+            />
+          ) : (
+            <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-fmrj-dark text-xl font-black text-white">
+              {(nick || '?').slice(0, 1).toUpperCase()}
+            </span>
+          )}
+          <div className="min-w-0">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={onFileChange}
+              className="block w-full text-sm text-neutral-600 file:mr-3 file:rounded-md file:border-0 file:bg-fmrj file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-fmrj-green"
+            />
+            {previewUrl && (
+              <button
+                type="button"
+                onClick={clearAvatar}
+                className="mt-1 text-xs font-medium text-red-600 hover:underline"
+              >
+                Remover foto
+              </button>
+            )}
+            <p className="mt-1 text-xs text-neutral-400">
+              JPG, PNG ou WebP, até 5 MB.
+            </p>
+          </div>
+        </div>
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}

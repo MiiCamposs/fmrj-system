@@ -97,3 +97,31 @@ export interface PlayerProfile {
   account: PlayerAccountRow;
   player: PlayerRow;
 }
+
+// --- Storage (avatar) --------------------------------------------------------
+
+const AVATAR_BUCKET = 'avatars';
+
+/**
+ * Upload do avatar do jogador para o bucket publico "avatars". Usa o cliente
+ * admin (service role); chamar apenas no servidor. Retorna a URL publica.
+ */
+export async function uploadAvatar(
+  supabase: DbClient,
+  file: File,
+): Promise<string> {
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+  const path = `players/${crypto.randomUUID()}.${ext}`;
+  const bytes = await file.arrayBuffer();
+
+  const { error } = await supabase.storage
+    .from(AVATAR_BUCKET)
+    .upload(path, bytes, {
+      contentType: file.type || 'image/jpeg',
+      upsert: false,
+    });
+  if (error) throw error;
+
+  const { data } = supabase.storage.from(AVATAR_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
