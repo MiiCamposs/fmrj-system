@@ -14,7 +14,7 @@ import { actionError, type ActionResult } from '@/lib/actions/result';
 import { slugify } from '@/lib/domain/slug';
 import type { NewsStatus } from '@/types/database';
 
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
+const MAX_IMAGE_BYTES = 20 * 1024 * 1024; // 20 MB
 
 function readStatus(value: FormDataEntryValue | null): NewsStatus {
   return value === 'published' ? 'published' : 'draft';
@@ -30,7 +30,7 @@ async function resolveCover(
   const image = form.get('image');
   if (image instanceof File && image.size > 0) {
     if (image.size > MAX_IMAGE_BYTES) {
-      throw new Error('A imagem deve ter no máximo 5 MB.');
+      throw new Error('A imagem deve ter no máximo 20 MB.');
     }
     if (!image.type.startsWith('image/')) {
       throw new Error('O arquivo enviado não é uma imagem.');
