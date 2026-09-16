@@ -28,9 +28,9 @@ export function PublicHeader() {
         <Link href="/" className="flex items-center gap-2.5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/escudo.jpg"
+            src="/escudo.png"
             alt="Escudo da UBM"
-            className="h-9 w-9 rounded-md object-cover ring-1 ring-white/20"
+            className="h-10 w-10 shrink-0 object-contain"
           />
           <span className="font-display text-lg font-extrabold tracking-tight">
             UBM

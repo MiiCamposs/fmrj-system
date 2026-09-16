@@ -124,9 +124,9 @@ export function AdminShell({
               <Link href="/admin" className="flex items-center gap-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="/escudo.jpg"
+                  src="/escudo.png"
                   alt="Escudo da UBM"
-                  className="h-8 w-8 rounded-md object-cover"
+                  className="h-9 w-9 shrink-0 object-contain"
                 />
                 <span className="font-display font-extrabold text-neutral-900">
                   UBM

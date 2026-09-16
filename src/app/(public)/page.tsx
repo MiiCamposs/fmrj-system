@@ -66,9 +66,9 @@ export default async function PublicHome() {
         <div className="relative flex flex-col items-center gap-6 px-6 py-10 text-center sm:flex-row sm:px-10 sm:py-14 sm:text-left">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/escudo.jpg"
+            src="/escudo.png"
             alt="Escudo da UBM"
-            className="h-28 w-28 shrink-0 rounded-2xl object-cover shadow-lg sm:h-32 sm:w-32"
+            className="h-32 w-32 shrink-0 object-contain drop-shadow-lg sm:h-40 sm:w-40"
           />
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
