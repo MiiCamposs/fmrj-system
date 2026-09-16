@@ -16,6 +16,7 @@ const LABELS: Record<string, string> = {
   'match.update': 'Partida atualizada',
   'result.update': 'Resultado atualizado',
   'conflict.resolve': 'Conflito resolvido',
+  'museu.update': 'Museu atualizado',
 };
 
 export function auditActionLabel(action: string): string {

@@ -32,6 +32,7 @@ const NAV: NavItem[] = [
   { label: 'Conflitos', href: '/admin/conflicts' },
   { label: 'Partidas', href: '/admin/matches' },
   { label: 'Estatísticas', href: '/admin/statistics' },
+  { label: 'Museu', href: '/admin/museu' },
   { label: 'Configurações', href: '/admin/settings' },
 ];
 

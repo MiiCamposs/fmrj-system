@@ -11,6 +11,8 @@ const LINKS: { href: string; label: string }[] = [
   { href: '/times', label: 'Times' },
   { href: '/jogadores', label: 'Jogadores' },
   { href: '/artilharia', label: 'Artilharia' },
+  { href: '/noticias', label: 'Notícias' },
+  { href: '/museu', label: 'Museu' },
 ];
 
 function active(pathname: string, href: string): boolean {

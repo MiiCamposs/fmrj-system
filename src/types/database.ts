@@ -326,6 +326,62 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['match_events']['Insert']>;
         Relationships: [];
       };
+      competition_results: {
+        Row: {
+          id: string;
+          competition_id: string;
+          season_id: string;
+          champion_team_id: string | null;
+          champion_team_name: string | null;
+          runner_up_team_id: string | null;
+          runner_up_team_name: string | null;
+          top_scorer: string | null;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          competition_id: string;
+          season_id: string;
+          champion_team_id?: string | null;
+          champion_team_name?: string | null;
+          runner_up_team_id?: string | null;
+          runner_up_team_name?: string | null;
+          top_scorer?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<
+          Database['public']['Tables']['competition_results']['Insert']
+        >;
+        Relationships: [];
+      };
+      season_awards: {
+        Row: {
+          id: string;
+          competition_id: string | null;
+          season_id: string;
+          label: string;
+          winner_player_id: string | null;
+          winner_text: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          competition_id?: string | null;
+          season_id: string;
+          label: string;
+          winner_player_id?: string | null;
+          winner_text?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<
+          Database['public']['Tables']['season_awards']['Insert']
+        >;
+        Relationships: [];
+      };
     };
     Views: {
       v_pending_conflicts: {
@@ -372,5 +428,9 @@ export type AuditLogRow = Database['public']['Tables']['audit_logs']['Row'];
 export type SeasonTeamRow = Database['public']['Tables']['season_teams']['Row'];
 export type MatchRow = Database['public']['Tables']['matches']['Row'];
 export type MatchEventRow = Database['public']['Tables']['match_events']['Row'];
+export type CompetitionResultRow =
+  Database['public']['Tables']['competition_results']['Row'];
+export type SeasonAwardRow =
+  Database['public']['Tables']['season_awards']['Row'];
 export type PendingConflictRow =
   Database['public']['Views']['v_pending_conflicts']['Row'];

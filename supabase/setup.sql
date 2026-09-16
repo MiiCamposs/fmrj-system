@@ -1,6 +1,6 @@
 -- =============================================================================
 -- UBM - Setup completo (banco novo). Cole TUDO isto no SQL Editor do Supabase
--- e rode uma unica vez. Contem migrations 0001..0005 + seed (Copa UBM).
+-- e rode uma unica vez. Contem migrations 0001..0006 + seed (Copa UBM).
 -- =============================================================================
 
 
@@ -745,6 +745,59 @@ alter table match_events enable row level security;
 create policy "public read match_events" on match_events
   for select using (true);
 create policy "admin write match_events" on match_events
+  for all using (is_admin()) with check (is_admin());
+
+
+-- >>>>>>>>>>>>>>>>>>>>>> supabase/migrations/0006_museu.sql <<<<<<<<<<<<<<<<<<<<<<
+
+-- =============================================================================
+-- UBM - Migration 0006: Museu / Acervo historico
+-- =============================================================================
+
+create table competition_results (
+  id                 uuid primary key default gen_random_uuid(),
+  competition_id     uuid not null references competitions (id) on delete cascade,
+  season_id          uuid not null references seasons (id) on delete cascade,
+  champion_team_id   uuid references teams (id) on delete set null,
+  champion_team_name text,
+  runner_up_team_id  uuid references teams (id) on delete set null,
+  runner_up_team_name text,
+  top_scorer         text,
+  notes              text,
+  created_at         timestamptz not null default now(),
+  updated_at         timestamptz not null default now(),
+  constraint uq_result_scope unique (competition_id, season_id)
+);
+
+create index idx_results_season on competition_results (season_id);
+
+create trigger trg_results_updated_at
+  before update on competition_results
+  for each row execute function set_updated_at();
+
+create table season_awards (
+  id               uuid primary key default gen_random_uuid(),
+  competition_id   uuid references competitions (id) on delete cascade,
+  season_id        uuid not null references seasons (id) on delete cascade,
+  label            text not null,
+  winner_player_id uuid references players (id) on delete set null,
+  winner_text      text,
+  created_at       timestamptz not null default now()
+);
+
+create index idx_awards_scope on season_awards (competition_id, season_id);
+
+alter table competition_results enable row level security;
+alter table season_awards       enable row level security;
+
+create policy "public read competition_results" on competition_results
+  for select using (true);
+create policy "admin write competition_results" on competition_results
+  for all using (is_admin()) with check (is_admin());
+
+create policy "public read season_awards" on season_awards
+  for select using (true);
+create policy "admin write season_awards" on season_awards
   for all using (is_admin()) with check (is_admin());
 
 

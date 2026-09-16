@@ -93,73 +93,79 @@ export default async function PublicHome() {
         </div>
       )}
 
-      {/* Competição em destaque */}
-      {visibleCompetitions.length === 0 ? (
-        <Section title="Competições">
-          <p className="text-sm text-neutral-500">
-            Nenhuma competição disponível.
-          </p>
-        </Section>
-      ) : (
-        <section className="mt-10">
+      {/* Destaque + Acesso rápido (informações no alto) */}
+      <div className="mt-8 grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
           <h2 className="mb-3 text-lg font-bold text-neutral-900">
             Competição em destaque
           </h2>
-          <Link
-            href={`/competicoes/${visibleCompetitions[0]!.slug}`}
-            className="group block overflow-hidden rounded-2xl border border-neutral-200 bg-fmrj-dark text-white transition hover:border-fmrj-green"
-          >
-            <div className="flex flex-col items-center gap-6 p-6 text-center sm:flex-row sm:p-8 sm:text-left">
-              {visibleCompetitions[0]!.logo_url && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={visibleCompetitions[0]!.logo_url}
-                  alt={visibleCompetitions[0]!.name}
-                  className="h-32 w-32 shrink-0 object-contain drop-shadow-lg sm:h-40 sm:w-40"
-                />
-              )}
-              <div>
-                <CompetitionStatusBadge status={visibleCompetitions[0]!.status} />
-                <h3 className="mt-2 font-display text-2xl font-black sm:text-4xl">
-                  {visibleCompetitions[0]!.name}
-                </h3>
-                {visibleCompetitions[0]!.description && (
-                  <p className="mt-2 max-w-xl text-sm text-white/70">
-                    {visibleCompetitions[0]!.description}
-                  </p>
-                )}
-                <span className="mt-4 inline-flex items-center gap-1 rounded-md bg-white px-4 py-2 text-sm font-semibold text-fmrj transition group-hover:bg-fmrj-green group-hover:text-white">
-                  Ver competição →
-                </span>
-              </div>
+          {visibleCompetitions.length === 0 ? (
+            <div className="rounded-xl border border-neutral-200 bg-white p-6 text-sm text-neutral-500">
+              Nenhuma competição disponível.
             </div>
-          </Link>
-
-          {visibleCompetitions.length > 1 && (
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {visibleCompetitions.slice(1).map((c) => (
-                <Link
-                  key={c.id}
-                  href={`/competicoes/${c.slug}`}
-                  className="rounded-lg border border-neutral-200 bg-white p-5 transition hover:border-fmrj hover:shadow-sm"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold text-neutral-900">
-                      {c.name}
-                    </span>
-                    <CompetitionStatusBadge status={c.status} />
-                  </div>
-                  {c.description && (
-                    <p className="mt-1 text-sm text-neutral-500">
-                      {c.description}
+          ) : (
+            <Link
+              href={`/competicoes/${visibleCompetitions[0]!.slug}`}
+              className="group block h-[calc(100%-2rem)] overflow-hidden rounded-2xl border border-neutral-200 bg-fmrj-dark text-white transition hover:border-fmrj-green"
+            >
+              <div className="flex h-full flex-col items-center gap-6 p-6 text-center sm:flex-row sm:p-8 sm:text-left">
+                {visibleCompetitions[0]!.logo_url && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={visibleCompetitions[0]!.logo_url}
+                    alt={visibleCompetitions[0]!.name}
+                    className="h-28 w-28 shrink-0 object-contain drop-shadow-lg sm:h-36 sm:w-36"
+                  />
+                )}
+                <div>
+                  <CompetitionStatusBadge
+                    status={visibleCompetitions[0]!.status}
+                  />
+                  <h3 className="mt-2 font-display text-2xl font-black sm:text-4xl">
+                    {visibleCompetitions[0]!.name}
+                  </h3>
+                  {visibleCompetitions[0]!.description && (
+                    <p className="mt-2 max-w-xl text-sm text-white/70">
+                      {visibleCompetitions[0]!.description}
                     </p>
                   )}
-                </Link>
-              ))}
-            </div>
+                  <span className="mt-4 inline-flex items-center gap-1 rounded-md bg-white px-4 py-2 text-sm font-semibold text-fmrj transition group-hover:bg-fmrj-green group-hover:text-white">
+                    Ver competição →
+                  </span>
+                </div>
+              </div>
+            </Link>
           )}
-        </section>
-      )}
+        </div>
+
+        <div>
+          <h2 className="mb-3 text-lg font-bold text-neutral-900">
+            Acesso rápido
+          </h2>
+          <nav className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
+            {[
+              { href: '/jogos', label: 'Jogos e resultados' },
+              { href: '/competicoes', label: 'Competições' },
+              { href: '/times', label: 'Times' },
+              { href: '/jogadores', label: 'Jogadores' },
+              { href: '/artilharia', label: 'Artilharia' },
+              { href: '/noticias', label: 'Notícias' },
+              { href: '/museu', label: 'Museu' },
+            ].map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="flex items-center justify-between border-b border-neutral-100 px-4 py-3 text-sm font-medium text-neutral-700 transition last:border-0 hover:bg-neutral-50 hover:text-fmrj"
+              >
+                {l.label}
+                <span aria-hidden className="text-neutral-300">
+                  →
+                </span>
+              </Link>
+            ))}
+          </nav>
+        </div>
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Próximos jogos */}

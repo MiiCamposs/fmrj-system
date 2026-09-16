@@ -24,7 +24,8 @@ export type AuditAction =
   | 'player.remove'
   | 'match.update'
   | 'result.update'
-  | 'conflict.resolve';
+  | 'conflict.resolve'
+  | 'museu.update';
 
 export interface AuditInput {
   adminId: string | null;
