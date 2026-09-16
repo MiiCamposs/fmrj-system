@@ -7,8 +7,8 @@ import { CompetitionStatusBadge } from '@/components/ui/badge';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Competições — FMRJ',
-  description: 'Competições da Federação de Mamoball do Rio de Janeiro.',
+  title: 'Competições — UBM',
+  description: 'Competições da União Brasileira de Mamoball.',
 };
 
 export default async function CompetitionsIndex() {

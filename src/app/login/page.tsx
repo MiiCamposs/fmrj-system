@@ -39,7 +39,7 @@ function LoginForm() {
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6">
       <h1 className="text-2xl font-bold text-neutral-900">Área administrativa</h1>
-      <p className="mt-1 text-sm text-neutral-500">FMRJ — acesso restrito</p>
+      <p className="mt-1 text-sm text-neutral-500">UBM — acesso restrito</p>
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-4">
         <div>

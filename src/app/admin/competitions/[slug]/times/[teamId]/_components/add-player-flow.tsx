@@ -197,7 +197,7 @@ export function AddPlayerFlow(props: Props) {
                   ID: {found.mamoballPlayerId}
                 </p>
                 <p className="mt-2 text-xs text-emerald-700">
-                  Este jogador já esta cadastrado no banco da FMRJ. Não será
+                  Este jogador já esta cadastrado no banco da UBM. Não será
                   criado um segundo registro.
                 </p>
               </div>

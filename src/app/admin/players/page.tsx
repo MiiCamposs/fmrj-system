@@ -175,7 +175,7 @@ export default async function PlayersPage({
     <div>
       <PageHeader
         title="Jogadores"
-        description="Jogadores globais da FMRJ, identificados pelo ID Mamoball."
+        description="Jogadores globais da UBM, identificados pelo ID Mamoball."
       />
       {body}
     </div>

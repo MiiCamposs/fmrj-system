@@ -7,8 +7,8 @@ import { EmptyState } from '@/components/ui/ui';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Artilharia — FMRJ',
-  description: 'Artilheiros das competicoes da FMRJ.',
+  title: 'Artilharia — UBM',
+  description: 'Artilheiros das competicoes da UBM.',
 };
 
 export default async function ArtilhariaPage({

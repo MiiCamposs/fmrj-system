@@ -23,12 +23,12 @@ export async function generateMetadata({
     if (match) {
       const home = match.homeTeam?.name ?? 'Mandante';
       const away = match.awayTeam?.name ?? 'Visitante';
-      return { title: `${home} x ${away} — FMRJ` };
+      return { title: `${home} x ${away} — UBM` };
     }
   } catch {
     /* ignore */
   }
-  return { title: 'Partida — FMRJ' };
+  return { title: 'Partida — UBM' };
 }
 
 function TeamBlock({

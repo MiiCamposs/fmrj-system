@@ -4,7 +4,7 @@ export default function NotFound() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-50 px-6 text-center">
       <p className="text-sm font-semibold uppercase tracking-widest text-fmrj">
-        FMRJ
+        UBM
       </p>
       <h1 className="mt-2 text-3xl font-bold text-neutral-900">
         Pagina não encontrada

@@ -7,8 +7,8 @@ import { EmptyState } from '@/components/ui/ui';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Times — FMRJ',
-  description: 'Clubes da Federação de Mamoball do Rio de Janeiro.',
+  title: 'Times — UBM',
+  description: 'Clubes da União Brasileira de Mamoball.',
 };
 
 export default async function TimesPage() {

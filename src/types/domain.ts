@@ -1,5 +1,5 @@
 /**
- * Tipos de dominio da FMRJ.
+ * Tipos de dominio da UBM.
  *
  * Sao os conceitos de negocio usados pela camada de regras (lib/domain).
  * Propositalmente livres de dependencias de banco ou framework, para que a

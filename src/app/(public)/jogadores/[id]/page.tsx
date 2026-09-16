@@ -16,11 +16,11 @@ export async function generateMetadata({
   try {
     const supabase = await createClient();
     const player = await getPlayerById(supabase, id);
-    if (player) return { title: `${player.name} — FMRJ` };
+    if (player) return { title: `${player.name} — UBM` };
   } catch {
     /* ignore */
   }
-  return { title: 'Jogador — FMRJ' };
+  return { title: 'Jogador — UBM' };
 }
 
 export default async function PlayerPublicPage({

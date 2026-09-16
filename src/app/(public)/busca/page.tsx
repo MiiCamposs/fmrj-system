@@ -6,8 +6,8 @@ import { searchAll } from '@/lib/db/search';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Busca — FMRJ',
-  description: 'Busque times, jogadores e competicoes da FMRJ.',
+  title: 'Busca — UBM',
+  description: 'Busque times, jogadores e competicoes da UBM.',
 };
 
 export default async function BuscaPage({

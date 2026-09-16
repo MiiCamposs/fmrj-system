@@ -33,16 +33,16 @@ export async function generateMetadata({
     const competition = await getCompetitionBySlug(supabase, slug);
     if (competition) {
       return {
-        title: `${competition.name} — FMRJ`,
+        title: `${competition.name} — UBM`,
         description:
           competition.description ??
-          `${competition.name} — Federação de Mamoball do Rio de Janeiro.`,
+          `${competition.name} — União Brasileira de Mamoball.`,
       };
     }
   } catch {
     /* ignore */
   }
-  return { title: 'Competição — FMRJ' };
+  return { title: 'Competição — UBM' };
 }
 
 export default async function PublicCompetitionPage({

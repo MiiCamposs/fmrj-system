@@ -125,11 +125,11 @@ export function AdminShell({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/escudo.jpg"
-                  alt="Escudo da FMRJ"
+                  alt="Escudo da UBM"
                   className="h-8 w-8 rounded-md object-cover"
                 />
                 <span className="font-display font-extrabold text-neutral-900">
-                  FMRJ
+                  UBM
                 </span>
                 <span className="hidden text-sm text-neutral-400 sm:inline">
                   Administração

@@ -29,11 +29,11 @@ export function PublicHeader() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/escudo.jpg"
-            alt="Escudo da FMRJ"
+            alt="Escudo da UBM"
             className="h-9 w-9 rounded-md object-cover ring-1 ring-white/20"
           />
           <span className="font-display text-lg font-extrabold tracking-tight">
-            FMRJ
+            UBM
           </span>
         </Link>
 

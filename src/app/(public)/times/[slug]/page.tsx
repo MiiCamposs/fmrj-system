@@ -17,11 +17,11 @@ export async function generateMetadata({
   try {
     const supabase = await createClient();
     const team = await getTeamBySlug(supabase, slug);
-    if (team) return { title: `${team.name} — FMRJ` };
+    if (team) return { title: `${team.name} — UBM` };
   } catch {
     /* ignore */
   }
-  return { title: 'Time — FMRJ' };
+  return { title: 'Time — UBM' };
 }
 
 export default async function TeamPublicPage({

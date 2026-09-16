@@ -7,8 +7,8 @@ import { EmptyState } from '@/components/ui/ui';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Jogadores — FMRJ',
-  description: 'Jogadores da Federação de Mamoball do Rio de Janeiro.',
+  title: 'Jogadores — UBM',
+  description: 'Jogadores da União Brasileira de Mamoball.',
 };
 
 export default async function JogadoresPage({

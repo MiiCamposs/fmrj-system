@@ -10,8 +10,8 @@ import type { MatchStatus } from '@/types/database';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Jogos — FMRJ',
-  description: 'Agenda e resultados das competicoes da FMRJ.',
+  title: 'Jogos — UBM',
+  description: 'Agenda e resultados das competicoes da UBM.',
 };
 
 export default async function JogosPage({

@@ -15,23 +15,23 @@ const archivo = Archivo({
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
-const siteName = 'FMRJ — Federação de Mamoball do Rio de Janeiro';
+const siteName = 'UBM — União Brasileira de Mamoball';
 const siteDescription =
-  'Portal oficial da Federação de Mamoball do Rio de Janeiro: competicoes, temporadas, times, jogadores, classificacao e artilharia.';
+  'Portal oficial da União Brasileira de Mamoball: competicoes, temporadas, times, jogadores, classificacao e artilharia.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: siteName,
-    // Paginas já definem titulos completos terminando em "— FMRJ".
+    // Paginas já definem titulos completos terminando em "— UBM".
     template: '%s',
   },
   description: siteDescription,
-  applicationName: 'FMRJ',
+  applicationName: 'UBM',
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
-    siteName: 'FMRJ',
+    siteName: 'UBM',
     title: siteName,
     description: siteDescription,
     url: siteUrl,

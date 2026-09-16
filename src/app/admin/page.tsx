@@ -161,7 +161,7 @@ export default async function AdminDashboard() {
     <div>
       <PageHeader
         title="Painel"
-        description="Visão geral da Federação de Mamoball do Rio de Janeiro."
+        description="Visão geral da União Brasileira de Mamoball."
       />
       {content}
     </div>

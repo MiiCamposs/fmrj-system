@@ -1,6 +1,6 @@
 -- =============================================================================
--- FMRJ - Setup completo (banco novo). Cole TUDO isto no SQL Editor do Supabase
--- e rode uma unica vez. Contem migrations 0001..0005 + seed das 5 competicoes.
+-- UBM - Setup completo (banco novo). Cole TUDO isto no SQL Editor do Supabase
+-- e rode uma unica vez. Contem migrations 0001..0005 + seed (Copa UBM).
 -- =============================================================================
 
 
@@ -751,22 +751,25 @@ create policy "admin write match_events" on match_events
 -- >>>>>>>>>>>>>>>>>>>>>> supabase/seed.sql <<<<<<<<<<<<<<<<<<<<<<
 
 -- =============================================================================
--- FMRJ - Seed inicial
+-- UBM - Seed inicial
 --
--- Cria as CINCO competicoes iniciais (secao 10). Nao cria times, temporadas,
+-- Cria a competicao inicial: Copa UBM (secao 10). Nao cria times, temporadas,
 -- partidas nem regulamento: esses dados serao cadastrados pelo administrador.
 --
--- Idempotente: rodar novamente nao duplica (ON CONFLICT no slug).
---
--- Decisao documentada: status inicial = 'ongoing' (Em andamento). Ajustavel
--- pelo painel administrativo. (Ver enum competition_status na migration 0004.)
+-- Idempotente: rodar novamente atualiza os dados (ON CONFLICT no slug).
 -- =============================================================================
 
-insert into competitions (name, slug, description, status) values
-  ('Carioca A1', 'carioca-a1', 'Primeira divisão do Campeonato Carioca de Mamoball.', 'ongoing'),
-  ('Carioca A2', 'carioca-a2', 'Segunda divisão do Campeonato Carioca de Mamoball.', 'ongoing'),
-  ('Carioca B1', 'carioca-b1', 'Terceira divisão do Campeonato Carioca de Mamoball.', 'ongoing'),
-  ('Carioca B2', 'carioca-b2', 'Quarta divisão do Campeonato Carioca de Mamoball.', 'ongoing'),
-  ('Carioca C',  'carioca-c',  'Quinta divisão do Campeonato Carioca de Mamoball.', 'ongoing')
-on conflict (slug) do nothing;
+insert into competitions (name, slug, description, status, logo_url) values
+  (
+    'Copa UBM',
+    'copa-ubm',
+    'Copa UBM de Mamoball — a principal competição da União Brasileira de Mamoball.',
+    'ongoing',
+    '/copa-ubm.png'
+  )
+on conflict (slug) do update
+  set name = excluded.name,
+      description = excluded.description,
+      status = excluded.status,
+      logo_url = excluded.logo_url;
 
