@@ -159,7 +159,7 @@ export default async function PublicHome() {
               { href: '/jogos', label: 'Jogos e resultados' },
               { href: '/competicoes', label: 'Competições' },
               { href: '/times', label: 'Times' },
-              { href: '/jogadores', label: 'Jogadores' },
+              { href: '/bid', label: 'BID (inscrições)' },
               { href: '/artilharia', label: 'Artilharia' },
               { href: '/noticias', label: 'Notícias' },
               { href: '/museu', label: 'Museu' },
