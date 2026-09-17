@@ -24,20 +24,28 @@ export interface BidEntry {
   status: RegistrationStatus;
 }
 
+/** Normaliza para busca: minusculas e sem acentos. */
+function norm(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '');
+}
+
 export async function listBid(
   supabase: DbClient,
-  opts: { limit?: number } = {},
+  opts: { limit?: number; search?: string } = {},
 ): Promise<BidEntry[]> {
-  let query = supabase
+  // Busca abrange varias colunas de tabelas diferentes, entao filtramos em
+  // memoria sobre o boletim ja montado (o volume de inscricoes e pequeno).
+  const { data: regs, error } = await supabase
     .from('registrations')
     .select(
       'id, created_at, status, player_id, team_id, competition_id, season_id',
     )
     .neq('status', 'removed')
-    .order('created_at', { ascending: false });
-  if (opts.limit) query = query.limit(opts.limit);
-
-  const { data: regs, error } = await query;
+    .order('created_at', { ascending: false })
+    .limit(2000);
   if (error) throw error;
   if (!regs || regs.length === 0) return [];
 
@@ -62,7 +70,7 @@ export async function listBid(
   const comp = new Map((comps ?? []).map((c) => [c.id, c]));
   const seasonYear = new Map((seasons ?? []).map((s) => [s.id, s.year]));
 
-  return regs.map((r) => {
+  const entries: BidEntry[] = regs.map((r) => {
     const p = player.get(r.player_id);
     const t = team.get(r.team_id);
     const c = comp.get(r.competition_id);
@@ -81,4 +89,21 @@ export async function listBid(
       status: r.status,
     };
   });
+
+  let result = entries;
+  const term = opts.search ? norm(opts.search.trim()) : '';
+  if (term) {
+    result = entries.filter((e) =>
+      [
+        e.playerName,
+        e.playerNickname ?? '',
+        e.mamoballPlayerId,
+        e.teamName,
+        e.competitionName,
+        String(e.seasonYear),
+      ].some((field) => norm(field).includes(term)),
+    );
+  }
+
+  return opts.limit ? result.slice(0, opts.limit) : result;
 }

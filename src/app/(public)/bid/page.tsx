@@ -30,11 +30,16 @@ const STATUS_CLASS: Record<RegistrationStatus, string> = {
   removed: 'bg-neutral-100 text-neutral-500',
 };
 
-export default async function BidPage() {
+export default async function BidPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
   let entries: BidEntry[] = [];
   try {
     const supabase = await createClient();
-    entries = await listBid(supabase, { limit: 200 });
+    entries = await listBid(supabase, { limit: 300, search: q });
   } catch {
     entries = [];
   }
@@ -51,10 +56,44 @@ export default async function BidPage() {
         </p>
       </div>
 
+      <form action="/bid" method="get" className="mb-6 flex gap-2">
+        <input
+          name="q"
+          defaultValue={q ?? ''}
+          placeholder="Buscar por jogador, ID Mamoball, clube ou competição..."
+          className="w-full max-w-md rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-fmrj"
+        />
+        <button
+          type="submit"
+          className="rounded-md bg-fmrj px-4 py-2 text-sm font-medium text-white hover:bg-fmrj-dark"
+        >
+          Buscar
+        </button>
+        {q && (
+          <a
+            href="/bid"
+            className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-600 hover:border-fmrj hover:text-fmrj"
+          >
+            Limpar
+          </a>
+        )}
+      </form>
+
+      {q && (
+        <p className="mb-3 text-sm text-neutral-500">
+          {entries.length}{' '}
+          {entries.length === 1 ? 'resultado' : 'resultados'} para “{q}”.
+        </p>
+      )}
+
       {entries.length === 0 ? (
         <EmptyState
-          title="Nenhuma inscrição publicada ainda."
-          description="Assim que jogadores forem inscritos nos elencos pela organização, os registros aparecem aqui."
+          title={q ? 'Nenhum registro encontrado.' : 'Nenhuma inscrição publicada ainda.'}
+          description={
+            q
+              ? 'Tente outro nome, ID, clube ou competição.'
+              : 'Assim que jogadores forem inscritos nos elencos pela organização, os registros aparecem aqui.'
+          }
         />
       ) : (
         <div className="overflow-x-auto rounded-lg border border-neutral-200 bg-white">
@@ -126,14 +165,6 @@ export default async function BidPage() {
           </table>
         </div>
       )}
-
-      <p className="mt-4 text-xs text-neutral-400">
-        Procurando um jogador específico? Use a{' '}
-        <Link href="/busca" className="font-medium text-fmrj hover:underline">
-          busca
-        </Link>
-        .
-      </p>
     </div>
   );
 }
