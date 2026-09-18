@@ -365,11 +365,12 @@ async function TabContent({
         getSeasonTeams(supabase, scope),
         getSeasonPlayers(supabase, scope),
       ]);
-      const squads: Record<string, string[]> = {};
+      const squads: Record<string, { id: string; name: string }[]> = {};
       for (const p of seasonPlayers) {
         const list = (squads[p.teamId] ??= []);
-        const label = p.nickname || p.name;
-        if (!list.includes(label)) list.push(label);
+        if (!list.some((x) => x.id === p.playerId)) {
+          list.push({ id: p.playerId, name: p.nickname || p.name });
+        }
       }
       return (
         <BracketEditor
@@ -445,6 +446,10 @@ async function TabContent({
                 teams={seasonTeams.map((t) => ({
                   id: t.teamId,
                   name: t.teamName,
+                }))}
+                players={players.map((p) => ({
+                  id: p.playerId,
+                  name: p.nickname || p.name,
                 }))}
               />
             </div>

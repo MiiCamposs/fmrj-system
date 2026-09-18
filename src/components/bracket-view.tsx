@@ -17,6 +17,14 @@ function teamName(teams: TeamOpt[], id: string | null): string | null {
   return teams.find((t) => t.id === id)?.name ?? '?';
 }
 
+/** Resolve os ids dos autores para nomes (fallback: o proprio texto). */
+function goalNames(
+  ids: string[],
+  players: Map<string, string>,
+): string[] {
+  return ids.map((id) => players.get(id) ?? id);
+}
+
 function SlotSide({
   name,
   score,
@@ -62,7 +70,15 @@ function SlotSide({
   );
 }
 
-function MatchCard({ slot, teams }: { slot: BracketSlot; teams: TeamOpt[] }) {
+function MatchCard({
+  slot,
+  teams,
+  players,
+}: {
+  slot: BracketSlot;
+  teams: TeamOpt[];
+  players: Map<string, string>;
+}) {
   const h = teamName(teams, slot.home);
   const a = teamName(teams, slot.away);
   const { home, away } = slotScore(slot);
@@ -72,14 +88,14 @@ function MatchCard({ slot, teams }: { slot: BracketSlot; teams: TeamOpt[] }) {
       <SlotSide
         name={h}
         score={home}
-        goals={slot.homeGoals}
+        goals={goalNames(slot.homeGoals, players)}
         winner={decided === slot.home && !!slot.home}
       />
       <div className="border-t border-neutral-100" />
       <SlotSide
         name={a}
         score={away}
-        goals={slot.awayGoals}
+        goals={goalNames(slot.awayGoals, players)}
         winner={decided === slot.away && !!slot.away}
       />
     </div>
@@ -106,25 +122,28 @@ function Column({
 export function BracketView({
   bracket,
   teams,
+  players = [],
 }: {
   bracket: BracketData;
   teams: TeamOpt[];
+  players?: TeamOpt[];
 }) {
   const b = resolveBracket(bracket);
+  const playerMap = new Map(players.map((p) => [p.id, p.name]));
   const champion = teamName(teams, slotWinner(b.final));
 
   return (
     <div className="overflow-x-auto pb-2">
       <div className="flex justify-center gap-4">
         <Column title="Chave 1">
-          <MatchCard slot={b.quarterfinals[0]!} teams={teams} />
-          <MatchCard slot={b.quarterfinals[1]!} teams={teams} />
+          <MatchCard slot={b.quarterfinals[0]!} teams={teams} players={playerMap} />
+          <MatchCard slot={b.quarterfinals[1]!} teams={teams} players={playerMap} />
         </Column>
         <Column title="Semifinal">
-          <MatchCard slot={b.semifinals[0]!} teams={teams} />
+          <MatchCard slot={b.semifinals[0]!} teams={teams} players={playerMap} />
         </Column>
         <Column title="Final">
-          <MatchCard slot={b.final} teams={teams} />
+          <MatchCard slot={b.final} teams={teams} players={playerMap} />
           {champion && (
             <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-center">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-600">
@@ -135,11 +154,11 @@ export function BracketView({
           )}
         </Column>
         <Column title="Semifinal">
-          <MatchCard slot={b.semifinals[1]!} teams={teams} />
+          <MatchCard slot={b.semifinals[1]!} teams={teams} players={playerMap} />
         </Column>
         <Column title="Chave 2">
-          <MatchCard slot={b.quarterfinals[2]!} teams={teams} />
-          <MatchCard slot={b.quarterfinals[3]!} teams={teams} />
+          <MatchCard slot={b.quarterfinals[2]!} teams={teams} players={playerMap} />
+          <MatchCard slot={b.quarterfinals[3]!} teams={teams} players={playerMap} />
         </Column>
       </div>
     </div>

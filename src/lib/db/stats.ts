@@ -3,8 +3,56 @@
  * partir de match_events. Enriquecidas com nomes para exibicao.
  */
 import type { DbClient } from '@/lib/supabase/types';
-import { computeTopScorers, type ScorerRow } from '@/lib/domain/stats';
+import { computeTopScorers, type ScorerRow, type EventLite } from '@/lib/domain/stats';
+import { normalizeBracket, bracketGoalEvents } from '@/lib/domain/bracket';
 import { listEventsInScope } from './events';
+
+/**
+ * Gols registrados nas sumulas dos chaveamentos (mata-mata) no escopo, como
+ * eventos de gol. So conta autores que sao jogadores inscritos na temporada
+ * (evita nomes soltos de dados antigos).
+ */
+export async function listBracketEventsInScope(
+  supabase: DbClient,
+  scope: { competitionId?: string; seasonId?: string },
+): Promise<EventLite[]> {
+  let sq = supabase.from('seasons').select('id, bracket');
+  if (scope.competitionId) sq = sq.eq('competition_id', scope.competitionId);
+  if (scope.seasonId) sq = sq.eq('id', scope.seasonId);
+  const { data: seasons, error } = await sq;
+  if (error) throw error;
+  const withBracket = (seasons ?? []).filter((s) => s.bracket);
+  if (withBracket.length === 0) return [];
+
+  const seasonIds = withBracket.map((s) => s.id);
+  // Jogadores inscritos por temporada (para validar os autores).
+  const { data: regs } = await supabase
+    .from('registrations')
+    .select('season_id, player_id')
+    .in('season_id', seasonIds)
+    .neq('status', 'removed');
+  const validBySeason = new Map<string, Set<string>>();
+  for (const r of regs ?? []) {
+    const set = validBySeason.get(r.season_id) ?? new Set<string>();
+    set.add(r.player_id);
+    validBySeason.set(r.season_id, set);
+  }
+
+  const events: EventLite[] = [];
+  for (const s of withBracket) {
+    const valid = validBySeason.get(s.id) ?? new Set<string>();
+    for (const g of bracketGoalEvents(normalizeBracket(s.bracket))) {
+      if (!valid.has(g.playerId)) continue;
+      events.push({
+        matchId: `br:${s.id}:${g.slotKey}`,
+        playerId: g.playerId,
+        teamId: g.teamId,
+        type: 'goal',
+      });
+    }
+  }
+  return events;
+}
 
 export interface TopScorerItem extends ScorerRow {
   playerName: string;
@@ -17,7 +65,11 @@ export async function getTopScorers(
   scope: { competitionId?: string; seasonId?: string },
   limit?: number,
 ): Promise<TopScorerItem[]> {
-  const events = await listEventsInScope(supabase, scope);
+  const [matchEvents, bracketEvents] = await Promise.all([
+    listEventsInScope(supabase, scope),
+    listBracketEventsInScope(supabase, scope),
+  ]);
+  const events = [...matchEvents, ...bracketEvents];
   const scorers = computeTopScorers(events);
   if (scorers.length === 0) return [];
 

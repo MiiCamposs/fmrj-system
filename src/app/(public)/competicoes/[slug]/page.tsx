@@ -145,8 +145,15 @@ async function PublicTabContent({
 
   if (tab === 'classificacao') {
     if (isKnockout(season?.format)) {
-      const seasonTeams = await getSeasonTeams(supabase, scope);
+      const [seasonTeams, seasonPlayers] = await Promise.all([
+        getSeasonTeams(supabase, scope),
+        getSeasonPlayers(supabase, scope),
+      ]);
       const teams = seasonTeams.map((t) => ({ id: t.teamId, name: t.teamName }));
+      const players = seasonPlayers.map((p) => ({
+        id: p.playerId,
+        name: p.nickname || p.name,
+      }));
       const bracket = normalizeBracket(season?.bracket);
       const empty =
         bracket.quarterfinals.every((s) => !s.home && !s.away) &&
@@ -159,7 +166,7 @@ async function PublicTabContent({
           description="O mata-mata ainda não foi definido pela organização."
         />
       ) : (
-        <BracketView bracket={bracket} teams={teams} />
+        <BracketView bracket={bracket} teams={teams} players={players} />
       );
     }
     const rows = await getStandings(supabase, scope);
@@ -326,12 +333,14 @@ async function PublicTabContent({
 
   // visao-geral (default)
   const knockout = isKnockout(season?.format);
-  const [standings, upcoming, results, seasonTeams] = await Promise.all([
-    knockout ? Promise.resolve([]) : getStandings(supabase, scope),
-    listMatches(supabase, { ...scope, status: 'scheduled' }),
-    listMatches(supabase, { ...scope, status: 'finished' }),
-    knockout ? getSeasonTeams(supabase, scope) : Promise.resolve([]),
-  ]);
+  const [standings, upcoming, results, seasonTeams, seasonPlayers] =
+    await Promise.all([
+      knockout ? Promise.resolve([]) : getStandings(supabase, scope),
+      listMatches(supabase, { ...scope, status: 'scheduled' }),
+      listMatches(supabase, { ...scope, status: 'finished' }),
+      knockout ? getSeasonTeams(supabase, scope) : Promise.resolve([]),
+      knockout ? getSeasonPlayers(supabase, scope) : Promise.resolve([]),
+    ]);
 
   const bracket = knockout ? normalizeBracket(season?.bracket) : null;
   const bracketFilled =
@@ -352,6 +361,10 @@ async function PublicTabContent({
                 teams={seasonTeams.map((t) => ({
                   id: t.teamId,
                   name: t.teamName,
+                }))}
+                players={seasonPlayers.map((p) => ({
+                  id: p.playerId,
+                  name: p.nickname || p.name,
                 }))}
               />
             </section>

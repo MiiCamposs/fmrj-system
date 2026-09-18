@@ -107,7 +107,13 @@ export default async function AdminMatchPage({
       </div>
 
       <Card className="mt-6 p-5">
-        <h2 className="mb-3 font-semibold text-neutral-800">Eventos</h2>
+        <h2 className="mb-1 font-semibold text-neutral-800">
+          Súmula (gols e cartões)
+        </h2>
+        <p className="mb-3 text-sm text-neutral-500">
+          Registre cada gol pelo autor. Os gols contam na artilharia da
+          competição.
+        </p>
         <EventManager
           matchId={match.id}
           competitionSlug={slug}

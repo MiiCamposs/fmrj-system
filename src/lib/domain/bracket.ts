@@ -112,6 +112,32 @@ export function resolveBracket(b: BracketData): BracketData {
   return { quarterfinals: qf, semifinals, final };
 }
 
+/**
+ * Extrai os gols do chaveamento como eventos (autor + time), para alimentar a
+ * artilharia. Cada gol e um player_id no lado do respectivo time (ja resolvido
+ * pelos vencedores). Ignora entradas vazias.
+ */
+export function bracketGoalEvents(
+  bracket: BracketData,
+): { slotKey: string; playerId: string; teamId: string }[] {
+  const b = resolveBracket(bracket);
+  const out: { slotKey: string; playerId: string; teamId: string }[] = [];
+  const push = (slotKey: string, slot: BracketSlot) => {
+    if (slot.home) {
+      for (const pid of slot.homeGoals)
+        if (pid.trim()) out.push({ slotKey, playerId: pid, teamId: slot.home });
+    }
+    if (slot.away) {
+      for (const pid of slot.awayGoals)
+        if (pid.trim()) out.push({ slotKey, playerId: pid, teamId: slot.away });
+    }
+  };
+  b.quarterfinals.forEach((s, i) => push(`qf${i}`, s));
+  b.semifinals.forEach((s, i) => push(`sf${i}`, s));
+  push('final', b.final);
+  return out;
+}
+
 /** Le com seguranca o JSON vindo do banco, garantindo a estrutura correta. */
 export function normalizeBracket(raw: unknown): BracketData {
   const base = emptyBracket();

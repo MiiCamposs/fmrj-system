@@ -16,6 +16,10 @@ interface TeamOpt {
   id: string;
   name: string;
 }
+interface SquadPlayer {
+  id: string;
+  name: string;
+}
 
 type Round = 'quarterfinals' | 'semifinals' | 'final';
 type Side = 'home' | 'away';
@@ -30,7 +34,7 @@ export function BracketEditor({
   competitionSlug: string;
   seasonId: string;
   teams: TeamOpt[];
-  squads: Record<string, string[]>;
+  squads: Record<string, SquadPlayer[]>;
   initialBracket: BracketData;
 }) {
   const router = useRouter();
@@ -70,12 +74,26 @@ export function BracketEditor({
     });
   }
 
+  // Remove gols sem jogador antes de salvar (evita placar fantasma).
+  function cleaned(b: BracketData): BracketData {
+    const clean = (s: BracketSlot): BracketSlot => ({
+      ...s,
+      homeGoals: s.homeGoals.filter((g) => g.trim()),
+      awayGoals: s.awayGoals.filter((g) => g.trim()),
+    });
+    return {
+      quarterfinals: b.quarterfinals.map(clean),
+      semifinals: b.semifinals.map(clean),
+      final: clean(b.final),
+    };
+  }
+
   async function handleSave() {
     setLoading(true);
     const result = await saveBracketAction({
       seasonId,
       competitionSlug,
-      bracket: resolveBracket(bracket),
+      bracket: resolveBracket(cleaned(bracket)),
     });
     setLoading(false);
     if (!result.ok) {
@@ -107,6 +125,7 @@ export function BracketEditor({
         {(['home', 'away'] as const).map((side) => {
           const teamId = side === 'home' ? view.home : view.away;
           const goals = side === 'home' ? edit.homeGoals : edit.awayGoals;
+          const squad = teamId ? (squads[teamId] ?? []) : [];
           return (
             <div key={side} className="mb-2 last:mb-0">
               {editable ? (
@@ -132,13 +151,14 @@ export function BracketEditor({
                     {teamName(teamId) ?? 'Aguardando vencedor'}
                   </span>
                   <span className="text-xs font-semibold text-neutral-500">
-                    {goals.length} gol(s)
+                    {goals.filter((g) => g).length} gol(s)
                   </span>
                 </div>
               )}
               <GoalList
                 goals={goals}
-                teamId={teamId}
+                squad={squad}
+                disabled={!teamId}
                 onChange={(g) => setGoals(round, index, side, g)}
               />
             </div>
@@ -151,45 +171,24 @@ export function BracketEditor({
   return (
     <div className="space-y-5">
       <p className="text-sm text-neutral-500">
-        Monte a <strong>súmula</strong>: em cada jogo, adicione o nome de quem
-        fez cada gol (o placar é a quantidade de gols). Preencha só as{' '}
-        <strong>quartas</strong>; o vencedor sobe sozinho para a semifinal e a
-        final.
+        Monte a <strong>súmula</strong>: em cada jogo, adicione um gol para cada
+        jogador que marcou (quem fez 3, aparece 3 vezes). O placar é a quantidade
+        de gols e conta na <strong>artilharia</strong>. Preencha só as{' '}
+        <strong>quartas</strong>; o vencedor sobe sozinho.
       </p>
-
-      {/* Datalists de autocomplete por elenco */}
-      {teams.map((t) =>
-        squads[t.id]?.length ? (
-          <datalist key={t.id} id={`sq-${t.id}`}>
-            {squads[t.id]!.map((n, i) => (
-              <option key={i} value={n} />
-            ))}
-          </datalist>
-        ) : null,
-      )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-3 rounded-xl border border-neutral-200 p-4">
           <h3 className="text-sm font-bold text-neutral-800">Chave 1</h3>
           <Match label="Quartas · Jogo 1" round="quarterfinals" index={0} editable />
           <Match label="Quartas · Jogo 2" round="quarterfinals" index={1} editable />
-          <Match
-            label="Semifinal 1"
-            round="semifinals"
-            index={0}
-            editable={false}
-          />
+          <Match label="Semifinal 1" round="semifinals" index={0} editable={false} />
         </div>
         <div className="space-y-3 rounded-xl border border-neutral-200 p-4">
           <h3 className="text-sm font-bold text-neutral-800">Chave 2</h3>
           <Match label="Quartas · Jogo 3" round="quarterfinals" index={2} editable />
           <Match label="Quartas · Jogo 4" round="quarterfinals" index={3} editable />
-          <Match
-            label="Semifinal 2"
-            round="semifinals"
-            index={1}
-            editable={false}
-          />
+          <Match label="Semifinal 2" round="semifinals" index={1} editable={false} />
         </div>
       </div>
 
@@ -221,30 +220,36 @@ export function BracketEditor({
 
 function GoalList({
   goals,
-  teamId,
+  squad,
+  disabled,
   onChange,
 }: {
   goals: string[];
-  teamId: string | null;
+  squad: SquadPlayer[];
+  disabled: boolean;
   onChange: (goals: string[]) => void;
 }) {
-  const listId = teamId ? `sq-${teamId}` : undefined;
   return (
     <div className="space-y-1 pl-1">
       {goals.map((g, i) => (
         <div key={i} className="flex items-center gap-1">
           <span className="text-xs text-neutral-300">⚽</span>
-          <input
-            list={listId}
+          <select
             className="min-w-0 flex-1 rounded-md border border-neutral-300 px-2 py-1 text-sm outline-none focus:border-fmrj"
             value={g}
-            placeholder="Autor do gol"
             onChange={(e) => {
               const next = [...goals];
               next[i] = e.target.value;
               onChange(next);
             }}
-          />
+          >
+            <option value="">Quem marcou?</option>
+            {squad.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
           <button
             type="button"
             aria-label="Remover gol"
@@ -257,7 +262,8 @@ function GoalList({
       ))}
       <button
         type="button"
-        className="text-xs font-medium text-fmrj hover:underline"
+        disabled={disabled}
+        className="text-xs font-medium text-fmrj hover:underline disabled:cursor-not-allowed disabled:text-neutral-300 disabled:no-underline"
         onClick={() => onChange([...goals, ''])}
       >
         + Gol
