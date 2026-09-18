@@ -5,7 +5,9 @@ import { getTeamById } from '@/lib/db/teams';
 import { getSquad } from '@/lib/db/registrations';
 import { Breadcrumbs, EmptyState, Card } from '@/components/ui/ui';
 import { RegistrationStatusBadge } from '@/components/ui/badge';
+import { seasonLabel } from '@/lib/domain/season';
 import { AddPlayerFlow } from './_components/add-player-flow';
+import { BulkAddPlayers } from './_components/bulk-add-players';
 import { SquadRowActions } from './_components/squad-row-actions';
 
 export const dynamic = 'force-dynamic';
@@ -71,18 +73,26 @@ export default async function SquadPage({
       <div className="mb-5">
         <h1 className="text-2xl font-bold text-neutral-900">{team.name}</h1>
         <p className="text-sm text-neutral-500">
-          Elenco — {competition.name}, temporada {season.year}
+          Elenco — {competition.name}, {seasonLabel(season)}
         </p>
       </div>
 
       <div className="mb-5">
-        <AddPlayerFlow
-          competitionId={competition.id}
-          competitionSlug={slug}
-          seasonId={season.id}
-          teamId={teamId}
-          teamName={team.name}
-        />
+        <div className="flex flex-wrap items-start gap-2">
+          <AddPlayerFlow
+            competitionId={competition.id}
+            competitionSlug={slug}
+            seasonId={season.id}
+            teamId={teamId}
+            teamName={team.name}
+          />
+          <BulkAddPlayers
+            competitionId={competition.id}
+            competitionSlug={slug}
+            seasonId={season.id}
+            teamId={teamId}
+          />
+        </div>
       </div>
 
       {squad.length === 0 ? (

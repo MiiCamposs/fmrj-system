@@ -13,6 +13,7 @@ import {
   removeRegistration,
   setRegistrationStatus,
 } from '@/lib/db/registrations';
+import { parseSquadList } from '@/lib/domain/squad-import';
 import { writeAuditLog } from '@/lib/db/audit';
 import { actionError, type ActionResult } from '@/lib/actions/result';
 import type { RegistrationStatus } from '@/types/database';
@@ -146,6 +147,137 @@ export async function addPlayerToSquadAction(input: {
         duplicate: result.duplicate,
         conflict: result.conflict,
         conflictTeams,
+      },
+    };
+  } catch (e) {
+    return actionError(e);
+  }
+}
+
+export interface BulkAddOutcome {
+  name: string | null;
+  mamoballId: string;
+  status: 'added' | 'duplicate' | 'conflict' | 'error';
+  message?: string;
+}
+
+export interface BulkAddSummary {
+  total: number;
+  added: number;
+  duplicates: number;
+  conflicts: number;
+  errors: number;
+  outcomes: BulkAddOutcome[];
+  invalid: string[];
+}
+
+/** Inscreve varios jogadores de uma vez a partir de uma lista colada. */
+export async function bulkAddToSquadAction(input: {
+  competitionId: string;
+  competitionSlug: string;
+  seasonId: string;
+  teamId: string;
+  raw: string;
+}): Promise<ActionResult<BulkAddSummary>> {
+  try {
+    const ctx = await requireAdmin();
+    const supabase = createAdminClient();
+
+    const { entries, invalid } = parseSquadList(input.raw);
+    if (entries.length === 0) {
+      throw new Error(
+        'Não encontrei nenhum jogador na lista. Cada linha precisa ter o nome e o #ID.',
+      );
+    }
+
+    const outcomes: BulkAddOutcome[] = [];
+    let added = 0;
+    let duplicates = 0;
+    let conflicts = 0;
+    let errors = 0;
+
+    for (const entry of entries) {
+      try {
+        const result = await addPlayerToSquad(supabase, {
+          competitionId: input.competitionId,
+          seasonId: input.seasonId,
+          teamId: input.teamId,
+          mamoballPlayerId: entry.mamoballId,
+          name: entry.name ?? undefined,
+          nickname: entry.name ?? null,
+        });
+
+        if (result.playerWasCreated) {
+          await writeAuditLog({
+            adminId: ctx.admin.id,
+            action: 'player.create',
+            entity: 'player',
+            entityId: result.player.id,
+            data: {
+              name: result.player.name,
+              mamoballPlayerId: result.player.mamoball_player_id,
+            },
+          });
+        }
+        if (!result.duplicate) {
+          await writeAuditLog({
+            adminId: ctx.admin.id,
+            action: 'player.register',
+            entity: 'registration',
+            entityId: result.registration?.id ?? null,
+            data: {
+              playerId: result.player.id,
+              teamId: input.teamId,
+              competitionId: input.competitionId,
+              seasonId: input.seasonId,
+              conflict: result.conflict,
+            },
+          });
+        }
+
+        let status: BulkAddOutcome['status'];
+        if (result.duplicate) {
+          duplicates++;
+          status = 'duplicate';
+        } else if (result.conflict) {
+          conflicts++;
+          status = 'conflict';
+        } else {
+          added++;
+          status = 'added';
+        }
+        outcomes.push({
+          name: result.player.name,
+          mamoballId: result.player.mamoball_player_id,
+          status,
+        });
+      } catch (err) {
+        errors++;
+        outcomes.push({
+          name: entry.name,
+          mamoballId: entry.mamoballId,
+          status: 'error',
+          message:
+            err instanceof Error ? err.message : 'Não foi possível inscrever.',
+        });
+      }
+    }
+
+    revalidatePath(`/admin/competitions/${input.competitionSlug}`);
+    revalidatePath('/admin/conflicts');
+    revalidatePath('/admin/players');
+    revalidatePath('/admin');
+
+    return {
+      ok: true,
+      data: {
+        total: entries.length,
+        added,
+        duplicates,
+        conflicts,
+        errors,
+        outcomes,
+        invalid,
       },
     };
   } catch (e) {
