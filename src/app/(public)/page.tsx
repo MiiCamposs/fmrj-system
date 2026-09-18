@@ -13,6 +13,7 @@ const QUICK_LINKS = [
   { href: '/times', label: 'Times' },
   { href: '/bid', label: 'BID (inscrições)' },
   { href: '/artilharia', label: 'Artilharia' },
+  { href: '/registro', label: 'Registro de W.O.' },
   { href: '/noticias', label: 'Notícias' },
   { href: '/museu', label: 'Museu' },
 ];

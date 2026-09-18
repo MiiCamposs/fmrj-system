@@ -138,6 +138,7 @@ export async function setResultAction(input: {
   competitionSlug?: string;
   homeScore: number;
   awayScore: number;
+  woNoShowTeamId?: string | null;
 }): Promise<ActionResult> {
   try {
     const ctx = await requireAdmin();
@@ -150,14 +151,26 @@ export async function setResultAction(input: {
       throw new Error('Placar inválido.');
     }
     const supabase = createAdminClient();
-    await setMatchResult(supabase, input.id, input.homeScore, input.awayScore);
+    await setMatchResult(
+      supabase,
+      input.id,
+      input.homeScore,
+      input.awayScore,
+      input.woNoShowTeamId ?? null,
+    );
     await writeAuditLog({
       adminId: ctx.admin.id,
       action: 'result.update',
       entity: 'match',
       entityId: input.id,
-      data: { homeScore: input.homeScore, awayScore: input.awayScore },
+      data: {
+        homeScore: input.homeScore,
+        awayScore: input.awayScore,
+        wo: input.woNoShowTeamId ?? null,
+      },
     });
+    revalidatePath('/registro');
+    revalidatePath('/admin');
     revalidateSports(input.competitionSlug);
     revalidatePath(`/admin/matches/${input.id}`);
     revalidatePath(`/jogos/${input.id}`);

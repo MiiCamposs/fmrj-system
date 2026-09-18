@@ -283,6 +283,7 @@ export interface Database {
           away_team_id: string | null;
           home_score: number | null;
           away_score: number | null;
+          wo_no_show_team_id: string | null;
           scheduled_at: string | null;
           status: MatchStatus;
           created_at: string;
@@ -299,6 +300,7 @@ export interface Database {
           away_team_id?: string | null;
           home_score?: number | null;
           away_score?: number | null;
+          wo_no_show_team_id?: string | null;
           scheduled_at?: string | null;
           status?: MatchStatus;
           created_at?: string;

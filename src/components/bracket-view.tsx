@@ -131,6 +131,11 @@ function MatchCard({
         winner={!!slot.away && win === slot.away}
         loser={!!win && !!slot.away && win !== slot.away}
       />
+      {slot.noShow && (
+        <div className="border-t border-neutral-100 bg-neutral-50 px-3 py-0.5 text-center text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
+          W.O.
+        </div>
+      )}
     </div>
   );
 }

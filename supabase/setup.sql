@@ -1,6 +1,6 @@
 -- =============================================================================
 -- UBM - Setup completo (banco novo). Cole TUDO isto no SQL Editor do Supabase
--- e rode uma unica vez. Contem migrations 0001..0012 + seed (Copa UBM).
+-- e rode uma unica vez. Contem migrations 0001..0013 + seed (Copa UBM).
 -- =============================================================================
 
 
@@ -905,6 +905,16 @@ on conflict (id) do nothing;
 -- =============================================================================
 
 alter table seasons add column if not exists bracket jsonb;
+
+
+-- >>>>>>>>>>>>>>>>>>>>>> supabase/migrations/0013_wo.sql <<<<<<<<<<<<<<<<<<<<<<
+
+-- =============================================================================
+-- UBM - Migration 0013: W.O. nas partidas
+-- =============================================================================
+
+alter table matches
+  add column if not exists wo_no_show_team_id uuid references teams (id) on delete set null;
 
 
 -- >>>>>>>>>>>>>>>>>>>>>> supabase/seed.sql <<<<<<<<<<<<<<<<<<<<<<

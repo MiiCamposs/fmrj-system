@@ -74,6 +74,15 @@ export function BracketEditor({
     });
   }
 
+  function setNoShow(round: Round, index: number, value: 'home' | 'away' | null) {
+    setBracket((prev) => {
+      const next: BracketData = structuredClone(prev);
+      if (round === 'final') next.final = { ...next.final, noShow: value };
+      else next[round][index] = { ...next[round][index]!, noShow: value };
+      return next;
+    });
+  }
+
   // Remove gols sem jogador antes de salvar (evita placar fantasma).
   function cleaned(b: BracketData): BracketData {
     const clean = (s: BracketSlot): BracketSlot => ({
@@ -117,15 +126,35 @@ export function BracketEditor({
   }) {
     const edit = slotAt(bracket, round, index);
     const view = slotAt(resolved, round, index);
+    const wo = edit.noShow;
+    const bothTeams = !!view.home && !!view.away;
     return (
       <div className="rounded-lg border border-neutral-200 bg-white p-2">
-        <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wide text-neutral-400">
-          {label}
-        </p>
+        <div className="mb-1.5 flex items-center justify-between">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">
+            {label}
+          </p>
+          <label
+            className={`flex items-center gap-1 text-[11px] ${
+              bothTeams ? 'text-neutral-500' : 'text-neutral-300'
+            }`}
+          >
+            <input
+              type="checkbox"
+              disabled={!bothTeams}
+              checked={!!wo}
+              onChange={(e) =>
+                setNoShow(round, index, e.target.checked ? 'away' : null)
+              }
+            />
+            W.O.
+          </label>
+        </div>
         {(['home', 'away'] as const).map((side) => {
           const teamId = side === 'home' ? view.home : view.away;
           const goals = side === 'home' ? edit.homeGoals : edit.awayGoals;
           const squad = teamId ? (squads[teamId] ?? []) : [];
+          const woScore = wo ? (wo === side ? 0 : 3) : null;
           return (
             <div key={side} className="mb-2 last:mb-0">
               {editable ? (
@@ -151,16 +180,29 @@ export function BracketEditor({
                     {teamName(teamId) ?? 'Aguardando vencedor'}
                   </span>
                   <span className="text-xs font-semibold text-neutral-500">
-                    {goals.filter((g) => g).length} gol(s)
+                    {wo ? `${woScore}` : `${goals.filter((g) => g).length} gol(s)`}
                   </span>
                 </div>
               )}
-              <GoalList
-                goals={goals}
-                squad={squad}
-                disabled={!teamId}
-                onChange={(g) => setGoals(round, index, side, g)}
-              />
+              {wo ? (
+                <label className="flex cursor-pointer items-center gap-1.5 pl-1 text-xs text-neutral-600">
+                  <input
+                    type="radio"
+                    name={`ns-${round}-${index}`}
+                    checked={wo === side}
+                    onChange={() => setNoShow(round, index, side)}
+                  />
+                  {editable ? teamName(teamId) ?? 'Este time' : ''} não
+                  compareceu {woScore === 3 && '(vence 3 a 0)'}
+                </label>
+              ) : (
+                <GoalList
+                  goals={goals}
+                  squad={squad}
+                  disabled={!teamId}
+                  onChange={(g) => setGoals(round, index, side, g)}
+                />
+              )}
             </div>
           );
         })}

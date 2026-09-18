@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getDashboardCounts } from '@/lib/db/dashboard';
 import { getRecentConflicts } from '@/lib/db/conflicts';
 import { listRecentAudit } from '@/lib/db/audit';
+import { getWoAlerts, WO_ALERT_THRESHOLD } from '@/lib/db/wo';
 import { Card, PageHeader, ErrorState } from '@/components/ui/ui';
 import { ConflictStatusBadge } from '@/components/ui/badge';
 import { auditActionLabel } from '@/lib/domain/audit-labels';
@@ -34,14 +35,40 @@ export default async function AdminDashboard() {
   let content;
   try {
     const supabase = await createClient();
-    const [counts, recentConflicts, recentActivity] = await Promise.all([
-      getDashboardCounts(supabase),
-      getRecentConflicts(supabase, 5),
-      listRecentAudit(8),
-    ]);
+    const [counts, recentConflicts, recentActivity, woAlerts] =
+      await Promise.all([
+        getDashboardCounts(supabase),
+        getRecentConflicts(supabase, 5),
+        listRecentAudit(8),
+        getWoAlerts(supabase),
+      ]);
 
     content = (
       <>
+        {woAlerts.length > 0 && (
+          <div className="mb-6 rounded-lg border border-red-300 bg-red-50 p-4">
+            <p className="font-semibold text-red-800">
+              ⚠️ Clube(s) atingiram {WO_ALERT_THRESHOLD} W.O.
+            </p>
+            <p className="mt-1 text-sm text-red-700">
+              Considere remover da federação:{' '}
+              {woAlerts.map((w, i) => (
+                <span key={w.teamId} className="font-medium">
+                  {i > 0 && ', '}
+                  {w.teamName} ({w.points})
+                </span>
+              ))}
+              .
+            </p>
+            <Link
+              href="/registro"
+              className="mt-2 inline-block text-sm font-medium text-red-700 underline"
+            >
+              Ver Registro de W.O. →
+            </Link>
+          </div>
+        )}
+
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {STAT_META.map(({ key, label }) => {
             const value = counts[key];

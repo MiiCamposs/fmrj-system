@@ -12,7 +12,12 @@ export interface BracketSlot {
   away: string | null;
   homeGoals: string[];
   awayGoals: string[];
+  /** Lado que NAO compareceu (W.O.). O outro vence por 3 a 0. */
+  noShow: 'home' | 'away' | null;
 }
+
+/** Placar de W.O. (3 a 0 pro time presente). */
+export const WO_SCORE = 3;
 
 export interface BracketData {
   quarterfinals: BracketSlot[];
@@ -21,7 +26,13 @@ export interface BracketData {
 }
 
 export function emptySlot(): BracketSlot {
-  return { home: null, away: null, homeGoals: [], awayGoals: [] };
+  return {
+    home: null,
+    away: null,
+    homeGoals: [],
+    awayGoals: [],
+    noShow: null,
+  };
 }
 
 export function emptyBracket(): BracketData {
@@ -42,18 +53,29 @@ export function bracketFilled(b: BracketData): boolean {
   );
 }
 
-/** Placar = quantidade de gols de cada lado. */
+/** Placar = quantidade de gols de cada lado (ou 3x0 em caso de W.O.). */
 export function slotScore(slot: BracketSlot): { home: number; away: number } {
+  if (slot.noShow === 'home') return { home: 0, away: WO_SCORE };
+  if (slot.noShow === 'away') return { home: WO_SCORE, away: 0 };
   return { home: slot.homeGoals.length, away: slot.awayGoals.length };
 }
 
 /** Vencedor de um confronto (id do time), ou null se indefinido/empate. */
 export function slotWinner(slot: BracketSlot): string | null {
   if (!slot.home || !slot.away) return null;
+  if (slot.noShow === 'home') return slot.away;
+  if (slot.noShow === 'away') return slot.home;
   const { home, away } = slotScore(slot);
   if (home === 0 && away === 0) return null;
   if (home > away) return slot.home;
   if (away > home) return slot.away;
+  return null;
+}
+
+/** Time que nao compareceu (id), se houver W.O. neste confronto. */
+export function slotNoShowTeam(slot: BracketSlot): string | null {
+  if (slot.noShow === 'home') return slot.home;
+  if (slot.noShow === 'away') return slot.away;
   return null;
 }
 
@@ -84,11 +106,14 @@ function normalizeSlot(raw: unknown): BracketSlot {
   const s = (raw ?? {}) as Record<string, unknown>;
   const str = (v: unknown): string | null =>
     typeof v === 'string' && v.trim() ? v : null;
+  const noShow =
+    s.noShow === 'home' || s.noShow === 'away' ? s.noShow : null;
   return {
     home: str(s.home),
     away: str(s.away),
     homeGoals: normalizeGoals(s.homeGoals, s.homeScore),
     awayGoals: normalizeGoals(s.awayGoals, s.awayScore),
+    noShow,
   };
 }
 
@@ -105,12 +130,14 @@ export function resolveBracket(b: BracketData): BracketData {
       away: slotWinner(qf[1] ?? emptySlot()),
       homeGoals: b.semifinals[0]?.homeGoals ?? [],
       awayGoals: b.semifinals[0]?.awayGoals ?? [],
+      noShow: b.semifinals[0]?.noShow ?? null,
     },
     {
       home: slotWinner(qf[2] ?? emptySlot()),
       away: slotWinner(qf[3] ?? emptySlot()),
       homeGoals: b.semifinals[1]?.homeGoals ?? [],
       awayGoals: b.semifinals[1]?.awayGoals ?? [],
+      noShow: b.semifinals[1]?.noShow ?? null,
     },
   ];
   const final: BracketSlot = {
@@ -118,6 +145,7 @@ export function resolveBracket(b: BracketData): BracketData {
     away: slotWinner(semifinals[1]!),
     homeGoals: b.final.homeGoals,
     awayGoals: b.final.awayGoals,
+    noShow: b.final.noShow,
   };
   return { quarterfinals: qf, semifinals, final };
 }
@@ -133,6 +161,7 @@ export function bracketGoalEvents(
   const b = resolveBracket(bracket);
   const out: { slotKey: string; playerId: string; teamId: string }[] = [];
   const push = (slotKey: string, slot: BracketSlot) => {
+    if (slot.noShow) return; // W.O. nao tem gols com autor
     if (slot.home) {
       for (const pid of slot.homeGoals)
         if (pid.trim()) out.push({ slotKey, playerId: pid, teamId: slot.home });
@@ -145,6 +174,20 @@ export function bracketGoalEvents(
   b.quarterfinals.forEach((s, i) => push(`qf${i}`, s));
   b.semifinals.forEach((s, i) => push(`sf${i}`, s));
   push('final', b.final);
+  return out;
+}
+
+/** Ids dos times que nao compareceram (W.O.) em todo o chaveamento. */
+export function bracketWoNoShows(bracket: BracketData): string[] {
+  const b = resolveBracket(bracket);
+  const out: string[] = [];
+  const collect = (slot: BracketSlot) => {
+    const t = slotNoShowTeam(slot);
+    if (t) out.push(t);
+  };
+  b.quarterfinals.forEach(collect);
+  b.semifinals.forEach(collect);
+  collect(b.final);
   return out;
 }
 

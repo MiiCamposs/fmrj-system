@@ -89,10 +89,13 @@ export default async function AdminMatchPage({
           <ResultForm
             matchId={match.id}
             competitionSlug={slug}
+            homeTeamId={match.home_team_id}
+            awayTeamId={match.away_team_id}
             homeName={homeName}
             awayName={awayName}
             homeScore={match.home_score}
             awayScore={match.away_score}
+            woNoShowTeamId={match.wo_no_show_team_id}
           />
         </Card>
 

@@ -237,10 +237,16 @@ export async function setMatchResult(
   id: string,
   homeScore: number,
   awayScore: number,
+  woNoShowTeamId: string | null = null,
 ): Promise<MatchRow> {
   const { data, error } = await supabase
     .from('matches')
-    .update({ home_score: homeScore, away_score: awayScore, status: 'finished' })
+    .update({
+      home_score: homeScore,
+      away_score: awayScore,
+      wo_no_show_team_id: woNoShowTeamId,
+      status: 'finished',
+    })
     .eq('id', id)
     .select('*')
     .single();
