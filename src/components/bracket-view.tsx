@@ -114,7 +114,7 @@ function MatchCard({
   const { home: hs, away: as } = slotScore(slot);
   const win = slotWinner(slot);
   return (
-    <div className="w-56 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
+    <div className="w-full overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
       <Side
         team={home}
         score={hs}
@@ -142,7 +142,7 @@ function Column({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-w-[224px] flex-col">
+    <div className="flex min-w-0 flex-col">
       <p className="mb-3 text-center">
         <span className="rounded-full bg-neutral-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
           {title}
@@ -167,8 +167,8 @@ export function BracketView({
   const champion = findTeam(teams, slotWinner(b.final));
 
   return (
-    <div className="overflow-x-auto rounded-2xl bg-gradient-to-b from-neutral-50 to-white p-4 ring-1 ring-neutral-200 sm:p-6">
-      <div className="flex min-w-max justify-center gap-4 sm:gap-6">
+    <div className="overflow-x-auto rounded-2xl bg-gradient-to-b from-neutral-50 to-white p-3 ring-1 ring-neutral-200 sm:p-6 lg:overflow-visible">
+      <div className="grid min-w-[860px] grid-cols-5 items-stretch gap-2 sm:gap-4 lg:min-w-0">
         <Column title="Chave 1">
           <MatchCard slot={b.quarterfinals[0]!} teams={teams} players={playerMap} />
           <MatchCard slot={b.quarterfinals[1]!} teams={teams} players={playerMap} />

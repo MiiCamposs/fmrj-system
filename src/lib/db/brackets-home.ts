@@ -6,6 +6,9 @@ import type { DbClient } from '@/lib/supabase/types';
 import {
   normalizeBracket,
   bracketFilled,
+  resolveBracket,
+  slotScore,
+  slotWinner,
   type BracketData,
 } from '@/lib/domain/bracket';
 import { isKnockout, seasonLabel } from '@/lib/domain/season';
@@ -78,5 +81,108 @@ export async function getHomeBrackets(
       })),
     });
   }
+  // Ordena por nome da competicao (desc): "Weekly Elite" antes de "Weekly Based".
+  out.sort((a, b) => b.competitionName.localeCompare(a.competitionName, 'pt'));
   return out;
+}
+
+// ---------------------------------------------------------------------------
+// Jogos do mata-mata (para a pagina /jogos): cada confronto ja com dois times.
+// ---------------------------------------------------------------------------
+
+export interface BracketFixtureSide {
+  name: string;
+  logo: string | null;
+  score: number;
+  winner: boolean;
+}
+export interface BracketFixture {
+  key: string;
+  competitionName: string;
+  competitionSlug: string;
+  editionLabel: string;
+  phase: string;
+  decided: boolean;
+  home: BracketFixtureSide;
+  away: BracketFixtureSide;
+}
+
+const PHASE_LABEL: Record<string, string> = {
+  qf: 'Quartas de final',
+  sf: 'Semifinal',
+  final: 'Final',
+};
+
+export async function getBracketFixtures(
+  supabase: DbClient,
+  opts: { competitionId?: string } = {},
+): Promise<BracketFixture[]> {
+  let sq = supabase
+    .from('seasons')
+    .select('id, competition_id, name, year, format, bracket, created_at')
+    .not('bracket', 'is', null)
+    .order('created_at', { ascending: false });
+  if (opts.competitionId) sq = sq.eq('competition_id', opts.competitionId);
+  const { data: seasons, error } = await sq;
+  if (error) throw error;
+
+  const rows = (seasons ?? [])
+    .filter((s) => isKnockout(s.format))
+    .map((s) => ({ s, bracket: normalizeBracket(s.bracket) }))
+    .filter(({ bracket }) => bracketFilled(bracket));
+  if (rows.length === 0) return [];
+
+  const compIds = Array.from(new Set(rows.map((r) => r.s.competition_id)));
+  const { data: comps } = await supabase
+    .from('competitions')
+    .select('id, name, slug, status')
+    .in('id', compIds);
+  const compById = new Map((comps ?? []).map((c) => [c.id, c]));
+
+  const fixtures: BracketFixture[] = [];
+  for (const { s, bracket } of rows) {
+    const comp = compById.get(s.competition_id);
+    if (!comp || comp.status === 'archived') continue;
+    const teams = await getSeasonTeams(supabase, {
+      competitionId: s.competition_id,
+      seasonId: s.id,
+    });
+    const nameOf = (id: string | null) =>
+      id ? (teams.find((t) => t.teamId === id)?.teamName ?? '—') : '—';
+    const logoOf = (id: string | null) =>
+      id ? (teams.find((t) => t.teamId === id)?.logoUrl ?? null) : null;
+
+    const b = resolveBracket(bracket);
+    const editionLabel = seasonLabel({ name: s.name, year: s.year });
+    const add = (slotKey: string, slot: (typeof b.quarterfinals)[number]) => {
+      if (!slot.home || !slot.away) return; // so confrontos definidos
+      const sc = slotScore(slot);
+      const win = slotWinner(slot);
+      const phaseKey = slotKey.replace(/\d+$/, '');
+      fixtures.push({
+        key: `${s.id}:${slotKey}`,
+        competitionName: comp.name,
+        competitionSlug: comp.slug,
+        editionLabel,
+        phase: PHASE_LABEL[phaseKey] ?? 'Mata-mata',
+        decided: !!win,
+        home: {
+          name: nameOf(slot.home),
+          logo: logoOf(slot.home),
+          score: sc.home,
+          winner: win === slot.home,
+        },
+        away: {
+          name: nameOf(slot.away),
+          logo: logoOf(slot.away),
+          score: sc.away,
+          winner: win === slot.away,
+        },
+      });
+    };
+    b.quarterfinals.forEach((s2, i) => add(`qf${i}`, s2));
+    b.semifinals.forEach((s2, i) => add(`sf${i}`, s2));
+    add('final', b.final);
+  }
+  return fixtures;
 }
