@@ -24,9 +24,15 @@ export function TabNav({
   active: string;
   knockout?: boolean;
 }) {
+  // No mata-mata os jogos sao o proprio chaveamento (aba Mata-mata), entao a
+  // aba Partidas (feita para pontos corridos) nao aparece.
+  const visibleTabs = knockout
+    ? TABS.filter((t) => t.key !== 'matches')
+    : TABS;
+
   return (
     <div className="mb-6 flex gap-1 overflow-x-auto border-b border-neutral-200">
-      {TABS.map((tab) => {
+      {visibleTabs.map((tab) => {
         const isActive = tab.key === active;
         const label =
           tab.key === 'standings' && knockout ? 'Mata-mata' : tab.label;
