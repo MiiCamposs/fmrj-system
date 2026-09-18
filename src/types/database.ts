@@ -10,6 +10,8 @@
  *   supabase gen types typescript --local > src/types/database.ts
  */
 
+import type { BracketData } from '@/lib/domain/bracket';
+
 export type CompetitionStatus =
   | 'planning'
   | 'registration_open'
@@ -96,6 +98,7 @@ export interface Database {
           year: number;
           name: string | null;
           format: string | null;
+          bracket: BracketData | null;
           status: SeasonStatus;
           created_at: string;
           updated_at: string;
@@ -106,6 +109,7 @@ export interface Database {
           year: number;
           name?: string | null;
           format?: string | null;
+          bracket?: BracketData | null;
           status?: SeasonStatus;
           created_at?: string;
           updated_at?: string;

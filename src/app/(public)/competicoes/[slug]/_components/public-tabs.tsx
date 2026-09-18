@@ -19,15 +19,19 @@ export function PublicTabs({
   slug,
   seasonId,
   active,
+  knockout = false,
 }: {
   slug: string;
   seasonId: string | null;
   active: string;
+  knockout?: boolean;
 }) {
   return (
     <div className="mb-6 flex gap-1 overflow-x-auto border-b border-neutral-200">
       {PUBLIC_TABS.map((tab) => {
         const isActive = tab.key === active;
+        const label =
+          tab.key === 'classificacao' && knockout ? 'Mata-mata' : tab.label;
         const params = new URLSearchParams();
         params.set('tab', tab.key);
         if (seasonId) params.set('season', seasonId);
@@ -41,7 +45,7 @@ export function PublicTabs({
                 : 'border-transparent text-neutral-500 hover:text-neutral-800'
             }`}
           >
-            {tab.label}
+            {label}
           </Link>
         );
       })}

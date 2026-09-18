@@ -8,7 +8,10 @@ import {
   getSeasonTeams,
 } from '@/lib/db/competitions';
 import { getStandings, getScoringConfig } from '@/lib/db/standings';
-import { seasonLabel, formatLabel } from '@/lib/domain/season';
+import { seasonLabel, formatLabel, isKnockout } from '@/lib/domain/season';
+import { normalizeBracket } from '@/lib/domain/bracket';
+import { BracketView } from '@/components/bracket-view';
+import type { SeasonRow } from '@/types/database';
 import { getSeasonPlayers } from '@/lib/db/registrations';
 import { getTopScorers } from '@/lib/db/stats';
 import { listMatches } from '@/lib/db/matches';
@@ -99,6 +102,7 @@ export default async function PublicCompetitionPage({
         slug={slug}
         seasonId={selectedSeason?.id ?? null}
         active={tab}
+        knockout={isKnockout(selectedSeason?.format)}
       />
 
       {!selectedSeason && tab !== 'regulamento' ? (
@@ -107,7 +111,7 @@ export default async function PublicCompetitionPage({
         <PublicTabContent
           tab={tab}
           competition={competition}
-          seasonId={selectedSeason?.id ?? null}
+          season={selectedSeason}
         />
       )}
     </div>
@@ -117,11 +121,11 @@ export default async function PublicCompetitionPage({
 async function PublicTabContent({
   tab,
   competition,
-  seasonId,
+  season,
 }: {
   tab: string;
   competition: { id: string; slug: string; regulation: string | null };
-  seasonId: string | null;
+  season: SeasonRow | null;
 }) {
   const supabase = await createClient();
 
@@ -135,10 +139,29 @@ async function PublicTabContent({
     );
   }
 
+  const seasonId = season?.id ?? null;
   if (!seasonId) return null;
   const scope = { competitionId: competition.id, seasonId };
 
   if (tab === 'classificacao') {
+    if (isKnockout(season?.format)) {
+      const seasonTeams = await getSeasonTeams(supabase, scope);
+      const teams = seasonTeams.map((t) => ({ id: t.teamId, name: t.teamName }));
+      const bracket = normalizeBracket(season?.bracket);
+      const empty =
+        bracket.quarterfinals.every((s) => !s.home && !s.away) &&
+        bracket.semifinals.every((s) => !s.home && !s.away) &&
+        !bracket.final.home &&
+        !bracket.final.away;
+      return empty ? (
+        <EmptyState
+          title="Chaveamento em breve."
+          description="O mata-mata ainda não foi definido pela organização."
+        />
+      ) : (
+        <BracketView bracket={bracket} teams={teams} />
+      );
+    }
     const rows = await getStandings(supabase, scope);
     return rows.length ? (
       <StandingsTable rows={rows} linkTeams />

@@ -24,7 +24,10 @@ import {
 } from '@/components/ui/badge';
 import { Fixture } from '@/components/match/fixture';
 import { StandingsTable } from '@/components/standings-table';
-import { seasonLabel, formatLabel } from '@/lib/domain/season';
+import { seasonLabel, formatLabel, isKnockout } from '@/lib/domain/season';
+import { normalizeBracket } from '@/lib/domain/bracket';
+import type { SeasonRow } from '@/types/database';
+import { BracketEditor } from './_components/bracket-editor';
 import { TabNav } from './_components/tab-nav';
 import { SeasonSelector } from './_components/season-selector';
 import { AddTeam } from './_components/add-team';
@@ -88,7 +91,12 @@ export default async function CompetitionDetailPage({
         />
       </div>
 
-      <TabNav slug={slug} seasonId={selectedSeason?.id ?? null} active={tab} />
+      <TabNav
+        slug={slug}
+        seasonId={selectedSeason?.id ?? null}
+        active={tab}
+        knockout={isKnockout(selectedSeason?.format)}
+      />
 
       {/* Sem temporada: so permite criar uma (e ir para Configurações). */}
       {!selectedSeason && tab !== 'settings' ? (
@@ -107,7 +115,7 @@ export default async function CompetitionDetailPage({
           tab={tab}
           slug={slug}
           competition={competition}
-          seasonId={selectedSeason?.id ?? null}
+          season={selectedSeason}
         />
       )}
     </div>
@@ -118,14 +126,15 @@ async function TabContent({
   tab,
   slug,
   competition,
-  seasonId,
+  season,
 }: {
   tab: string;
   slug: string;
   competition: { id: string; slug: string };
-  seasonId: string | null;
+  season: SeasonRow | null;
 }) {
   const supabase = await createClient();
+  const seasonId = season?.id ?? null;
   const scope = seasonId
     ? { competitionId: competition.id, seasonId }
     : null;
@@ -350,6 +359,17 @@ async function TabContent({
   }
 
   if (tab === 'standings') {
+    if (isKnockout(season?.format)) {
+      const seasonTeams = await getSeasonTeams(supabase, scope);
+      return (
+        <BracketEditor
+          competitionSlug={slug}
+          seasonId={scope.seasonId}
+          teams={seasonTeams.map((t) => ({ id: t.teamId, name: t.teamName }))}
+          initialBracket={normalizeBracket(season?.bracket)}
+        />
+      );
+    }
     const rows = await getStandings(supabase, scope);
     if (rows.length === 0) {
       return <EmptyState title="Sem times/partidas para classificar ainda." />;

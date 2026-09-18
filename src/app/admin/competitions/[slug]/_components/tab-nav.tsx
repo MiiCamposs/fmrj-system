@@ -17,15 +17,19 @@ export function TabNav({
   slug,
   seasonId,
   active,
+  knockout = false,
 }: {
   slug: string;
   seasonId: string | null;
   active: string;
+  knockout?: boolean;
 }) {
   return (
     <div className="mb-6 flex gap-1 overflow-x-auto border-b border-neutral-200">
       {TABS.map((tab) => {
         const isActive = tab.key === active;
+        const label =
+          tab.key === 'standings' && knockout ? 'Mata-mata' : tab.label;
         const params = new URLSearchParams();
         params.set('tab', tab.key);
         if (seasonId) params.set('season', seasonId);
@@ -39,7 +43,7 @@ export function TabNav({
                 : 'border-transparent text-neutral-500 hover:text-neutral-800'
             }`}
           >
-            {tab.label}
+            {label}
           </Link>
         );
       })}

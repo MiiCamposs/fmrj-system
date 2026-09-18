@@ -32,6 +32,11 @@ export function formatLabel(value: string | null | undefined): string {
   return FORMAT_LABELS[value] ?? value;
 }
 
+/** Formatos que sao mata-mata puro (mostram chaveamento no lugar da tabela). */
+export function isKnockout(format: string | null | undefined): boolean {
+  return format === 'mata_mata' || format === 'mata_mata_ida_volta';
+}
+
 /** Nome de exibicao da edicao: usa o nome dado, senao "Temporada <ano>". */
 export function seasonLabel(season: {
   name: string | null;

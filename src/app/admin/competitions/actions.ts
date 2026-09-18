@@ -9,7 +9,9 @@ import {
   createSeason,
   deleteSeason,
   removeTeamFromSeason,
+  updateSeasonBracket,
 } from '@/lib/db/competitions';
+import { normalizeBracket, type BracketData } from '@/lib/domain/bracket';
 import { ensureSeasonTeam } from '@/lib/db/registrations';
 import { writeAuditLog } from '@/lib/db/audit';
 import { actionError, type ActionResult } from '@/lib/actions/result';
@@ -189,6 +191,30 @@ export async function removeTeamFromSeasonAction(input: {
     });
     revalidatePath(`/admin/competitions/${input.competitionSlug}`);
     revalidatePath('/admin/conflicts');
+    return { ok: true };
+  } catch (e) {
+    return actionError(e);
+  }
+}
+
+export async function saveBracketAction(input: {
+  seasonId: string;
+  competitionSlug: string;
+  bracket: BracketData;
+}): Promise<ActionResult> {
+  try {
+    const ctx = await requireAdmin();
+    const supabase = createAdminClient();
+    const bracket = normalizeBracket(input.bracket);
+    await updateSeasonBracket(supabase, input.seasonId, bracket);
+    await writeAuditLog({
+      adminId: ctx.admin.id,
+      action: 'bracket.update',
+      entity: 'season',
+      entityId: input.seasonId,
+    });
+    revalidatePath(`/admin/competitions/${input.competitionSlug}`);
+    revalidatePath(`/competicoes/${input.competitionSlug}`);
     return { ok: true };
   } catch (e) {
     return actionError(e);

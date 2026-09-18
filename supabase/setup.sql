@@ -1,6 +1,6 @@
 -- =============================================================================
 -- UBM - Setup completo (banco novo). Cole TUDO isto no SQL Editor do Supabase
--- e rode uma unica vez. Contem migrations 0001..0011 + seed (Copa UBM).
+-- e rode uma unica vez. Contem migrations 0001..0012 + seed (Copa UBM).
 -- =============================================================================
 
 
@@ -896,6 +896,15 @@ alter table seasons add column if not exists format text;
 insert into storage.buckets (id, name, public)
 values ('logos', 'logos', true)
 on conflict (id) do nothing;
+
+
+-- >>>>>>>>>>>>>>>>>>>>>> supabase/migrations/0012_bracket.sql <<<<<<<<<<<<<<<<<<<<<<
+
+-- =============================================================================
+-- UBM - Migration 0012: Chaveamento (mata-mata)
+-- =============================================================================
+
+alter table seasons add column if not exists bracket jsonb;
 
 
 -- >>>>>>>>>>>>>>>>>>>>>> supabase/seed.sql <<<<<<<<<<<<<<<<<<<<<<

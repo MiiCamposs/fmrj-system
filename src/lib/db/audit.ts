@@ -14,6 +14,7 @@ export type AuditAction =
   | 'competition.archive'
   | 'season.create'
   | 'season.delete'
+  | 'bracket.update'
   | 'season_team.remove'
   | 'team.create'
   | 'team.update'

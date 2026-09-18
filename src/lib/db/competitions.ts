@@ -11,6 +11,7 @@ import type {
   SeasonStatus,
 } from '@/types/database';
 import type { DbClient } from '@/lib/supabase/types';
+import type { BracketData } from '@/lib/domain/bracket';
 
 export async function listCompetitions(
   supabase: DbClient,
@@ -145,6 +146,18 @@ export async function createSeason(
     .single();
   if (error) throw error;
   return data;
+}
+
+export async function updateSeasonBracket(
+  supabase: DbClient,
+  seasonId: string,
+  bracket: BracketData,
+): Promise<void> {
+  const { error } = await supabase
+    .from('seasons')
+    .update({ bracket })
+    .eq('id', seasonId);
+  if (error) throw error;
 }
 
 /**
