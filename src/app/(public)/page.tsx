@@ -4,8 +4,9 @@ import { listCompetitions } from '@/lib/db/competitions';
 import { listUpcomingMatches, listRecentResults } from '@/lib/db/matches';
 import { getTopScorers } from '@/lib/db/stats';
 import { listPublishedNews } from '@/lib/db/news';
+import { getHomeBrackets } from '@/lib/db/brackets-home';
 import { Fixture } from '@/components/match/fixture';
-import { CompetitionStatusBadge } from '@/components/ui/badge';
+import { BracketView } from '@/components/bracket-view';
 import { formatDate } from '@/lib/format';
 
 export const dynamic = 'force-dynamic';
@@ -60,11 +61,16 @@ export default async function PublicHome() {
   // Noticias em try/catch separado: se a tabela ainda nao existir (migration
   // 0007 nao aplicada), a home continua funcionando normalmente.
   let news: Awaited<ReturnType<typeof listPublishedNews>> = [];
+  let brackets: Awaited<ReturnType<typeof getHomeBrackets>> = [];
   try {
     const supabase = await createClient();
-    news = await listPublishedNews(supabase, { limit: 3 });
+    [news, brackets] = await Promise.all([
+      listPublishedNews(supabase, { limit: 3 }),
+      getHomeBrackets(supabase, 3),
+    ]);
   } catch {
     news = [];
+    brackets = [];
   }
 
   return (
@@ -105,79 +111,59 @@ export default async function PublicHome() {
         </div>
       )}
 
-      {/* Destaque + Acesso rápido (informações no alto) */}
-      <div className="mt-8 grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <h2 className="mb-3 text-lg font-bold text-neutral-900">
-            Competição em destaque
-          </h2>
-          {visibleCompetitions.length === 0 ? (
-            <div className="rounded-xl border border-neutral-200 bg-white p-6 text-sm text-neutral-500">
-              Nenhuma competição disponível.
-            </div>
-          ) : (
-            <Link
-              href={`/competicoes/${visibleCompetitions[0]!.slug}`}
-              className="group block h-[calc(100%-2rem)] overflow-hidden rounded-2xl border border-neutral-200 bg-fmrj-dark text-white transition hover:border-fmrj-green"
-            >
-              <div className="flex h-full flex-col items-center gap-6 p-6 text-center sm:flex-row sm:p-8 sm:text-left">
-                {visibleCompetitions[0]!.logo_url && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={visibleCompetitions[0]!.logo_url}
-                    alt={visibleCompetitions[0]!.name}
-                    className="h-28 w-28 shrink-0 object-contain drop-shadow-lg sm:h-36 sm:w-36"
-                  />
-                )}
+      {/* Chaveamentos (mata-mata) em destaque */}
+      {brackets.length > 0 && (
+        <section className="mt-8 space-y-8">
+          {brackets.map((b, i) => (
+            <div key={i}>
+              <div className="mb-3 flex items-end justify-between gap-3">
                 <div>
-                  <CompetitionStatusBadge
-                    status={visibleCompetitions[0]!.status}
-                  />
-                  <h3 className="mt-2 font-display text-2xl font-black sm:text-4xl">
-                    {visibleCompetitions[0]!.name}
-                  </h3>
-                  {visibleCompetitions[0]!.description && (
-                    <p className="mt-2 max-w-xl text-sm text-white/70">
-                      {visibleCompetitions[0]!.description}
-                    </p>
-                  )}
-                  <span className="mt-4 inline-flex items-center gap-1 rounded-md bg-white px-4 py-2 text-sm font-semibold text-fmrj transition group-hover:bg-fmrj-green group-hover:text-white">
-                    Ver competição →
-                  </span>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-fmrj-green">
+                    {b.competitionName}
+                  </p>
+                  <h2 className="font-display text-xl font-black text-neutral-900">
+                    {b.editionLabel}
+                  </h2>
                 </div>
+                <Link
+                  href={`/competicoes/${b.competitionSlug}`}
+                  className="shrink-0 text-sm font-medium text-fmrj hover:underline"
+                >
+                  Ver competição →
+                </Link>
               </div>
-            </Link>
-          )}
-        </div>
+              <BracketView
+                bracket={b.bracket}
+                teams={b.teams}
+                players={b.players}
+              />
+            </div>
+          ))}
+        </section>
+      )}
 
-        <div>
-          <h2 className="mb-3 text-lg font-bold text-neutral-900">
-            Acesso rápido
-          </h2>
-          <nav className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
-            {[
-              { href: '/jogos', label: 'Jogos e resultados' },
-              { href: '/competicoes', label: 'Competições' },
-              { href: '/times', label: 'Times' },
-              { href: '/bid', label: 'BID (inscrições)' },
-              { href: '/artilharia', label: 'Artilharia' },
-              { href: '/noticias', label: 'Notícias' },
-              { href: '/museu', label: 'Museu' },
-            ].map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className="flex items-center justify-between border-b border-neutral-100 px-4 py-3 text-sm font-medium text-neutral-700 transition last:border-0 hover:bg-neutral-50 hover:text-fmrj"
-              >
-                {l.label}
-                <span aria-hidden className="text-neutral-300">
-                  →
-                </span>
-              </Link>
-            ))}
-          </nav>
+      {/* Acesso rápido */}
+      <Section title="Acesso rápido">
+        <div className="flex flex-wrap gap-2">
+          {[
+            { href: '/competicoes', label: 'Competições' },
+            { href: '/jogos', label: 'Jogos e resultados' },
+            { href: '/times', label: 'Times' },
+            { href: '/bid', label: 'BID (inscrições)' },
+            { href: '/artilharia', label: 'Artilharia' },
+            { href: '/noticias', label: 'Notícias' },
+            { href: '/museu', label: 'Museu' },
+          ].map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="rounded-md border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition hover:border-fmrj hover:text-fmrj"
+            >
+              {l.label}
+            </Link>
+          ))}
         </div>
-      </div>
+      </Section>
 
       {/* Últimas notícias */}
       {news.length > 0 && (

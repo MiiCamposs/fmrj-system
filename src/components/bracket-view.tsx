@@ -10,57 +10,87 @@ import {
 interface TeamOpt {
   id: string;
   name: string;
+  logo?: string | null;
+  short?: string | null;
 }
 
-function teamName(teams: TeamOpt[], id: string | null): string | null {
+function findTeam(teams: TeamOpt[], id: string | null): TeamOpt | null {
   if (!id) return null;
-  return teams.find((t) => t.id === id)?.name ?? '?';
+  return teams.find((t) => t.id === id) ?? { id, name: '?' };
 }
 
-/** Resolve os ids dos autores para nomes (fallback: o proprio texto). */
-function goalNames(
-  ids: string[],
-  players: Map<string, string>,
-): string[] {
+function goalNames(ids: string[], players: Map<string, string>): string[] {
   return ids.map((id) => players.get(id) ?? id);
 }
 
-function SlotSide({
-  name,
+function Crest({ team }: { team: TeamOpt | null }) {
+  if (team?.logo) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return (
+      <img
+        src={team.logo}
+        alt=""
+        className="h-6 w-6 shrink-0 rounded-full bg-white object-contain ring-1 ring-neutral-200"
+      />
+    );
+  }
+  const initials = (team?.short || team?.name || '?')
+    .slice(0, 3)
+    .toUpperCase();
+  return (
+    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-[9px] font-bold text-neutral-500 ring-1 ring-neutral-200">
+      {initials}
+    </span>
+  );
+}
+
+function Side({
+  team,
   score,
   goals,
   winner,
+  loser,
 }: {
-  name: string | null;
+  team: TeamOpt | null;
   score: number;
   goals: string[];
   winner: boolean;
+  loser: boolean;
 }) {
   const tally = goalTally(goals);
   return (
-    <div className="px-3 py-2">
-      <div className="flex items-center justify-between gap-2">
+    <div
+      className={`px-2.5 py-2 ${winner ? 'bg-fmrj-green/10' : ''} ${
+        loser ? 'opacity-60' : ''
+      }`}
+    >
+      <div className="flex items-center gap-2">
+        <Crest team={team} />
         <span
-          className={`truncate text-sm ${
-            name
+          className={`min-w-0 flex-1 truncate text-sm ${
+            team
               ? winner
                 ? 'font-bold text-neutral-900'
                 : 'text-neutral-700'
               : 'italic text-neutral-400'
           }`}
         >
-          {name ?? 'A definir'}
+          {team?.name ?? 'A definir'}
         </span>
         <span
-          className={`w-6 shrink-0 text-right text-sm tabular-nums ${
-            winner ? 'font-bold text-neutral-900' : 'text-neutral-500'
+          className={`flex h-6 min-w-[24px] items-center justify-center rounded-md px-1 text-sm font-bold tabular-nums ${
+            winner
+              ? 'bg-fmrj-green text-white'
+              : team
+                ? 'bg-neutral-100 text-neutral-600'
+                : 'text-transparent'
           }`}
         >
-          {name ? score : ''}
+          {team ? score : ''}
         </span>
       </div>
       {tally.length > 0 && (
-        <p className="mt-0.5 truncate text-[11px] text-neutral-400">
+        <p className="mt-0.5 truncate pl-8 text-[11px] text-neutral-400">
           {tally
             .map((t) => (t.goals > 1 ? `${t.name} ×${t.goals}` : t.name))
             .join(', ')}
@@ -79,24 +109,26 @@ function MatchCard({
   teams: TeamOpt[];
   players: Map<string, string>;
 }) {
-  const h = teamName(teams, slot.home);
-  const a = teamName(teams, slot.away);
-  const { home, away } = slotScore(slot);
-  const decided = slotWinner(slot);
+  const home = findTeam(teams, slot.home);
+  const away = findTeam(teams, slot.away);
+  const { home: hs, away: as } = slotScore(slot);
+  const win = slotWinner(slot);
   return (
-    <div className="w-52 overflow-hidden rounded-lg border border-neutral-200 bg-white">
-      <SlotSide
-        name={h}
-        score={home}
+    <div className="w-56 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
+      <Side
+        team={home}
+        score={hs}
         goals={goalNames(slot.homeGoals, players)}
-        winner={decided === slot.home && !!slot.home}
+        winner={!!slot.home && win === slot.home}
+        loser={!!win && !!slot.home && win !== slot.home}
       />
       <div className="border-t border-neutral-100" />
-      <SlotSide
-        name={a}
-        score={away}
+      <Side
+        team={away}
+        score={as}
         goals={goalNames(slot.awayGoals, players)}
-        winner={decided === slot.away && !!slot.away}
+        winner={!!slot.away && win === slot.away}
+        loser={!!win && !!slot.away && win !== slot.away}
       />
     </div>
   );
@@ -110,11 +142,13 @@ function Column({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-w-[208px] flex-col">
-      <p className="mb-2 text-center text-xs font-semibold uppercase tracking-wider text-neutral-500">
-        {title}
+    <div className="flex min-w-[224px] flex-col">
+      <p className="mb-3 text-center">
+        <span className="rounded-full bg-neutral-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
+          {title}
+        </span>
       </p>
-      <div className="flex flex-1 flex-col justify-around gap-4">{children}</div>
+      <div className="flex flex-1 flex-col justify-around gap-5">{children}</div>
     </div>
   );
 }
@@ -126,15 +160,15 @@ export function BracketView({
 }: {
   bracket: BracketData;
   teams: TeamOpt[];
-  players?: TeamOpt[];
+  players?: { id: string; name: string }[];
 }) {
   const b = resolveBracket(bracket);
   const playerMap = new Map(players.map((p) => [p.id, p.name]));
-  const champion = teamName(teams, slotWinner(b.final));
+  const champion = findTeam(teams, slotWinner(b.final));
 
   return (
-    <div className="overflow-x-auto pb-2">
-      <div className="flex justify-center gap-4">
+    <div className="overflow-x-auto rounded-2xl bg-gradient-to-b from-neutral-50 to-white p-4 ring-1 ring-neutral-200 sm:p-6">
+      <div className="flex min-w-max justify-center gap-4 sm:gap-6">
         <Column title="Chave 1">
           <MatchCard slot={b.quarterfinals[0]!} teams={teams} players={playerMap} />
           <MatchCard slot={b.quarterfinals[1]!} teams={teams} players={playerMap} />
@@ -144,14 +178,27 @@ export function BracketView({
         </Column>
         <Column title="Final">
           <MatchCard slot={b.final} teams={teams} players={playerMap} />
-          {champion && (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-center">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-600">
-                Campeão
-              </p>
-              <p className="text-sm font-bold text-neutral-900">{champion}</p>
-            </div>
-          )}
+          <div
+            className={`rounded-xl border px-3 py-3 text-center ${
+              champion?.id && champion.name !== '?'
+                ? 'border-amber-300 bg-gradient-to-b from-amber-50 to-amber-100'
+                : 'border-dashed border-neutral-200 bg-white'
+            }`}
+          >
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-600">
+              🏆 Campeão
+            </p>
+            {champion && champion.name !== '?' ? (
+              <div className="mt-1 flex items-center justify-center gap-2">
+                <Crest team={champion} />
+                <span className="font-display text-sm font-black text-neutral-900">
+                  {champion.name}
+                </span>
+              </div>
+            ) : (
+              <p className="mt-1 text-xs italic text-neutral-400">A definir</p>
+            )}
+          </div>
         </Column>
         <Column title="Semifinal">
           <MatchCard slot={b.semifinals[1]!} teams={teams} players={playerMap} />

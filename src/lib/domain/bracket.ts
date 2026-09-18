@@ -32,6 +32,16 @@ export function emptyBracket(): BracketData {
   };
 }
 
+/** Ha pelo menos um confronto com time definido? (para saber se ja vale exibir) */
+export function bracketFilled(b: BracketData): boolean {
+  return (
+    b.quarterfinals.some((s) => s.home || s.away) ||
+    b.semifinals.some((s) => s.home || s.away) ||
+    !!b.final.home ||
+    !!b.final.away
+  );
+}
+
 /** Placar = quantidade de gols de cada lado. */
 export function slotScore(slot: BracketSlot): { home: number; away: number } {
   return { home: slot.homeGoals.length, away: slot.awayGoals.length };

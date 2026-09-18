@@ -149,7 +149,12 @@ async function PublicTabContent({
         getSeasonTeams(supabase, scope),
         getSeasonPlayers(supabase, scope),
       ]);
-      const teams = seasonTeams.map((t) => ({ id: t.teamId, name: t.teamName }));
+      const teams = seasonTeams.map((t) => ({
+        id: t.teamId,
+        name: t.teamName,
+        logo: t.logoUrl,
+        short: t.shortName,
+      }));
       const players = seasonPlayers.map((p) => ({
         id: p.playerId,
         name: p.nickname || p.name,
@@ -361,6 +366,8 @@ async function PublicTabContent({
                 teams={seasonTeams.map((t) => ({
                   id: t.teamId,
                   name: t.teamName,
+                  logo: t.logoUrl,
+                  short: t.shortName,
                 }))}
                 players={seasonPlayers.map((p) => ({
                   id: p.playerId,

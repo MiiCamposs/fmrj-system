@@ -446,6 +446,8 @@ async function TabContent({
                 teams={seasonTeams.map((t) => ({
                   id: t.teamId,
                   name: t.teamName,
+                  logo: t.logoUrl,
+                  short: t.shortName,
                 }))}
                 players={players.map((p) => ({
                   id: p.playerId,
