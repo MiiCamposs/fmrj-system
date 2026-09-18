@@ -13,6 +13,7 @@ const LABELS: Record<string, string> = {
   'player.update': 'Jogador atualizado',
   'player.register': 'Jogador inscrito no elenco',
   'player.remove': 'Jogador removido do elenco',
+  'player.delete': 'Jogador excluído',
   'match.update': 'Partida atualizada',
   'result.update': 'Resultado atualizado',
   'conflict.resolve': 'Conflito resolvido',

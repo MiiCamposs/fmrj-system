@@ -6,6 +6,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import {
   findPlayerByMamoballId,
   updatePlayer,
+  deletePlayer,
 } from '@/lib/db/players';
 import {
   addPlayerToSquad,
@@ -248,6 +249,26 @@ export async function updatePlayerAction(
     });
     revalidatePath(`/admin/players/${id}`);
     revalidatePath('/admin/players');
+    return { ok: true };
+  } catch (e) {
+    return actionError(e);
+  }
+}
+
+export async function deletePlayerAction(id: string): Promise<ActionResult> {
+  try {
+    const ctx = await requireAdmin();
+    const supabase = createAdminClient();
+    await deletePlayer(supabase, id);
+    await writeAuditLog({
+      adminId: ctx.admin.id,
+      action: 'player.delete',
+      entity: 'player',
+      entityId: id,
+    });
+    revalidatePath('/admin/players');
+    revalidatePath('/admin');
+    revalidatePath('/bid');
     return { ok: true };
   } catch (e) {
     return actionError(e);

@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/badge';
 import { effectiveRegistrationStatus } from '@/lib/domain/status';
 import { EditPlayerForm } from '../_components/edit-player-form';
+import { DeletePlayerButton } from '../_components/delete-player-button';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,6 +46,9 @@ export default async function PlayerDetailPage({
       <PageHeader
         title={player.name}
         description={`ID Mamoball ${player.mamoball_player_id}`}
+        action={
+          <DeletePlayerButton playerId={player.id} playerName={player.name} />
+        }
       />
 
       <div className="grid gap-8 lg:grid-cols-2">

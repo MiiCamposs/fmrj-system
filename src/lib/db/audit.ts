@@ -22,6 +22,7 @@ export type AuditAction =
   | 'player.update'
   | 'player.register'
   | 'player.remove'
+  | 'player.delete'
   | 'match.update'
   | 'result.update'
   | 'conflict.resolve'

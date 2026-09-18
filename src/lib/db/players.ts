@@ -135,6 +135,19 @@ export async function updatePlayer(
   return data;
 }
 
+/**
+ * Exclui o jogador GLOBAL. O banco cuida das dependencias: inscricoes,
+ * conflitos e conta de jogador saem em cascata; eventos de partida e premios
+ * ficam sem o jogador (set null), preservando placares e o historico.
+ */
+export async function deletePlayer(
+  supabase: DbClient,
+  id: string,
+): Promise<void> {
+  const { error } = await supabase.from('players').delete().eq('id', id);
+  if (error) throw error;
+}
+
 // ---------------------------------------------------------------------------
 // Listagem com filtros (tela /admin/players).
 // ---------------------------------------------------------------------------
