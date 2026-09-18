@@ -1,15 +1,21 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import { listCompetitions } from '@/lib/db/competitions';
-import { listUpcomingMatches, listRecentResults } from '@/lib/db/matches';
-import { getTopScorers } from '@/lib/db/stats';
 import { listPublishedNews } from '@/lib/db/news';
 import { getHomeBrackets } from '@/lib/db/brackets-home';
-import { Fixture } from '@/components/match/fixture';
 import { BracketView } from '@/components/bracket-view';
 import { formatDate } from '@/lib/format';
 
 export const dynamic = 'force-dynamic';
+
+const QUICK_LINKS = [
+  { href: '/competicoes', label: 'Competições' },
+  { href: '/jogos', label: 'Jogos e resultados' },
+  { href: '/times', label: 'Times' },
+  { href: '/bid', label: 'BID (inscrições)' },
+  { href: '/artilharia', label: 'Artilharia' },
+  { href: '/noticias', label: 'Notícias' },
+  { href: '/museu', label: 'Museu' },
+];
 
 function Section({
   title,
@@ -35,42 +41,45 @@ function Section({
   );
 }
 
-export default async function PublicHome() {
-  let competitions: Awaited<ReturnType<typeof listCompetitions>> = [];
-  let upcoming: Awaited<ReturnType<typeof listUpcomingMatches>> = [];
-  let results: Awaited<ReturnType<typeof listRecentResults>> = [];
-  let scorers: Awaited<ReturnType<typeof getTopScorers>> = [];
-  let configured = true;
+function QuickAccessCard() {
+  return (
+    <div className="xl:sticky xl:top-4">
+      <h2 className="mb-3 text-lg font-bold text-neutral-900">Acesso rápido</h2>
+      <nav className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
+        {QUICK_LINKS.map((l) => (
+          <Link
+            key={l.href}
+            href={l.href}
+            className="flex items-center justify-between border-b border-neutral-100 px-4 py-3 text-sm font-medium text-neutral-700 transition last:border-0 hover:bg-neutral-50 hover:text-fmrj"
+          >
+            {l.label}
+            <span aria-hidden className="text-neutral-300">
+              →
+            </span>
+          </Link>
+        ))}
+      </nav>
+    </div>
+  );
+}
 
+export default async function PublicHome() {
+  let configured = true;
+  let brackets: Awaited<ReturnType<typeof getHomeBrackets>> = [];
   try {
     const supabase = await createClient();
-    [competitions, upcoming, results, scorers] = await Promise.all([
-      listCompetitions(supabase),
-      listUpcomingMatches(supabase, { limit: 6 }),
-      listRecentResults(supabase, { limit: 6 }),
-      getTopScorers(supabase, {}, 5),
-    ]);
+    brackets = await getHomeBrackets(supabase, 4);
   } catch {
     configured = false;
   }
 
-  const visibleCompetitions = competitions.filter(
-    (c) => c.status !== 'archived',
-  );
-
-  // Noticias em try/catch separado: se a tabela ainda nao existir (migration
-  // 0007 nao aplicada), a home continua funcionando normalmente.
+  // Noticias em try/catch separado: nao afeta o estado "configurado".
   let news: Awaited<ReturnType<typeof listPublishedNews>> = [];
-  let brackets: Awaited<ReturnType<typeof getHomeBrackets>> = [];
   try {
     const supabase = await createClient();
-    [news, brackets] = await Promise.all([
-      listPublishedNews(supabase, { limit: 3 }),
-      getHomeBrackets(supabase, 3),
-    ]);
+    news = await listPublishedNews(supabase, { limit: 3 });
   } catch {
     news = [];
-    brackets = [];
   }
 
   return (
@@ -111,59 +120,56 @@ export default async function PublicHome() {
         </div>
       )}
 
-      {/* Chaveamentos (mata-mata) em destaque */}
-      {brackets.length > 0 && (
-        <section className="mt-8 space-y-8">
-          {brackets.map((b, i) => (
-            <div key={i}>
-              <div className="mb-3 flex items-end justify-between gap-3">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-fmrj-green">
-                    {b.competitionName}
-                  </p>
-                  <h2 className="font-display text-xl font-black text-neutral-900">
-                    {b.editionLabel}
-                  </h2>
+      {/* Chaveamentos (mata-mata) + Acesso rápido na lateral */}
+      {brackets.length > 0 ? (
+        <div className="mt-8 xl:flex xl:items-start xl:gap-6">
+          <div className="min-w-0 space-y-8 xl:flex-1">
+            {brackets.map((b, i) => (
+              <div key={i}>
+                <div className="mb-3 flex items-end justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-fmrj-green">
+                      {b.competitionName}
+                    </p>
+                    <h2 className="font-display text-xl font-black text-neutral-900">
+                      {b.editionLabel}
+                    </h2>
+                  </div>
+                  <Link
+                    href={`/competicoes/${b.competitionSlug}`}
+                    className="shrink-0 text-sm font-medium text-fmrj hover:underline"
+                  >
+                    Ver competição →
+                  </Link>
                 </div>
-                <Link
-                  href={`/competicoes/${b.competitionSlug}`}
-                  className="shrink-0 text-sm font-medium text-fmrj hover:underline"
-                >
-                  Ver competição →
-                </Link>
+                <BracketView
+                  bracket={b.bracket}
+                  teams={b.teams}
+                  players={b.players}
+                />
               </div>
-              <BracketView
-                bracket={b.bracket}
-                teams={b.teams}
-                players={b.players}
-              />
-            </div>
-          ))}
-        </section>
-      )}
+            ))}
+          </div>
 
-      {/* Acesso rápido */}
-      <Section title="Acesso rápido">
-        <div className="flex flex-wrap gap-2">
-          {[
-            { href: '/competicoes', label: 'Competições' },
-            { href: '/jogos', label: 'Jogos e resultados' },
-            { href: '/times', label: 'Times' },
-            { href: '/bid', label: 'BID (inscrições)' },
-            { href: '/artilharia', label: 'Artilharia' },
-            { href: '/noticias', label: 'Notícias' },
-            { href: '/museu', label: 'Museu' },
-          ].map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="rounded-md border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition hover:border-fmrj hover:text-fmrj"
-            >
-              {l.label}
-            </Link>
-          ))}
+          <aside className="mt-8 xl:mt-0 xl:w-64 xl:shrink-0">
+            <QuickAccessCard />
+          </aside>
         </div>
-      </Section>
+      ) : (
+        <Section title="Acesso rápido">
+          <div className="flex flex-wrap gap-2">
+            {QUICK_LINKS.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="rounded-md border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition hover:border-fmrj hover:text-fmrj"
+              >
+                {l.label}
+              </Link>
+            ))}
+          </div>
+        </Section>
+      )}
 
       {/* Últimas notícias */}
       {news.length > 0 && (
@@ -207,85 +213,6 @@ export default async function PublicHome() {
           </div>
         </Section>
       )}
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Próximos jogos */}
-        <Section title="Próximos jogos" href="/jogos">
-          {upcoming.length === 0 ? (
-            <p className="text-sm text-neutral-500">Nenhum jogo agendado.</p>
-          ) : (
-            <div className="space-y-3">
-              {upcoming.map((m) => (
-                <Fixture key={m.id} match={m} href={`/jogos/${m.id}`} />
-              ))}
-            </div>
-          )}
-        </Section>
-
-        {/* Últimos resultados */}
-        <Section title="Últimos resultados" href="/jogos?status=finished">
-          {results.length === 0 ? (
-            <p className="text-sm text-neutral-500">Nenhum resultado ainda.</p>
-          ) : (
-            <div className="space-y-3">
-              {results.map((m) => (
-                <Fixture key={m.id} match={m} href={`/jogos/${m.id}`} />
-              ))}
-            </div>
-          )}
-        </Section>
-      </div>
-
-      {/* Artilharia */}
-      <Section title="Artilharia" href="/artilharia">
-        {scorers.length === 0 ? (
-          <p className="text-sm text-neutral-500">
-            Nenhum gol registrado ainda.
-          </p>
-        ) : (
-          <div className="overflow-x-auto rounded-lg border border-neutral-200 bg-white">
-            <table className="w-full min-w-[420px] text-sm">
-              <thead className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase text-neutral-500">
-                <tr>
-                  <th className="px-4 py-2 text-left">#</th>
-                  <th className="px-4 py-2 text-left">Jogador</th>
-                  <th className="px-4 py-2 text-left">Time</th>
-                  <th className="px-4 py-2 text-center">Gols</th>
-                </tr>
-              </thead>
-              <tbody>
-                {scorers.map((s, i) => (
-                  <tr key={s.playerId} className="border-b border-neutral-100 last:border-0">
-                    <td className="px-4 py-2 text-neutral-500">{i + 1}</td>
-                    <td className="px-4 py-2 font-medium text-neutral-900">
-                      {s.playerName}
-                    </td>
-                    <td className="px-4 py-2 text-neutral-600">{s.teamName}</td>
-                    <td className="px-4 py-2 text-center font-bold text-neutral-900">
-                      {s.goals}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Section>
-
-      {/* Classificações - acesso rápido */}
-      <Section title="Classificações">
-        <div className="flex flex-wrap gap-2">
-          {visibleCompetitions.map((c) => (
-            <Link
-              key={c.id}
-              href={`/competicoes/${c.slug}?tab=classificacao`}
-              className="rounded-md border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition hover:border-fmrj hover:text-fmrj"
-            >
-              {c.name}
-            </Link>
-          ))}
-        </div>
-      </Section>
     </div>
   );
 }
