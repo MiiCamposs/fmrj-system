@@ -3,6 +3,8 @@ import {
   type BracketSlot,
   resolveBracket,
   slotWinner,
+  slotScore,
+  goalTally,
 } from '@/lib/domain/bracket';
 
 interface TeamOpt {
@@ -15,35 +17,47 @@ function teamName(teams: TeamOpt[], id: string | null): string | null {
   return teams.find((t) => t.id === id)?.name ?? '?';
 }
 
-function SlotRow({
+function SlotSide({
   name,
   score,
+  goals,
   winner,
 }: {
   name: string | null;
-  score: number | null;
+  score: number;
+  goals: string[];
   winner: boolean;
 }) {
+  const tally = goalTally(goals);
   return (
-    <div className="flex items-center justify-between gap-2 px-3 py-2">
-      <span
-        className={`truncate text-sm ${
-          name
-            ? winner
-              ? 'font-bold text-neutral-900'
-              : 'text-neutral-700'
-            : 'italic text-neutral-400'
-        }`}
-      >
-        {name ?? 'A definir'}
-      </span>
-      <span
-        className={`w-6 shrink-0 text-right text-sm tabular-nums ${
-          winner ? 'font-bold text-neutral-900' : 'text-neutral-500'
-        }`}
-      >
-        {score ?? ''}
-      </span>
+    <div className="px-3 py-2">
+      <div className="flex items-center justify-between gap-2">
+        <span
+          className={`truncate text-sm ${
+            name
+              ? winner
+                ? 'font-bold text-neutral-900'
+                : 'text-neutral-700'
+              : 'italic text-neutral-400'
+          }`}
+        >
+          {name ?? 'A definir'}
+        </span>
+        <span
+          className={`w-6 shrink-0 text-right text-sm tabular-nums ${
+            winner ? 'font-bold text-neutral-900' : 'text-neutral-500'
+          }`}
+        >
+          {name ? score : ''}
+        </span>
+      </div>
+      {tally.length > 0 && (
+        <p className="mt-0.5 truncate text-[11px] text-neutral-400">
+          {tally
+            .map((t) => (t.goals > 1 ? `${t.name} ×${t.goals}` : t.name))
+            .join(', ')}
+        </p>
+      )}
     </div>
   );
 }
@@ -51,14 +65,23 @@ function SlotRow({
 function MatchCard({ slot, teams }: { slot: BracketSlot; teams: TeamOpt[] }) {
   const h = teamName(teams, slot.home);
   const a = teamName(teams, slot.away);
-  const hs = slot.homeScore;
-  const as = slot.awayScore;
-  const decided = hs != null && as != null && hs !== as;
+  const { home, away } = slotScore(slot);
+  const decided = slotWinner(slot);
   return (
-    <div className="w-48 overflow-hidden rounded-lg border border-neutral-200 bg-white">
-      <SlotRow name={h} score={hs} winner={decided && hs! > as!} />
+    <div className="w-52 overflow-hidden rounded-lg border border-neutral-200 bg-white">
+      <SlotSide
+        name={h}
+        score={home}
+        goals={slot.homeGoals}
+        winner={decided === slot.home && !!slot.home}
+      />
       <div className="border-t border-neutral-100" />
-      <SlotRow name={a} score={as} winner={decided && as! > hs!} />
+      <SlotSide
+        name={a}
+        score={away}
+        goals={slot.awayGoals}
+        winner={decided === slot.away && !!slot.away}
+      />
     </div>
   );
 }
@@ -71,7 +94,7 @@ function Column({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-w-[192px] flex-col">
+    <div className="flex min-w-[208px] flex-col">
       <p className="mb-2 text-center text-xs font-semibold uppercase tracking-wider text-neutral-500">
         {title}
       </p>
@@ -88,8 +111,7 @@ export function BracketView({
   teams: TeamOpt[];
 }) {
   const b = resolveBracket(bracket);
-  const championId = slotWinner(b.final);
-  const champion = teamName(teams, championId);
+  const champion = teamName(teams, slotWinner(b.final));
 
   return (
     <div className="overflow-x-auto pb-2">

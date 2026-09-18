@@ -1,15 +1,17 @@
 /**
  * Chaveamento de mata-mata (eliminatoria simples, ida). Estrutura fixa:
- * Quartas (4 jogos) -> Semifinais (2) -> Final (1). Cada confronto guarda os
- * dois times (por id, ou vazio) e o placar. O admin preenche livremente; os
- * vencedores sao colocados manualmente na proxima fase.
+ * Quartas (4 jogos) -> Semifinais (2) -> Final (1).
+ *
+ * Cada confronto guarda os dois times (por id, ou vazio) e a SUMULA: a lista de
+ * autores dos gols de cada lado. O placar e a quantidade de gols (o tamanho da
+ * lista). Ex.: jogador X marcou 3 -> o nome dele aparece 3 vezes na lista.
  */
 
 export interface BracketSlot {
   home: string | null;
   away: string | null;
-  homeScore: number | null;
-  awayScore: number | null;
+  homeGoals: string[];
+  awayGoals: string[];
 }
 
 export interface BracketData {
@@ -19,7 +21,7 @@ export interface BracketData {
 }
 
 export function emptySlot(): BracketSlot {
-  return { home: null, away: null, homeScore: null, awayScore: null };
+  return { home: null, away: null, homeGoals: [], awayGoals: [] };
 }
 
 export function emptyBracket(): BracketData {
@@ -30,36 +32,60 @@ export function emptyBracket(): BracketData {
   };
 }
 
-function normalizeSlot(raw: unknown): BracketSlot {
-  const s = (raw ?? {}) as Record<string, unknown>;
-  const str = (v: unknown): string | null =>
-    typeof v === 'string' && v.trim() ? v : null;
-  const num = (v: unknown): number | null =>
-    typeof v === 'number' && Number.isFinite(v) ? v : null;
-  return {
-    home: str(s.home),
-    away: str(s.away),
-    homeScore: num(s.homeScore),
-    awayScore: num(s.awayScore),
-  };
+/** Placar = quantidade de gols de cada lado. */
+export function slotScore(slot: BracketSlot): { home: number; away: number } {
+  return { home: slot.homeGoals.length, away: slot.awayGoals.length };
 }
 
 /** Vencedor de um confronto (id do time), ou null se indefinido/empate. */
 export function slotWinner(slot: BracketSlot): string | null {
   if (!slot.home || !slot.away) return null;
-  if (slot.homeScore == null || slot.awayScore == null) return null;
-  if (slot.homeScore > slot.awayScore) return slot.home;
-  if (slot.awayScore > slot.homeScore) return slot.away;
+  const { home, away } = slotScore(slot);
+  if (home === 0 && away === 0) return null;
+  if (home > away) return slot.home;
+  if (away > home) return slot.away;
   return null;
 }
 
+/** Autores agrupados com a contagem (para exibicao): [{ name, goals }]. */
+export function goalTally(
+  goals: string[],
+): { name: string; goals: number }[] {
+  const map = new Map<string, number>();
+  for (const raw of goals) {
+    const name = raw.trim() || 'Sem autor';
+    map.set(name, (map.get(name) ?? 0) + 1);
+  }
+  return Array.from(map.entries()).map(([name, g]) => ({ name, goals: g }));
+}
+
+function normalizeGoals(raw: unknown, fallbackScore: unknown): string[] {
+  if (Array.isArray(raw)) {
+    return raw.map((g) => (typeof g === 'string' ? g : String(g ?? '')));
+  }
+  // Compatibilidade com o formato antigo (apenas numero de gols).
+  if (typeof fallbackScore === 'number' && fallbackScore > 0) {
+    return Array.from({ length: fallbackScore }, () => '');
+  }
+  return [];
+}
+
+function normalizeSlot(raw: unknown): BracketSlot {
+  const s = (raw ?? {}) as Record<string, unknown>;
+  const str = (v: unknown): string | null =>
+    typeof v === 'string' && v.trim() ? v : null;
+  return {
+    home: str(s.home),
+    away: str(s.away),
+    homeGoals: normalizeGoals(s.homeGoals, s.homeScore),
+    awayGoals: normalizeGoals(s.awayGoals, s.awayScore),
+  };
+}
+
 /**
- * Preenche as fases seguintes automaticamente a partir dos vencedores: so as
- * quartas tem times definidos manualmente; semis e final recebem os vencedores
- * (mantendo os placares ja digitados em cada fase).
- *   Semifinal 1 = vencedor QF1 x vencedor QF2   (Chave 1)
- *   Semifinal 2 = vencedor QF3 x vencedor QF4   (Chave 2)
- *   Final       = vencedor SF1 x vencedor SF2
+ * Preenche as fases seguintes a partir dos vencedores: so as quartas tem times
+ * definidos manualmente; semis e final recebem os vencedores (mantendo a sumula
+ * ja registrada em cada fase).
  */
 export function resolveBracket(b: BracketData): BracketData {
   const qf = b.quarterfinals;
@@ -67,21 +93,21 @@ export function resolveBracket(b: BracketData): BracketData {
     {
       home: slotWinner(qf[0] ?? emptySlot()),
       away: slotWinner(qf[1] ?? emptySlot()),
-      homeScore: b.semifinals[0]?.homeScore ?? null,
-      awayScore: b.semifinals[0]?.awayScore ?? null,
+      homeGoals: b.semifinals[0]?.homeGoals ?? [],
+      awayGoals: b.semifinals[0]?.awayGoals ?? [],
     },
     {
       home: slotWinner(qf[2] ?? emptySlot()),
       away: slotWinner(qf[3] ?? emptySlot()),
-      homeScore: b.semifinals[1]?.homeScore ?? null,
-      awayScore: b.semifinals[1]?.awayScore ?? null,
+      homeGoals: b.semifinals[1]?.homeGoals ?? [],
+      awayGoals: b.semifinals[1]?.awayGoals ?? [],
     },
   ];
   const final: BracketSlot = {
     home: slotWinner(semifinals[0]!),
     away: slotWinner(semifinals[1]!),
-    homeScore: b.final.homeScore,
-    awayScore: b.final.awayScore,
+    homeGoals: b.final.homeGoals,
+    awayGoals: b.final.awayGoals,
   };
   return { quarterfinals: qf, semifinals, final };
 }

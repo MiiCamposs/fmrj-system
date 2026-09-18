@@ -361,12 +361,22 @@ async function TabContent({
 
   if (tab === 'standings') {
     if (isKnockout(season?.format)) {
-      const seasonTeams = await getSeasonTeams(supabase, scope);
+      const [seasonTeams, seasonPlayers] = await Promise.all([
+        getSeasonTeams(supabase, scope),
+        getSeasonPlayers(supabase, scope),
+      ]);
+      const squads: Record<string, string[]> = {};
+      for (const p of seasonPlayers) {
+        const list = (squads[p.teamId] ??= []);
+        const label = p.nickname || p.name;
+        if (!list.includes(label)) list.push(label);
+      }
       return (
         <BracketEditor
           competitionSlug={slug}
           seasonId={scope.seasonId}
           teams={seasonTeams.map((t) => ({ id: t.teamId, name: t.teamName }))}
+          squads={squads}
           initialBracket={normalizeBracket(season?.bracket)}
         />
       );
