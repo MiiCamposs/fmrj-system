@@ -44,6 +44,48 @@ function normalizeSlot(raw: unknown): BracketSlot {
   };
 }
 
+/** Vencedor de um confronto (id do time), ou null se indefinido/empate. */
+export function slotWinner(slot: BracketSlot): string | null {
+  if (!slot.home || !slot.away) return null;
+  if (slot.homeScore == null || slot.awayScore == null) return null;
+  if (slot.homeScore > slot.awayScore) return slot.home;
+  if (slot.awayScore > slot.homeScore) return slot.away;
+  return null;
+}
+
+/**
+ * Preenche as fases seguintes automaticamente a partir dos vencedores: so as
+ * quartas tem times definidos manualmente; semis e final recebem os vencedores
+ * (mantendo os placares ja digitados em cada fase).
+ *   Semifinal 1 = vencedor QF1 x vencedor QF2   (Chave 1)
+ *   Semifinal 2 = vencedor QF3 x vencedor QF4   (Chave 2)
+ *   Final       = vencedor SF1 x vencedor SF2
+ */
+export function resolveBracket(b: BracketData): BracketData {
+  const qf = b.quarterfinals;
+  const semifinals: BracketSlot[] = [
+    {
+      home: slotWinner(qf[0] ?? emptySlot()),
+      away: slotWinner(qf[1] ?? emptySlot()),
+      homeScore: b.semifinals[0]?.homeScore ?? null,
+      awayScore: b.semifinals[0]?.awayScore ?? null,
+    },
+    {
+      home: slotWinner(qf[2] ?? emptySlot()),
+      away: slotWinner(qf[3] ?? emptySlot()),
+      homeScore: b.semifinals[1]?.homeScore ?? null,
+      awayScore: b.semifinals[1]?.awayScore ?? null,
+    },
+  ];
+  const final: BracketSlot = {
+    home: slotWinner(semifinals[0]!),
+    away: slotWinner(semifinals[1]!),
+    homeScore: b.final.homeScore,
+    awayScore: b.final.awayScore,
+  };
+  return { quarterfinals: qf, semifinals, final };
+}
+
 /** Le com seguranca o JSON vindo do banco, garantindo a estrutura correta. */
 export function normalizeBracket(raw: unknown): BracketData {
   const base = emptyBracket();

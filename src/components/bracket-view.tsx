@@ -1,4 +1,9 @@
-import type { BracketData, BracketSlot } from '@/lib/domain/bracket';
+import {
+  type BracketData,
+  type BracketSlot,
+  resolveBracket,
+  slotWinner,
+} from '@/lib/domain/bracket';
 
 interface TeamOpt {
   id: string;
@@ -50,7 +55,7 @@ function MatchCard({ slot, teams }: { slot: BracketSlot; teams: TeamOpt[] }) {
   const as = slot.awayScore;
   const decided = hs != null && as != null && hs !== as;
   return (
-    <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white">
+    <div className="w-48 overflow-hidden rounded-lg border border-neutral-200 bg-white">
       <SlotRow name={h} score={hs} winner={decided && hs! > as!} />
       <div className="border-t border-neutral-100" />
       <SlotRow name={a} score={as} winner={decided && as! > hs!} />
@@ -66,7 +71,7 @@ function Column({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-w-[224px] flex-col">
+    <div className="flex min-w-[192px] flex-col">
       <p className="mb-2 text-center text-xs font-semibold uppercase tracking-wider text-neutral-500">
         {title}
       </p>
@@ -82,21 +87,37 @@ export function BracketView({
   bracket: BracketData;
   teams: TeamOpt[];
 }) {
+  const b = resolveBracket(bracket);
+  const championId = slotWinner(b.final);
+  const champion = teamName(teams, championId);
+
   return (
     <div className="overflow-x-auto pb-2">
-      <div className="flex gap-6">
-        <Column title="Quartas de final">
-          {bracket.quarterfinals.map((s, i) => (
-            <MatchCard key={i} slot={s} teams={teams} />
-          ))}
+      <div className="flex justify-center gap-4">
+        <Column title="Chave 1">
+          <MatchCard slot={b.quarterfinals[0]!} teams={teams} />
+          <MatchCard slot={b.quarterfinals[1]!} teams={teams} />
         </Column>
-        <Column title="Semifinais">
-          {bracket.semifinals.map((s, i) => (
-            <MatchCard key={i} slot={s} teams={teams} />
-          ))}
+        <Column title="Semifinal">
+          <MatchCard slot={b.semifinals[0]!} teams={teams} />
         </Column>
         <Column title="Final">
-          <MatchCard slot={bracket.final} teams={teams} />
+          <MatchCard slot={b.final} teams={teams} />
+          {champion && (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-center">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-600">
+                Campeão
+              </p>
+              <p className="text-sm font-bold text-neutral-900">{champion}</p>
+            </div>
+          )}
+        </Column>
+        <Column title="Semifinal">
+          <MatchCard slot={b.semifinals[1]!} teams={teams} />
+        </Column>
+        <Column title="Chave 2">
+          <MatchCard slot={b.quarterfinals[2]!} teams={teams} />
+          <MatchCard slot={b.quarterfinals[3]!} teams={teams} />
         </Column>
       </div>
     </div>

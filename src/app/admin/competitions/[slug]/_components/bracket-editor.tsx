@@ -8,6 +8,7 @@ import {
   type BracketData,
   type BracketSlot,
   emptyBracket,
+  resolveBracket,
 } from '@/lib/domain/bracket';
 import { saveBracketAction } from '../../actions';
 
@@ -15,8 +16,6 @@ interface TeamOpt {
   id: string;
   name: string;
 }
-
-type Round = 'quarterfinals' | 'semifinals' | 'final';
 
 export function BracketEditor({
   competitionSlug,
@@ -34,18 +33,36 @@ export function BracketEditor({
   const [bracket, setBracket] = useState<BracketData>(initialBracket);
   const [loading, setLoading] = useState(false);
 
-  function patchSlot(
-    round: Round,
-    index: number,
-    patch: Partial<BracketSlot>,
-  ) {
+  // Times das semis e final vem sozinhos dos vencedores das quartas.
+  const resolved = resolveBracket(bracket);
+
+  function teamName(id: string | null): string | null {
+    if (!id) return null;
+    return teams.find((t) => t.id === id)?.name ?? '?';
+  }
+
+  function patchQuarter(index: number, patch: Partial<BracketSlot>) {
     setBracket((prev) => {
       const next: BracketData = structuredClone(prev);
-      if (round === 'final') {
-        next.final = { ...next.final, ...patch };
-      } else {
-        next[round][index] = { ...next[round][index]!, ...patch };
-      }
+      next.quarterfinals[index] = { ...next.quarterfinals[index]!, ...patch };
+      return next;
+    });
+  }
+
+  function patchSemiScore(index: number, side: 'home' | 'away', v: number | null) {
+    setBracket((prev) => {
+      const next: BracketData = structuredClone(prev);
+      const key = side === 'home' ? 'homeScore' : 'awayScore';
+      next.semifinals[index] = { ...next.semifinals[index]!, [key]: v };
+      return next;
+    });
+  }
+
+  function patchFinalScore(side: 'home' | 'away', v: number | null) {
+    setBracket((prev) => {
+      const next: BracketData = structuredClone(prev);
+      const key = side === 'home' ? 'homeScore' : 'awayScore';
+      next.final = { ...next.final, [key]: v };
       return next;
     });
   }
@@ -55,7 +72,7 @@ export function BracketEditor({
     const result = await saveBracketAction({
       seasonId,
       competitionSlug,
-      bracket,
+      bracket: resolveBracket(bracket),
     });
     setLoading(false);
     if (!result.ok) {
@@ -66,59 +83,108 @@ export function BracketEditor({
     router.refresh();
   }
 
-  function SlotEditor({ round, index }: { round: Round; index: number }) {
-    const slot = round === 'final' ? bracket.final : bracket[round][index]!;
-    return (
-      <div className="space-y-1.5 rounded-lg border border-neutral-200 bg-white p-2">
-        <SideEditor
-          side="home"
-          slot={slot}
-          onTeam={(v) => patchSlot(round, index, { home: v })}
-          onScore={(v) => patchSlot(round, index, { homeScore: v })}
-          teams={teams}
-        />
-        <SideEditor
-          side="away"
-          slot={slot}
-          onTeam={(v) => patchSlot(round, index, { away: v })}
-          onScore={(v) => patchSlot(round, index, { awayScore: v })}
-          teams={teams}
-        />
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-4">
-      <div className="overflow-x-auto pb-2">
-        <div className="flex gap-6">
-          <div className="min-w-[260px]">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-neutral-500">
-              Quartas de final
-            </p>
-            <div className="space-y-3">
-              {bracket.quarterfinals.map((_, i) => (
-                <SlotEditor key={i} round="quarterfinals" index={i} />
-              ))}
-            </div>
-          </div>
-          <div className="min-w-[260px]">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-neutral-500">
-              Semifinais
-            </p>
-            <div className="space-y-3">
-              {bracket.semifinals.map((_, i) => (
-                <SlotEditor key={i} round="semifinals" index={i} />
-              ))}
-            </div>
-          </div>
-          <div className="min-w-[260px]">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-neutral-500">
-              Final
-            </p>
-            <SlotEditor round="final" index={0} />
-          </div>
+    <div className="space-y-5">
+      <p className="text-sm text-neutral-500">
+        Preencha só as <strong>quartas de final</strong>: escolha os dois clubes
+        e o placar. Quem vencer sobe sozinho para a semifinal e, depois, para a
+        final.
+      </p>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Chave 1 */}
+        <div className="space-y-3 rounded-xl border border-neutral-200 p-4">
+          <h3 className="text-sm font-bold text-neutral-800">Chave 1</h3>
+          <QuarterEditor
+            label="Quartas · Jogo 1"
+            slot={bracket.quarterfinals[0]!}
+            teams={teams}
+            onTeam={(side, v) =>
+              patchQuarter(0, side === 'home' ? { home: v } : { away: v })
+            }
+            onScore={(side, v) =>
+              patchQuarter(
+                0,
+                side === 'home' ? { homeScore: v } : { awayScore: v },
+              )
+            }
+          />
+          <QuarterEditor
+            label="Quartas · Jogo 2"
+            slot={bracket.quarterfinals[1]!}
+            teams={teams}
+            onTeam={(side, v) =>
+              patchQuarter(1, side === 'home' ? { home: v } : { away: v })
+            }
+            onScore={(side, v) =>
+              patchQuarter(
+                1,
+                side === 'home' ? { homeScore: v } : { awayScore: v },
+              )
+            }
+          />
+          <DerivedEditor
+            label="Semifinal 1"
+            homeName={teamName(resolved.semifinals[0]!.home)}
+            awayName={teamName(resolved.semifinals[0]!.away)}
+            homeScore={bracket.semifinals[0]!.homeScore}
+            awayScore={bracket.semifinals[0]!.awayScore}
+            onScore={(side, v) => patchSemiScore(0, side, v)}
+          />
         </div>
+
+        {/* Chave 2 */}
+        <div className="space-y-3 rounded-xl border border-neutral-200 p-4">
+          <h3 className="text-sm font-bold text-neutral-800">Chave 2</h3>
+          <QuarterEditor
+            label="Quartas · Jogo 3"
+            slot={bracket.quarterfinals[2]!}
+            teams={teams}
+            onTeam={(side, v) =>
+              patchQuarter(2, side === 'home' ? { home: v } : { away: v })
+            }
+            onScore={(side, v) =>
+              patchQuarter(
+                2,
+                side === 'home' ? { homeScore: v } : { awayScore: v },
+              )
+            }
+          />
+          <QuarterEditor
+            label="Quartas · Jogo 4"
+            slot={bracket.quarterfinals[3]!}
+            teams={teams}
+            onTeam={(side, v) =>
+              patchQuarter(3, side === 'home' ? { home: v } : { away: v })
+            }
+            onScore={(side, v) =>
+              patchQuarter(
+                3,
+                side === 'home' ? { homeScore: v } : { awayScore: v },
+              )
+            }
+          />
+          <DerivedEditor
+            label="Semifinal 2"
+            homeName={teamName(resolved.semifinals[1]!.home)}
+            awayName={teamName(resolved.semifinals[1]!.away)}
+            homeScore={bracket.semifinals[1]!.homeScore}
+            awayScore={bracket.semifinals[1]!.awayScore}
+            onScore={(side, v) => patchSemiScore(1, side, v)}
+          />
+        </div>
+      </div>
+
+      {/* Final */}
+      <div className="mx-auto max-w-sm rounded-xl border border-amber-200 bg-amber-50/40 p-4">
+        <DerivedEditor
+          label="Final"
+          homeName={teamName(resolved.final.home)}
+          awayName={teamName(resolved.final.away)}
+          homeScore={bracket.final.homeScore}
+          awayScore={bracket.final.awayScore}
+          onScore={(side, v) => patchFinalScore(side, v)}
+        />
       </div>
 
       <div className="flex gap-2">
@@ -143,44 +209,104 @@ export function BracketEditor({
   );
 }
 
-function SideEditor({
-  side,
+function QuarterEditor({
+  label,
   slot,
+  teams,
   onTeam,
   onScore,
-  teams,
 }: {
-  side: 'home' | 'away';
+  label: string;
   slot: BracketSlot;
-  onTeam: (v: string | null) => void;
-  onScore: (v: number | null) => void;
   teams: TeamOpt[];
+  onTeam: (side: 'home' | 'away', v: string | null) => void;
+  onScore: (side: 'home' | 'away', v: number | null) => void;
 }) {
-  const teamValue = side === 'home' ? slot.home : slot.away;
-  const scoreValue = side === 'home' ? slot.homeScore : slot.awayScore;
   return (
-    <div className="flex items-center gap-1.5">
-      <select
-        className="min-w-0 flex-1 rounded-md border border-neutral-300 px-2 py-1.5 text-sm outline-none focus:border-fmrj"
-        value={teamValue ?? ''}
-        onChange={(e) => onTeam(e.target.value || null)}
-      >
-        <option value="">A definir</option>
-        {teams.map((t) => (
-          <option key={t.id} value={t.id}>
-            {t.name}
-          </option>
-        ))}
-      </select>
-      <input
-        type="number"
-        className="w-12 rounded-md border border-neutral-300 px-2 py-1.5 text-center text-sm outline-none focus:border-fmrj"
-        value={scoreValue ?? ''}
-        onChange={(e) =>
-          onScore(e.target.value === '' ? null : Number(e.target.value))
-        }
-        placeholder="-"
-      />
+    <div className="rounded-lg border border-neutral-200 bg-white p-2">
+      <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-neutral-400">
+        {label}
+      </p>
+      {(['home', 'away'] as const).map((side) => (
+        <div key={side} className="mb-1 flex items-center gap-1.5 last:mb-0">
+          <select
+            className="min-w-0 flex-1 rounded-md border border-neutral-300 px-2 py-1.5 text-sm outline-none focus:border-fmrj"
+            value={(side === 'home' ? slot.home : slot.away) ?? ''}
+            onChange={(e) => onTeam(side, e.target.value || null)}
+          >
+            <option value="">A definir</option>
+            {teams.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+          <input
+            type="number"
+            className="w-12 rounded-md border border-neutral-300 px-2 py-1.5 text-center text-sm outline-none focus:border-fmrj"
+            value={(side === 'home' ? slot.homeScore : slot.awayScore) ?? ''}
+            onChange={(e) =>
+              onScore(side, e.target.value === '' ? null : Number(e.target.value))
+            }
+            placeholder="-"
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DerivedEditor({
+  label,
+  homeName,
+  awayName,
+  homeScore,
+  awayScore,
+  onScore,
+}: {
+  label: string;
+  homeName: string | null;
+  awayName: string | null;
+  homeScore: number | null;
+  awayScore: number | null;
+  onScore: (side: 'home' | 'away', v: number | null) => void;
+}) {
+  const rows: {
+    side: 'home' | 'away';
+    name: string | null;
+    score: number | null;
+  }[] = [
+    { side: 'home', name: homeName, score: homeScore },
+    { side: 'away', name: awayName, score: awayScore },
+  ];
+  return (
+    <div className="rounded-lg border border-neutral-200 bg-white p-2">
+      <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-neutral-400">
+        {label}
+      </p>
+      {rows.map((r) => (
+        <div key={r.side} className="mb-1 flex items-center gap-1.5 last:mb-0">
+          <span
+            className={`min-w-0 flex-1 truncate rounded-md border border-neutral-200 bg-neutral-50 px-2 py-1.5 text-sm ${
+              r.name ? 'text-neutral-800' : 'italic text-neutral-400'
+            }`}
+          >
+            {r.name ?? 'Aguardando vencedor'}
+          </span>
+          <input
+            type="number"
+            className="w-12 rounded-md border border-neutral-300 px-2 py-1.5 text-center text-sm outline-none focus:border-fmrj"
+            value={r.score ?? ''}
+            onChange={(e) =>
+              onScore(
+                r.side,
+                e.target.value === '' ? null : Number(e.target.value),
+              )
+            }
+            placeholder="-"
+          />
+        </div>
+      ))}
     </div>
   );
 }
