@@ -74,8 +74,9 @@ function Side({
                 : 'text-neutral-700'
               : 'italic text-neutral-400'
           }`}
+          title={team?.name}
         >
-          {team?.name ?? 'A definir'}
+          {team ? team.short || team.name : 'A definir'}
         </span>
         <span
           className={`flex h-6 min-w-[24px] items-center justify-center rounded-md px-1 text-sm font-bold tabular-nums ${
