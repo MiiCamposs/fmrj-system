@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/badge';
 import { Fixture } from '@/components/match/fixture';
 import { StandingsTable } from '@/components/standings-table';
+import { seasonLabel, formatLabel } from '@/lib/domain/season';
 import { TabNav } from './_components/tab-nav';
 import { SeasonSelector } from './_components/season-selector';
 import { AddTeam } from './_components/add-team';
@@ -69,13 +70,18 @@ export default async function CompetitionDetailPage({
           <CompetitionStatusBadge status={competition.status} />
           {selectedSeason && (
             <span className="text-neutral-500">
-              Temporada {selectedSeason.year}
+              {seasonLabel(selectedSeason)}
+              {formatLabel(selectedSeason.format) && (
+                <span className="ml-2 rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-600">
+                  {formatLabel(selectedSeason.format)}
+                </span>
+              )}
             </span>
           )}
         </div>
         <SeasonSelector
           slug={slug}
-          seasons={seasons.map((s) => ({ id: s.id, year: s.year }))}
+          seasons={seasons.map((s) => ({ id: s.id, label: seasonLabel(s) }))}
           selectedId={selectedSeason?.id ?? null}
         />
       </div>

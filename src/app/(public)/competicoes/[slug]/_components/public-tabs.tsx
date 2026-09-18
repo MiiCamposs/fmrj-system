@@ -55,7 +55,7 @@ export function PublicSeasonSelector({
   selectedId,
 }: {
   slug: string;
-  seasons: { id: string; year: number }[];
+  seasons: { id: string; label: string }[];
   selectedId: string | null;
 }) {
   const router = useRouter();
@@ -64,7 +64,7 @@ export function PublicSeasonSelector({
 
   return (
     <label className="flex items-center gap-2 text-sm text-neutral-500">
-      Temporada
+      Edição
       <select
         className="rounded-md border border-neutral-300 px-2 py-1.5 text-sm outline-none focus:border-fmrj"
         value={selectedId ?? ''}
@@ -76,7 +76,7 @@ export function PublicSeasonSelector({
       >
         {seasons.map((s) => (
           <option key={s.id} value={s.id}>
-            {s.year}
+            {s.label}
           </option>
         ))}
       </select>

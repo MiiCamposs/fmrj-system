@@ -5,7 +5,7 @@ import { inputClasses } from '@/components/ui/ui';
 
 export interface SeasonOption {
   id: string;
-  year: number;
+  label: string;
 }
 
 export function SeasonSelector({
@@ -30,7 +30,7 @@ export function SeasonSelector({
 
   return (
     <label className="flex items-center gap-2 text-sm text-neutral-500">
-      Temporada
+      Edição
       <select
         className={`${inputClasses} w-auto py-1.5`}
         value={selectedId ?? ''}
@@ -38,7 +38,7 @@ export function SeasonSelector({
       >
         {seasons.map((s) => (
           <option key={s.id} value={s.id}>
-            {s.year}
+            {s.label}
           </option>
         ))}
       </select>

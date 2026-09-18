@@ -117,6 +117,7 @@ export async function createSeasonAction(input: {
   competitionSlug: string;
   year: number;
   name?: string;
+  format?: string;
 }): Promise<ActionResult<{ seasonId: string }>> {
   try {
     const ctx = await requireAdmin();
@@ -126,6 +127,7 @@ export async function createSeasonAction(input: {
       competitionId: input.competitionId,
       year: input.year,
       name: input.name ?? null,
+      format: input.format ?? null,
       status: 'active',
     });
     await writeAuditLog({
@@ -133,7 +135,7 @@ export async function createSeasonAction(input: {
       action: 'season.create',
       entity: 'season',
       entityId: season.id,
-      data: { competitionId: input.competitionId, year: input.year },
+      data: { competitionId: input.competitionId, year: input.year, name: input.name ?? null },
     });
     revalidatePath(`/admin/competitions/${input.competitionSlug}`);
     return { ok: true, data: { seasonId: season.id } };

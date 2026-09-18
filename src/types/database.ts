@@ -95,6 +95,7 @@ export interface Database {
           competition_id: string;
           year: number;
           name: string | null;
+          format: string | null;
           status: SeasonStatus;
           created_at: string;
           updated_at: string;
@@ -104,6 +105,7 @@ export interface Database {
           competition_id: string;
           year: number;
           name?: string | null;
+          format?: string | null;
           status?: SeasonStatus;
           created_at?: string;
           updated_at?: string;

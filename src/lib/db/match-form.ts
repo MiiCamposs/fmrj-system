@@ -14,6 +14,7 @@ export interface MatchFormSeason {
   id: string;
   competitionId: string;
   year: number;
+  name: string | null;
 }
 export interface MatchFormSeasonTeam {
   seasonId: string;
@@ -32,7 +33,7 @@ export async function getMatchFormContext(
 ): Promise<MatchFormContext> {
   const [{ data: comps }, { data: seasons }, { data: st }] = await Promise.all([
     supabase.from('competitions').select('id, name, slug').order('name'),
-    supabase.from('seasons').select('id, competition_id, year'),
+    supabase.from('seasons').select('id, competition_id, year, name'),
     supabase.from('season_teams').select('season_id, team_id'),
   ]);
 
@@ -56,6 +57,7 @@ export async function getMatchFormContext(
       id: s.id,
       competitionId: s.competition_id,
       year: s.year,
+      name: s.name,
     })),
     seasonTeams: (st ?? []).map((s) => ({
       seasonId: s.season_id,

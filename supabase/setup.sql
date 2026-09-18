@@ -1,6 +1,6 @@
 -- =============================================================================
 -- UBM - Setup completo (banco novo). Cole TUDO isto no SQL Editor do Supabase
--- e rode uma unica vez. Contem migrations 0001..0009 + seed (Copa UBM).
+-- e rode uma unica vez. Contem migrations 0001..0010 + seed (Copa UBM).
 -- =============================================================================
 
 
@@ -875,6 +875,16 @@ create policy "admin read accounts" on player_accounts
 insert into storage.buckets (id, name, public)
 values ('avatars', 'avatars', true)
 on conflict (id) do nothing;
+
+
+-- >>>>>>>>>>>>>>>>>>>>>> supabase/migrations/0010_edicoes_formato.sql <<<<<<<<<<<<<<<<<<<<<<
+
+-- =============================================================================
+-- UBM - Migration 0010: Edicoes nomeadas + formato da competicao
+-- =============================================================================
+
+alter table seasons drop constraint if exists uq_season_competition_year;
+alter table seasons add column if not exists format text;
 
 
 -- >>>>>>>>>>>>>>>>>>>>>> supabase/seed.sql <<<<<<<<<<<<<<<<<<<<<<

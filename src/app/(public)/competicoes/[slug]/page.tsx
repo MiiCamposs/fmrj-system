@@ -8,6 +8,7 @@ import {
   getSeasonTeams,
 } from '@/lib/db/competitions';
 import { getStandings, getScoringConfig } from '@/lib/db/standings';
+import { seasonLabel, formatLabel } from '@/lib/domain/season';
 import { getSeasonPlayers } from '@/lib/db/registrations';
 import { getTopScorers } from '@/lib/db/stats';
 import { listMatches } from '@/lib/db/matches';
@@ -77,12 +78,19 @@ export default async function PublicCompetitionPage({
             {competition.name}
           </h1>
           {selectedSeason && (
-            <p className="text-neutral-500">Temporada {selectedSeason.year}</p>
+            <p className="flex flex-wrap items-center gap-2 text-neutral-500">
+              {seasonLabel(selectedSeason)}
+              {formatLabel(selectedSeason.format) && (
+                <span className="rounded-full bg-fmrj/10 px-2.5 py-0.5 text-xs font-semibold text-fmrj">
+                  {formatLabel(selectedSeason.format)}
+                </span>
+              )}
+            </p>
           )}
         </div>
         <PublicSeasonSelector
           slug={slug}
-          seasons={seasons.map((s) => ({ id: s.id, year: s.year }))}
+          seasons={seasons.map((s) => ({ id: s.id, label: seasonLabel(s) }))}
           selectedId={selectedSeason?.id ?? null}
         />
       </div>

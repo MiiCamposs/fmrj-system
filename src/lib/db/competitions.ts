@@ -128,6 +128,7 @@ export async function createSeason(
     competitionId: string;
     year: number;
     name?: string | null;
+    format?: string | null;
     status?: SeasonStatus;
   },
 ): Promise<SeasonRow> {
@@ -137,6 +138,7 @@ export async function createSeason(
       competition_id: input.competitionId,
       year: input.year,
       name: input.name?.trim() || null,
+      format: input.format?.trim() || null,
       status: input.status ?? 'active',
     })
     .select('*')

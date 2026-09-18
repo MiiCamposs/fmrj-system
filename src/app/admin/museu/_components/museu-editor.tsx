@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { inputClasses, buttonClasses, Card } from '@/components/ui/ui';
 import { useToast } from '@/components/ui/toast';
 import type { MatchFormContext } from '@/lib/db/match-form';
+import { seasonLabel } from '@/lib/domain/season';
 import { setResultAction, addAwardAction, deleteAwardAction } from '../actions';
 
 export interface ResultItem {
@@ -161,7 +162,7 @@ export function MuseuEditor({
             <option value="">Selecione...</option>
             {seasons.map((s) => (
               <option key={s.id} value={s.id}>
-                {s.year}
+                {seasonLabel(s)}
               </option>
             ))}
           </select>
