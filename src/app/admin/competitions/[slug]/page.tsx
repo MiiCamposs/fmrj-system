@@ -26,6 +26,7 @@ import { Fixture } from '@/components/match/fixture';
 import { StandingsTable } from '@/components/standings-table';
 import { seasonLabel, formatLabel, isKnockout } from '@/lib/domain/season';
 import { normalizeBracket } from '@/lib/domain/bracket';
+import { BracketView } from '@/components/bracket-view';
 import type { SeasonRow } from '@/types/database';
 import { BracketEditor } from './_components/bracket-editor';
 import { TabNav } from './_components/tab-nav';
@@ -378,14 +379,22 @@ async function TabContent({
   }
 
   // overview (default)
+  const knockout = isKnockout(season?.format);
   const [seasonTeams, players, allConflicts, matches, standings] =
     await Promise.all([
       getSeasonTeams(supabase, scope),
       getSeasonPlayers(supabase, scope),
       listConflicts(supabase, { status: 'all' }),
       listMatchesInScope(supabase, scope),
-      getStandings(supabase, scope),
+      knockout ? Promise.resolve([]) : getStandings(supabase, scope),
     ]);
+  const bracket = knockout ? normalizeBracket(season?.bracket) : null;
+  const bracketFilled =
+    !!bracket &&
+    (bracket.quarterfinals.some((s) => s.home || s.away) ||
+      bracket.semifinals.some((s) => s.home || s.away) ||
+      !!bracket.final.home ||
+      !!bracket.final.away);
   const scopedConflicts = allConflicts.filter(
     (c) =>
       c.competitionId === scope.competitionId && c.seasonId === scope.seasonId,
@@ -417,12 +426,27 @@ async function TabContent({
           </Card>
         ))}
       </div>
-      {standings.length > 0 && (
-        <div>
-          <h3 className="mb-2 font-semibold text-neutral-800">Classificação</h3>
-          <StandingsTable rows={standings} />
-        </div>
-      )}
+      {knockout
+        ? bracketFilled && (
+            <div>
+              <h3 className="mb-2 font-semibold text-neutral-800">Mata-mata</h3>
+              <BracketView
+                bracket={bracket!}
+                teams={seasonTeams.map((t) => ({
+                  id: t.teamId,
+                  name: t.teamName,
+                }))}
+              />
+            </div>
+          )
+        : standings.length > 0 && (
+            <div>
+              <h3 className="mb-2 font-semibold text-neutral-800">
+                Classificação
+              </h3>
+              <StandingsTable rows={standings} />
+            </div>
+          )}
     </div>
   );
 }

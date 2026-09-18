@@ -325,20 +325,43 @@ async function PublicTabContent({
   }
 
   // visao-geral (default)
-  const [standings, upcoming, results] = await Promise.all([
-    getStandings(supabase, scope),
+  const knockout = isKnockout(season?.format);
+  const [standings, upcoming, results, seasonTeams] = await Promise.all([
+    knockout ? Promise.resolve([]) : getStandings(supabase, scope),
     listMatches(supabase, { ...scope, status: 'scheduled' }),
     listMatches(supabase, { ...scope, status: 'finished' }),
+    knockout ? getSeasonTeams(supabase, scope) : Promise.resolve([]),
   ]);
+
+  const bracket = knockout ? normalizeBracket(season?.bracket) : null;
+  const bracketFilled =
+    !!bracket &&
+    (bracket.quarterfinals.some((s) => s.home || s.away) ||
+      bracket.semifinals.some((s) => s.home || s.away) ||
+      !!bracket.final.home ||
+      !!bracket.final.away);
 
   return (
     <div className="space-y-8">
-      {standings.length > 0 && (
-        <section>
-          <h2 className="mb-2 font-bold text-neutral-900">Classificação</h2>
-          <StandingsTable rows={standings.slice(0, 6)} linkTeams />
-        </section>
-      )}
+      {knockout
+        ? bracketFilled && (
+            <section>
+              <h2 className="mb-2 font-bold text-neutral-900">Mata-mata</h2>
+              <BracketView
+                bracket={bracket!}
+                teams={seasonTeams.map((t) => ({
+                  id: t.teamId,
+                  name: t.teamName,
+                }))}
+              />
+            </section>
+          )
+        : standings.length > 0 && (
+            <section>
+              <h2 className="mb-2 font-bold text-neutral-900">Classificação</h2>
+              <StandingsTable rows={standings.slice(0, 6)} linkTeams />
+            </section>
+          )}
       <div className="grid gap-6 lg:grid-cols-2">
         <section>
           <h2 className="mb-2 font-bold text-neutral-900">Próximos jogos</h2>
