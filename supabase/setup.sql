@@ -1,6 +1,6 @@
 -- =============================================================================
 -- UBM - Setup completo (banco novo). Cole TUDO isto no SQL Editor do Supabase
--- e rode uma unica vez. Contem migrations 0001..0010 + seed (Copa UBM).
+-- e rode uma unica vez. Contem migrations 0001..0011 + seed (Copa UBM).
 -- =============================================================================
 
 
@@ -885,6 +885,17 @@ on conflict (id) do nothing;
 
 alter table seasons drop constraint if exists uq_season_competition_year;
 alter table seasons add column if not exists format text;
+
+
+-- >>>>>>>>>>>>>>>>>>>>>> supabase/migrations/0011_logos_bucket.sql <<<<<<<<<<<<<<<<<<<<<<
+
+-- =============================================================================
+-- UBM - Migration 0011: Bucket de escudos/logos
+-- =============================================================================
+
+insert into storage.buckets (id, name, public)
+values ('logos', 'logos', true)
+on conflict (id) do nothing;
 
 
 -- >>>>>>>>>>>>>>>>>>>>>> supabase/seed.sql <<<<<<<<<<<<<<<<<<<<<<

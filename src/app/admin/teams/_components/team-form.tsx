@@ -17,11 +17,30 @@ export function TeamForm({ team }: { team?: TeamRow }) {
   const [shortName, setShortName] = useState(team?.short_name ?? '');
   const [slug, setSlug] = useState(team?.slug ?? '');
   const [slugTouched, setSlugTouched] = useState(isEdit);
-  const [logoUrl, setLogoUrl] = useState(team?.logo_url ?? '');
+
+  const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    team?.logo_url ?? null,
+  );
+  const [removeLogo, setRemoveLogo] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const effectiveSlug = slugTouched ? slug : slugify(name);
+
+  function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0] ?? null;
+    setFile(f);
+    setRemoveLogo(false);
+    setPreviewUrl(f ? URL.createObjectURL(f) : (team?.logo_url ?? null));
+  }
+
+  function clearLogo() {
+    setFile(null);
+    setPreviewUrl(null);
+    setRemoveLogo(true);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -32,30 +51,30 @@ export function TeamForm({ team }: { team?: TeamRow }) {
     }
     setLoading(true);
 
+    const form = new FormData();
+    form.set('name', name);
+    form.set('shortName', shortName);
+    form.set('slug', effectiveSlug);
+    if (file) form.set('logo', file);
+    if (removeLogo) form.set('removeLogo', '1');
+
     if (isEdit) {
-      const result = await updateTeamAction(team!.id, {
-        name,
-        shortName,
-        slug: effectiveSlug,
-        logoUrl,
-      });
+      form.set('existingLogo', team!.logo_url ?? '');
+      const result = await updateTeamAction(team!.id, form);
       setLoading(false);
       if (!result.ok) {
         setError(result.error);
         toast.show(result.error, 'error');
         return;
       }
+      setFile(null);
+      setRemoveLogo(false);
       toast.show('Time atualizado.', 'success');
       router.refresh();
       return;
     }
 
-    const result = await createTeamAction({
-      name,
-      shortName,
-      slug: effectiveSlug,
-      logoUrl,
-    });
+    const result = await createTeamAction(form);
     setLoading(false);
     if (!result.ok) {
       setError(result.error);
@@ -105,16 +124,45 @@ export function TeamForm({ team }: { team?: TeamRow }) {
           }}
         />
       </div>
+
       <div>
         <label className="mb-1 block text-sm font-medium text-neutral-700">
-          Escudo (URL)
+          Escudo
         </label>
-        <input
-          className={inputClasses}
-          value={logoUrl}
-          onChange={(e) => setLogoUrl(e.target.value)}
-          placeholder="https://..."
-        />
+        <div className="flex items-center gap-4">
+          {previewUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={previewUrl}
+              alt="Escudo"
+              className="h-16 w-16 shrink-0 rounded-md border border-neutral-200 bg-white object-contain p-1"
+            />
+          ) : (
+            <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-md border border-dashed border-neutral-300 text-[10px] text-neutral-400">
+              sem escudo
+            </span>
+          )}
+          <div className="min-w-0">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={onFileChange}
+              className="block w-full text-sm text-neutral-600 file:mr-3 file:rounded-md file:border-0 file:bg-fmrj file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-fmrj-green"
+            />
+            {previewUrl && (
+              <button
+                type="button"
+                onClick={clearLogo}
+                className="mt-1 text-xs font-medium text-red-600 hover:underline"
+              >
+                Remover escudo
+              </button>
+            )}
+            <p className="mt-1 text-xs text-neutral-400">
+              PNG, JPG ou WebP, até 5 MB. PNG com fundo transparente fica melhor.
+            </p>
+          </div>
+        </div>
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}

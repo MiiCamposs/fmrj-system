@@ -10,6 +10,30 @@ export interface TeamListItem {
   competitionNames: string[];
 }
 
+const LOGO_BUCKET = 'logos';
+
+/**
+ * Upload de um escudo para o bucket publico "logos". Usa o cliente admin
+ * (service role); chamar apenas no servidor. Retorna a URL publica.
+ */
+export async function uploadTeamLogo(
+  supabase: DbClient,
+  file: File,
+): Promise<string> {
+  const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+  const path = `teams/${crypto.randomUUID()}.${ext}`;
+  const bytes = await file.arrayBuffer();
+
+  const { error } = await supabase.storage.from(LOGO_BUCKET).upload(path, bytes, {
+    contentType: file.type || 'image/png',
+    upsert: false,
+  });
+  if (error) throw error;
+
+  const { data } = supabase.storage.from(LOGO_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
 export async function listTeams(
   supabase: DbClient,
   filters: { search?: string } = {},

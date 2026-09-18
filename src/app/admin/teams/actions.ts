@@ -3,30 +3,57 @@
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { createTeam, updateTeam, deleteTeam } from '@/lib/db/teams';
+import {
+  createTeam,
+  updateTeam,
+  deleteTeam,
+  uploadTeamLogo,
+} from '@/lib/db/teams';
 import { writeAuditLog } from '@/lib/db/audit';
 import { actionError, type ActionResult } from '@/lib/actions/result';
 import { slugify } from '@/lib/domain/slug';
 import type { TeamStatus } from '@/types/database';
 
-export async function createTeamAction(input: {
-  name: string;
-  shortName?: string;
-  slug?: string;
-  logoUrl?: string;
-}): Promise<ActionResult<{ id: string }>> {
+const MAX_LOGO_BYTES = 5 * 1024 * 1024; // 5 MB
+
+/** Resolve o escudo a partir do FormData: nova imagem > remover > manter. */
+async function resolveLogo(
+  supabase: ReturnType<typeof createAdminClient>,
+  form: FormData,
+  existing: string | null,
+): Promise<string | null> {
+  if (form.get('removeLogo') === '1') return null;
+  const image = form.get('logo');
+  if (image instanceof File && image.size > 0) {
+    if (image.size > MAX_LOGO_BYTES) {
+      throw new Error('O escudo deve ter no máximo 5 MB.');
+    }
+    if (!image.type.startsWith('image/')) {
+      throw new Error('O arquivo enviado não é uma imagem.');
+    }
+    return uploadTeamLogo(supabase, image);
+  }
+  return existing;
+}
+
+export async function createTeamAction(
+  form: FormData,
+): Promise<ActionResult<{ id: string }>> {
   try {
     const ctx = await requireAdmin();
-    if (!input.name?.trim()) throw new Error('Nome e obrigatório.');
+    const name = String(form.get('name') ?? '').trim();
+    if (!name) throw new Error('Nome e obrigatório.');
     const supabase = createAdminClient();
-    const slug = (input.slug?.trim() || slugify(input.name)).trim();
+    const slug = (String(form.get('slug') ?? '').trim() || slugify(name)).trim();
     if (!slug) throw new Error('Slug inválido.');
 
+    const logoUrl = await resolveLogo(supabase, form, null);
+
     const team = await createTeam(supabase, {
-      name: input.name,
-      shortName: input.shortName ?? null,
+      name,
+      shortName: String(form.get('shortName') ?? '') || null,
       slug,
-      logoUrl: input.logoUrl ?? null,
+      logoUrl,
     });
 
     await writeAuditLog({
@@ -39,6 +66,7 @@ export async function createTeamAction(input: {
 
     revalidatePath('/admin/teams');
     revalidatePath('/admin');
+    revalidatePath('/times');
     return { ok: true, data: { id: team.id } };
   } catch (e) {
     return actionError(e);
@@ -47,26 +75,34 @@ export async function createTeamAction(input: {
 
 export async function updateTeamAction(
   id: string,
-  input: {
-    name?: string;
-    shortName?: string;
-    slug?: string;
-    logoUrl?: string;
-  },
+  form: FormData,
 ): Promise<ActionResult> {
   try {
     const ctx = await requireAdmin();
+    const name = String(form.get('name') ?? '').trim();
+    if (!name) throw new Error('Nome e obrigatório.');
     const supabase = createAdminClient();
-    await updateTeam(supabase, id, input);
+    const slug = (String(form.get('slug') ?? '').trim() || slugify(name)).trim();
+
+    const existingLogo = String(form.get('existingLogo') ?? '') || null;
+    const logoUrl = await resolveLogo(supabase, form, existingLogo);
+
+    await updateTeam(supabase, id, {
+      name,
+      shortName: String(form.get('shortName') ?? '') || null,
+      slug,
+      logoUrl,
+    });
     await writeAuditLog({
       adminId: ctx.admin.id,
       action: 'team.update',
       entity: 'team',
       entityId: id,
-      data: { ...input },
+      data: { name, slug },
     });
     revalidatePath('/admin/teams');
     revalidatePath(`/admin/teams/${id}`);
+    revalidatePath('/times');
     return { ok: true };
   } catch (e) {
     return actionError(e);
