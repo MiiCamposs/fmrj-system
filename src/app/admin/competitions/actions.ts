@@ -7,6 +7,7 @@ import {
   createCompetition,
   updateCompetition,
   createSeason,
+  updateSeason,
   deleteSeason,
   removeTeamFromSeason,
   updateSeasonBracket,
@@ -143,6 +144,36 @@ export async function createSeasonAction(input: {
     });
     revalidatePath(`/admin/competitions/${input.competitionSlug}`);
     return { ok: true, data: { seasonId: season.id } };
+  } catch (e) {
+    return actionError(e);
+  }
+}
+
+export async function updateSeasonAction(input: {
+  seasonId: string;
+  competitionSlug: string;
+  name: string;
+  format: string;
+}): Promise<ActionResult> {
+  try {
+    const ctx = await requireAdmin();
+    if (!input.name.trim()) throw new Error('Informe o nome da edição.');
+    const supabase = createAdminClient();
+    await updateSeason(supabase, input.seasonId, {
+      name: input.name,
+      format: input.format || null,
+    });
+    await writeAuditLog({
+      adminId: ctx.admin.id,
+      action: 'season.update',
+      entity: 'season',
+      entityId: input.seasonId,
+      data: { name: input.name },
+    });
+    revalidatePath(`/admin/competitions/${input.competitionSlug}`);
+    revalidatePath(`/competicoes/${input.competitionSlug}`);
+    revalidatePath('/');
+    return { ok: true };
   } catch (e) {
     return actionError(e);
   }

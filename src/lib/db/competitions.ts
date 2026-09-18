@@ -148,6 +148,23 @@ export async function createSeason(
   return data;
 }
 
+export async function updateSeason(
+  supabase: DbClient,
+  id: string,
+  patch: { name?: string | null; format?: string | null },
+): Promise<void> {
+  const { error } = await supabase
+    .from('seasons')
+    .update({
+      ...(patch.name !== undefined ? { name: patch.name?.trim() || null } : {}),
+      ...(patch.format !== undefined
+        ? { format: patch.format?.trim() || null }
+        : {}),
+    })
+    .eq('id', id);
+  if (error) throw error;
+}
+
 export async function updateSeasonBracket(
   supabase: DbClient,
   seasonId: string,

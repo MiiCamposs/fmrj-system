@@ -4,6 +4,7 @@ const LABELS: Record<string, string> = {
   'competition.update': 'Competição atualizada',
   'competition.archive': 'Competição arquivada',
   'season.create': 'Temporada criada',
+  'season.update': 'Edição atualizada',
   'season.delete': 'Edição excluída',
   'bracket.update': 'Chaveamento atualizado',
   'season_team.remove': 'Time removido da edição',

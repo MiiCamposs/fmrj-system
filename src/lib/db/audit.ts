@@ -13,6 +13,7 @@ export type AuditAction =
   | 'competition.update'
   | 'competition.archive'
   | 'season.create'
+  | 'season.update'
   | 'season.delete'
   | 'bracket.update'
   | 'season_team.remove'

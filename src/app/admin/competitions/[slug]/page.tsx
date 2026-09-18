@@ -34,6 +34,7 @@ import { SeasonSelector } from './_components/season-selector';
 import { AddTeam } from './_components/add-team';
 import { SeasonManager } from './_components/season-manager';
 import { DeleteSeasonButton } from './_components/delete-season-button';
+import { EditSeasonForm } from './_components/edit-season-form';
 import { RemoveTeamButton } from './_components/remove-team-button';
 import { ArchiveCompetition } from './_components/archive-competition';
 import { ScoringForm } from './_components/scoring-form';
@@ -533,14 +534,13 @@ async function SettingsSeasons({
               key={s.id}
               className="flex items-center justify-between gap-3 px-4 py-2.5"
             >
-              <span className="text-sm text-neutral-800">
-                {seasonLabel(s)}
-                {formatLabel(s.format) && (
-                  <span className="ml-2 text-xs text-neutral-400">
-                    {formatLabel(s.format)}
-                  </span>
-                )}
-              </span>
+              <EditSeasonForm
+                seasonId={s.id}
+                competitionSlug={slug}
+                name={s.name}
+                year={s.year}
+                format={s.format}
+              />
               <DeleteSeasonButton
                 seasonId={s.id}
                 seasonLabel={seasonLabel(s)}
