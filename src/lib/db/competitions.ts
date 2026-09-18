@@ -147,6 +147,43 @@ export async function createSeason(
   return data;
 }
 
+/**
+ * Exclui uma edicao (temporada) inteira. O banco remove em cascata tudo que
+ * pertence a ela: times da edicao, inscricoes, partidas, eventos, conflitos,
+ * resultados e premiacoes daquela temporada.
+ */
+export async function deleteSeason(
+  supabase: DbClient,
+  id: string,
+): Promise<void> {
+  const { error } = await supabase.from('seasons').delete().eq('id', id);
+  if (error) throw error;
+}
+
+/**
+ * Remove um time de UMA edicao: apaga as inscricoes daquele time naquela
+ * temporada e o vinculo em season_teams. Nao mexe no time global nem em outras
+ * edicoes.
+ */
+export async function removeTeamFromSeason(
+  supabase: DbClient,
+  input: { seasonId: string; teamId: string },
+): Promise<void> {
+  const { error: regErr } = await supabase
+    .from('registrations')
+    .delete()
+    .eq('season_id', input.seasonId)
+    .eq('team_id', input.teamId);
+  if (regErr) throw regErr;
+
+  const { error: stErr } = await supabase
+    .from('season_teams')
+    .delete()
+    .eq('season_id', input.seasonId)
+    .eq('team_id', input.teamId);
+  if (stErr) throw stErr;
+}
+
 // ---------------------------------------------------------------------------
 // Estatísticas por competicao (listagem e visao geral).
 // ---------------------------------------------------------------------------

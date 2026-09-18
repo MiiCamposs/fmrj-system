@@ -29,6 +29,8 @@ import { TabNav } from './_components/tab-nav';
 import { SeasonSelector } from './_components/season-selector';
 import { AddTeam } from './_components/add-team';
 import { SeasonManager } from './_components/season-manager';
+import { DeleteSeasonButton } from './_components/delete-season-button';
+import { RemoveTeamButton } from './_components/remove-team-button';
 import { ArchiveCompetition } from './_components/archive-competition';
 import { ScoringForm } from './_components/scoring-form';
 import { CompetitionForm } from '../_components/competition-form';
@@ -137,8 +139,8 @@ async function TabContent({
           <CompetitionEditLoader competitionId={competition.id} />
         </section>
         <section>
-          <h2 className="mb-3 font-semibold text-neutral-800">Temporadas</h2>
-          <SeasonManager competitionId={competition.id} competitionSlug={slug} />
+          <h2 className="mb-3 font-semibold text-neutral-800">Edições</h2>
+          <SettingsSeasons competitionId={competition.id} slug={slug} />
         </section>
         <section>
           <h2 className="mb-3 font-semibold text-neutral-800">
@@ -180,16 +182,28 @@ async function TabContent({
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {seasonTeams.map((t) => (
-              <Link
+              <div
                 key={t.teamId}
-                href={`/admin/competitions/${slug}/times/${t.teamId}?season=${scope.seasonId}`}
-                className="rounded-lg border border-neutral-200 bg-white p-4 transition hover:border-fmrj"
+                className="flex items-start justify-between gap-2 rounded-lg border border-neutral-200 bg-white p-4"
               >
-                <div className="font-medium text-neutral-900">{t.teamName}</div>
-                <div className="mt-1 text-sm text-neutral-500">
-                  {t.squadSize} jogador(es) no elenco
-                </div>
-              </Link>
+                <Link
+                  href={`/admin/competitions/${slug}/times/${t.teamId}?season=${scope.seasonId}`}
+                  className="min-w-0 flex-1 transition hover:text-fmrj"
+                >
+                  <div className="font-medium text-neutral-900">
+                    {t.teamName}
+                  </div>
+                  <div className="mt-1 text-sm text-neutral-500">
+                    {t.squadSize} jogador(es) no elenco
+                  </div>
+                </Link>
+                <RemoveTeamButton
+                  seasonId={scope.seasonId}
+                  teamId={t.teamId}
+                  teamName={t.teamName}
+                  competitionSlug={slug}
+                />
+              </div>
             ))}
           </div>
         )}
@@ -436,5 +450,49 @@ async function ScoringLoader({
         regulation: data.regulation,
       }}
     />
+  );
+}
+
+async function SettingsSeasons({
+  competitionId,
+  slug,
+}: {
+  competitionId: string;
+  slug: string;
+}) {
+  const supabase = await createClient();
+  const seasons = await listSeasons(supabase, competitionId);
+
+  return (
+    <div className="space-y-4">
+      {seasons.length > 0 && (
+        <ul className="divide-y divide-neutral-100 rounded-lg border border-neutral-200 bg-white">
+          {seasons.map((s) => (
+            <li
+              key={s.id}
+              className="flex items-center justify-between gap-3 px-4 py-2.5"
+            >
+              <span className="text-sm text-neutral-800">
+                {seasonLabel(s)}
+                {formatLabel(s.format) && (
+                  <span className="ml-2 text-xs text-neutral-400">
+                    {formatLabel(s.format)}
+                  </span>
+                )}
+              </span>
+              <DeleteSeasonButton
+                seasonId={s.id}
+                seasonLabel={seasonLabel(s)}
+                competitionSlug={slug}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+      <div>
+        <p className="mb-2 text-sm font-medium text-neutral-700">Nova edição</p>
+        <SeasonManager competitionId={competitionId} competitionSlug={slug} />
+      </div>
+    </div>
   );
 }

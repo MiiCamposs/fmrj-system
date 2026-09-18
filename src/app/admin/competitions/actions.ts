@@ -7,6 +7,8 @@ import {
   createCompetition,
   updateCompetition,
   createSeason,
+  deleteSeason,
+  removeTeamFromSeason,
 } from '@/lib/db/competitions';
 import { ensureSeasonTeam } from '@/lib/db/registrations';
 import { writeAuditLog } from '@/lib/db/audit';
@@ -139,6 +141,55 @@ export async function createSeasonAction(input: {
     });
     revalidatePath(`/admin/competitions/${input.competitionSlug}`);
     return { ok: true, data: { seasonId: season.id } };
+  } catch (e) {
+    return actionError(e);
+  }
+}
+
+export async function deleteSeasonAction(input: {
+  seasonId: string;
+  competitionSlug: string;
+}): Promise<ActionResult> {
+  try {
+    const ctx = await requireAdmin();
+    const supabase = createAdminClient();
+    await deleteSeason(supabase, input.seasonId);
+    await writeAuditLog({
+      adminId: ctx.admin.id,
+      action: 'season.delete',
+      entity: 'season',
+      entityId: input.seasonId,
+    });
+    revalidatePath(`/admin/competitions/${input.competitionSlug}`);
+    revalidatePath('/admin');
+    return { ok: true };
+  } catch (e) {
+    return actionError(e);
+  }
+}
+
+export async function removeTeamFromSeasonAction(input: {
+  seasonId: string;
+  teamId: string;
+  competitionSlug: string;
+}): Promise<ActionResult> {
+  try {
+    const ctx = await requireAdmin();
+    const supabase = createAdminClient();
+    await removeTeamFromSeason(supabase, {
+      seasonId: input.seasonId,
+      teamId: input.teamId,
+    });
+    await writeAuditLog({
+      adminId: ctx.admin.id,
+      action: 'season_team.remove',
+      entity: 'season_team',
+      entityId: input.teamId,
+      data: { seasonId: input.seasonId },
+    });
+    revalidatePath(`/admin/competitions/${input.competitionSlug}`);
+    revalidatePath('/admin/conflicts');
+    return { ok: true };
   } catch (e) {
     return actionError(e);
   }
