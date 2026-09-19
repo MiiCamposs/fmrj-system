@@ -5,6 +5,7 @@ import {
   slotWinner,
   slotScore,
   goalTally,
+  OWN_GOAL,
 } from '@/lib/domain/bracket';
 
 interface TeamOpt {
@@ -20,7 +21,9 @@ function findTeam(teams: TeamOpt[], id: string | null): TeamOpt | null {
 }
 
 function goalNames(ids: string[], players: Map<string, string>): string[] {
-  return ids.map((id) => players.get(id) ?? id);
+  return ids.map((id) =>
+    id === OWN_GOAL ? 'Gol contra' : (players.get(id) ?? id),
+  );
 }
 
 function Crest({ team }: { team: TeamOpt | null }) {

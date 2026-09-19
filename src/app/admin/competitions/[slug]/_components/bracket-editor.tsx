@@ -9,6 +9,7 @@ import {
   type BracketSlot,
   emptyBracket,
   resolveBracket,
+  OWN_GOAL,
 } from '@/lib/domain/bracket';
 import { saveBracketAction } from '../../actions';
 
@@ -291,6 +292,7 @@ function GoalList({
                 {p.name}
               </option>
             ))}
+            <option value={OWN_GOAL}>Gol contra</option>
           </select>
           <button
             type="button"

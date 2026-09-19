@@ -19,6 +19,10 @@ export interface BracketSlot {
 /** Placar de W.O. (3 a 0 pro time presente). */
 export const WO_SCORE = 3;
 
+/** Valor especial de gol sem autor creditado (gol contra). Conta no placar,
+ *  mas nao pontua na artilharia de nenhum jogador. */
+export const OWN_GOAL = '__og__';
+
 export interface BracketData {
   quarterfinals: BracketSlot[];
   semifinals: BracketSlot[];
@@ -164,11 +168,13 @@ export function bracketGoalEvents(
     if (slot.noShow) return; // W.O. nao tem gols com autor
     if (slot.home) {
       for (const pid of slot.homeGoals)
-        if (pid.trim()) out.push({ slotKey, playerId: pid, teamId: slot.home });
+        if (pid.trim() && pid !== OWN_GOAL)
+          out.push({ slotKey, playerId: pid, teamId: slot.home });
     }
     if (slot.away) {
       for (const pid of slot.awayGoals)
-        if (pid.trim()) out.push({ slotKey, playerId: pid, teamId: slot.away });
+        if (pid.trim() && pid !== OWN_GOAL)
+          out.push({ slotKey, playerId: pid, teamId: slot.away });
     }
   };
   b.quarterfinals.forEach((s, i) => push(`qf${i}`, s));
