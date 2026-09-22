@@ -3,10 +3,28 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { slugify } from '@/lib/domain/slug';
+import { createClient } from '@/lib/supabase/client';
 import { inputClasses, buttonClasses } from '@/components/ui/ui';
 import { useToast } from '@/components/ui/toast';
 import type { NewsPostRow } from '@/types/database';
 import { createNewsAction, updateNewsAction } from '../actions';
+
+/** Envia a capa DIRETO do navegador para o Storage (sem passar pela Server
+ *  Action, que na Vercel tem limite de ~4,5 MB). Retorna a URL publica. */
+async function uploadCover(file: File): Promise<string> {
+  const supabase = createClient();
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+  const path = `posts/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from('news').upload(path, file, {
+    contentType: file.type || 'image/jpeg',
+    upsert: false,
+  });
+  if (error) {
+    throw new Error(`Falha ao enviar a imagem: ${error.message}`);
+  }
+  const { data } = supabase.storage.from('news').getPublicUrl(path);
+  return data.publicUrl;
+}
 
 export function NewsForm({ post }: { post?: NewsPostRow }) {
   const router = useRouter();
@@ -29,6 +47,7 @@ export function NewsForm({ post }: { post?: NewsPostRow }) {
   const [removeImage, setRemoveImage] = useState(false);
 
   const [loading, setLoading] = useState(false);
+  const [busyLabel, setBusyLabel] = useState('Salvando...');
   const [error, setError] = useState<string | null>(null);
 
   const effectiveSlug = slugTouched ? slug : slugify(title);
@@ -54,41 +73,57 @@ export function NewsForm({ post }: { post?: NewsPostRow }) {
       return;
     }
     setLoading(true);
+    try {
+      // Resolve a capa: nova imagem (upload no navegador) > remover > manter.
+      let coverImageUrl: string | null = post?.cover_image_url ?? null;
+      if (removeImage) coverImageUrl = null;
+      if (file) {
+        setBusyLabel('Enviando imagem...');
+        coverImageUrl = await uploadCover(file);
+      }
+      setBusyLabel('Salvando...');
 
-    const form = new FormData();
-    form.set('title', title);
-    form.set('slug', effectiveSlug);
-    form.set('excerpt', excerpt);
-    form.set('content', content);
-    form.set('status', status);
-    if (file) form.set('image', file);
-    if (removeImage) form.set('removeImage', '1');
+      const base = {
+        title,
+        slug: effectiveSlug,
+        excerpt,
+        content,
+        status,
+        coverImageUrl,
+      };
 
-    if (isEdit) {
-      form.set('existingCover', post!.cover_image_url ?? '');
-      form.set('keepPublishedAt', post!.published_at ?? '');
-      const result = await updateNewsAction(post!.id, form);
-      setLoading(false);
+      if (isEdit) {
+        const result = await updateNewsAction(post!.id, {
+          ...base,
+          keepPublishedAt: post!.published_at ?? null,
+        });
+        if (!result.ok) {
+          setError(result.error);
+          toast.show(result.error, 'error');
+          return;
+        }
+        toast.show('Notícia salva.', 'success');
+        router.refresh();
+        return;
+      }
+
+      const result = await createNewsAction(base);
       if (!result.ok) {
         setError(result.error);
         toast.show(result.error, 'error');
         return;
       }
-      toast.show('Notícia salva.', 'success');
+      toast.show('Notícia criada.', 'success');
+      router.push(`/admin/news/${result.data.id}`);
       router.refresh();
-      return;
+    } catch (err) {
+      const msg =
+        err instanceof Error ? err.message : 'Não foi possível salvar.';
+      setError(msg);
+      toast.show(msg, 'error');
+    } finally {
+      setLoading(false);
     }
-
-    const result = await createNewsAction(form);
-    setLoading(false);
-    if (!result.ok) {
-      setError(result.error);
-      toast.show(result.error, 'error');
-      return;
-    }
-    toast.show('Notícia criada.', 'success');
-    router.push(`/admin/news/${result.data.id}`);
-    router.refresh();
   }
 
   return (
@@ -175,7 +210,10 @@ export function NewsForm({ post }: { post?: NewsPostRow }) {
           onChange={onFileChange}
           className="block w-full text-sm text-neutral-600 file:mr-3 file:rounded-md file:border-0 file:bg-fmrj file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-fmrj-green"
         />
-        <p className="mt-1 text-xs text-neutral-400">JPG, PNG ou WebP, até 20 MB.</p>
+        <p className="mt-1 text-xs text-neutral-400">
+          JPG, PNG ou WebP. Enviada direto do seu navegador (sem limite da
+          Vercel).
+        </p>
       </div>
 
       <div>
@@ -196,7 +234,7 @@ export function NewsForm({ post }: { post?: NewsPostRow }) {
 
       <div className="flex gap-2">
         <button type="submit" className={buttonClasses.primary} disabled={loading}>
-          {loading ? 'Salvando...' : isEdit ? 'Salvar' : 'Criar notícia'}
+          {loading ? busyLabel : isEdit ? 'Salvar' : 'Criar notícia'}
         </button>
         <button
           type="button"

@@ -1,6 +1,6 @@
 -- =============================================================================
 -- UBM - Setup completo (banco novo). Cole TUDO isto no SQL Editor do Supabase
--- e rode uma unica vez. Contem migrations 0001..0013 + seed (Copa UBM).
+-- e rode uma unica vez. Contem migrations 0001..0014 + seed (Copa UBM).
 -- =============================================================================
 
 
@@ -915,6 +915,19 @@ alter table seasons add column if not exists bracket jsonb;
 
 alter table matches
   add column if not exists wo_no_show_team_id uuid references teams (id) on delete set null;
+
+
+-- >>>>>>>>>>>>>>>>>>>>>> supabase/migrations/0014_news_client_upload.sql <<<<<<<<<<<<<<<<<<<<<<
+
+-- =============================================================================
+-- UBM - Migration 0014: Upload direto (navegador) das imagens de noticia
+-- =============================================================================
+
+create policy "news client upload by admin" on storage.objects
+  for insert to authenticated
+  with check (bucket_id = 'news' and public.is_admin());
+
+update storage.buckets set file_size_limit = null where id = 'news';
 
 
 -- >>>>>>>>>>>>>>>>>>>>>> supabase/seed.sql <<<<<<<<<<<<<<<<<<<<<<

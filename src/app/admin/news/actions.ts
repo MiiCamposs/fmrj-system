@@ -3,65 +3,41 @@
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
-import {
-  createNews,
-  updateNews,
-  deleteNews,
-  uploadNewsImage,
-} from '@/lib/db/news';
+import { createNews, updateNews, deleteNews } from '@/lib/db/news';
 import { writeAuditLog } from '@/lib/db/audit';
 import { actionError, type ActionResult } from '@/lib/actions/result';
 import { slugify } from '@/lib/domain/slug';
 import type { NewsStatus } from '@/types/database';
 
-const MAX_IMAGE_BYTES = 20 * 1024 * 1024; // 20 MB
-
-function readStatus(value: FormDataEntryValue | null): NewsStatus {
-  return value === 'published' ? 'published' : 'draft';
-}
-
-async function resolveCover(
-  supabase: ReturnType<typeof createAdminClient>,
-  form: FormData,
-  existing: string | null,
-): Promise<string | null> {
-  if (form.get('removeImage') === '1') return null;
-
-  const image = form.get('image');
-  if (image instanceof File && image.size > 0) {
-    if (image.size > MAX_IMAGE_BYTES) {
-      throw new Error('A imagem deve ter no máximo 20 MB.');
-    }
-    if (!image.type.startsWith('image/')) {
-      throw new Error('O arquivo enviado não é uma imagem.');
-    }
-    return uploadNewsImage(supabase, image);
-  }
-  return existing;
+interface NewsInput {
+  title: string;
+  slug?: string;
+  excerpt: string;
+  content: string;
+  status: NewsStatus;
+  // A imagem ja foi enviada pelo navegador direto ao Storage; aqui vem so a URL.
+  coverImageUrl: string | null;
 }
 
 export async function createNewsAction(
-  form: FormData,
+  input: NewsInput,
 ): Promise<ActionResult<{ id: string }>> {
   try {
     const ctx = await requireAdmin();
-    const title = String(form.get('title') ?? '').trim();
+    const title = input.title.trim();
     if (!title) throw new Error('O título é obrigatório.');
 
     const supabase = createAdminClient();
-    const slug =
-      String(form.get('slug') ?? '').trim() || slugify(title);
+    const slug = (input.slug?.trim() || slugify(title)).trim();
     if (!slug) throw new Error('Slug inválido.');
-
-    const coverImageUrl = await resolveCover(supabase, form, null);
 
     const post = await createNews(supabase, {
       title,
       slug,
-      excerpt: String(form.get('excerpt') ?? ''),
-      content: String(form.get('content') ?? ''),
-      coverImageUrl,
-      status: readStatus(form.get('status')),
+      excerpt: input.excerpt,
+      content: input.content,
+      coverImageUrl: input.coverImageUrl,
+      status: input.status === 'published' ? 'published' : 'draft',
     });
 
     await writeAuditLog({
@@ -83,29 +59,25 @@ export async function createNewsAction(
 
 export async function updateNewsAction(
   id: string,
-  form: FormData,
+  input: NewsInput & { keepPublishedAt: string | null },
 ): Promise<ActionResult> {
   try {
     const ctx = await requireAdmin();
-    const title = String(form.get('title') ?? '').trim();
+    const title = input.title.trim();
     if (!title) throw new Error('O título é obrigatório.');
 
     const supabase = createAdminClient();
-    const slug =
-      String(form.get('slug') ?? '').trim() || slugify(title);
+    const slug = (input.slug?.trim() || slugify(title)).trim();
     if (!slug) throw new Error('Slug inválido.');
-
-    const existingCover = String(form.get('existingCover') ?? '') || null;
-    const coverImageUrl = await resolveCover(supabase, form, existingCover);
 
     await updateNews(supabase, id, {
       title,
       slug,
-      excerpt: String(form.get('excerpt') ?? ''),
-      content: String(form.get('content') ?? ''),
-      coverImageUrl,
-      status: readStatus(form.get('status')),
-      keepPublishedAt: String(form.get('keepPublishedAt') ?? '') || null,
+      excerpt: input.excerpt,
+      content: input.content,
+      coverImageUrl: input.coverImageUrl,
+      status: input.status === 'published' ? 'published' : 'draft',
+      keepPublishedAt: input.keepPublishedAt,
     });
 
     await writeAuditLog({
