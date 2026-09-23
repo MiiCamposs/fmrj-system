@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { listPublishedNews } from '@/lib/db/news';
-import { getHomeBrackets } from '@/lib/db/brackets-home';
-import { BracketView } from '@/components/bracket-view';
+import { getHomeFinals } from '@/lib/db/brackets-home';
+import { FinalHighlight } from '@/components/final-highlight';
 import { formatDate } from '@/lib/format';
 
 export const dynamic = 'force-dynamic';
@@ -66,10 +66,10 @@ function QuickAccessCard() {
 
 export default async function PublicHome() {
   let configured = true;
-  let brackets: Awaited<ReturnType<typeof getHomeBrackets>> = [];
+  let finals: Awaited<ReturnType<typeof getHomeFinals>> = [];
   try {
     const supabase = await createClient();
-    brackets = await getHomeBrackets(supabase, 4);
+    finals = await getHomeFinals(supabase, 4);
   } catch {
     configured = false;
   }
@@ -121,35 +121,18 @@ export default async function PublicHome() {
         </div>
       )}
 
-      {/* Chaveamentos (mata-mata) + Acesso rápido na lateral */}
-      {brackets.length > 0 ? (
+      {/* Grandes Finais em destaque + Acesso rápido na lateral */}
+      {finals.length > 0 ? (
         <div className="mt-8 xl:flex xl:items-start xl:gap-6">
-          <div className="min-w-0 space-y-8 xl:flex-1">
-            {brackets.map((b, i) => (
-              <div key={i}>
-                <div className="mb-3 flex items-end justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-fmrj-green">
-                      {b.competitionName}
-                    </p>
-                    <h2 className="font-display text-xl font-black text-neutral-900">
-                      {b.editionLabel}
-                    </h2>
-                  </div>
-                  <Link
-                    href={`/competicoes/${b.competitionSlug}`}
-                    className="shrink-0 text-sm font-medium text-fmrj hover:underline"
-                  >
-                    Ver competição →
-                  </Link>
-                </div>
-                <BracketView
-                  bracket={b.bracket}
-                  teams={b.teams}
-                  players={b.players}
-                />
-              </div>
-            ))}
+          <div className="min-w-0 xl:flex-1">
+            <h2 className="mb-3 text-lg font-bold text-neutral-900">
+              Grandes Finais
+            </h2>
+            <div className="grid gap-5 lg:grid-cols-2">
+              {finals.map((f, i) => (
+                <FinalHighlight key={i} final={f} />
+              ))}
+            </div>
           </div>
 
           <aside className="mt-8 xl:mt-0 xl:w-64 xl:shrink-0">

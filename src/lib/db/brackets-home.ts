@@ -87,6 +87,102 @@ export async function getHomeBrackets(
 }
 
 // ---------------------------------------------------------------------------
+// Grandes Finais em destaque (home): so a final de cada edicao de mata-mata.
+// ---------------------------------------------------------------------------
+
+export interface HomeFinalSide {
+  name: string;
+  short: string | null;
+  logo: string | null;
+  score: number;
+  winner: boolean;
+}
+export interface HomeFinal {
+  competitionName: string;
+  competitionSlug: string;
+  editionLabel: string;
+  home: HomeFinalSide;
+  away: HomeFinalSide;
+  decided: boolean;
+  wo: boolean;
+  championName: string | null;
+  championLogo: string | null;
+}
+
+export async function getHomeFinals(
+  supabase: DbClient,
+  limit = 4,
+): Promise<HomeFinal[]> {
+  const { data: seasons, error } = await supabase
+    .from('seasons')
+    .select('id, competition_id, name, year, format, bracket, created_at')
+    .not('bracket', 'is', null)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+
+  const candidates = (seasons ?? [])
+    .filter((s) => isKnockout(s.format))
+    .map((s) => ({ s, bracket: normalizeBracket(s.bracket) }))
+    .filter(({ bracket }) => bracketFilled(bracket))
+    .slice(0, limit);
+  if (candidates.length === 0) return [];
+
+  const compIds = Array.from(new Set(candidates.map((c) => c.s.competition_id)));
+  const { data: comps } = await supabase
+    .from('competitions')
+    .select('id, name, slug, status')
+    .in('id', compIds);
+  const compById = new Map((comps ?? []).map((c) => [c.id, c]));
+
+  const out: HomeFinal[] = [];
+  for (const { s, bracket } of candidates) {
+    const comp = compById.get(s.competition_id);
+    if (!comp || comp.status === 'archived') continue;
+    const final = resolveBracket(bracket).final;
+    if (!final.home || !final.away) continue; // final ainda nao definida
+
+    const teams = await getSeasonTeams(supabase, {
+      competitionId: s.competition_id,
+      seasonId: s.id,
+    });
+    const info = (id: string | null) =>
+      id ? teams.find((t) => t.teamId === id) : undefined;
+
+    const sc = slotScore(final);
+    const winId = slotWinner(final);
+    const homeT = info(final.home);
+    const awayT = info(final.away);
+    const champT = winId ? info(winId) : undefined;
+
+    out.push({
+      competitionName: comp.name,
+      competitionSlug: comp.slug,
+      editionLabel: seasonLabel({ name: s.name, year: s.year }),
+      home: {
+        name: homeT?.teamName ?? '—',
+        short: homeT?.shortName ?? null,
+        logo: homeT?.logoUrl ?? null,
+        score: sc.home,
+        winner: winId === final.home,
+      },
+      away: {
+        name: awayT?.teamName ?? '—',
+        short: awayT?.shortName ?? null,
+        logo: awayT?.logoUrl ?? null,
+        score: sc.away,
+        winner: winId === final.away,
+      },
+      decided: !!winId,
+      wo: !!final.noShow,
+      championName: champT?.teamName ?? null,
+      championLogo: champT?.logoUrl ?? null,
+    });
+  }
+  out.sort((a, b) => b.competitionName.localeCompare(a.competitionName, 'pt'));
+  return out;
+}
+
+// ---------------------------------------------------------------------------
 // Jogos do mata-mata (para a pagina /jogos): cada confronto ja com dois times.
 // ---------------------------------------------------------------------------
 
