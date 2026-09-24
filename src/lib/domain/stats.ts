@@ -53,6 +53,57 @@ export function computeTopScorers(events: readonly EventLite[]): ScorerRow[] {
   return rows;
 }
 
+export interface ScorerBoardRow {
+  playerId: string;
+  goals: number;
+  matches: number; // jogos em que marcou
+  average: number; // gols por jogo
+  hatTricks: number; // jogos com 3+ gols
+  bestGame: number; // maior nº de gols em um único jogo
+}
+
+/**
+ * Placar de artilharia derivado apenas dos GOLS (o joguinho nao tem cartao, e
+ * assistencias ainda nao sao marcadas). Alem de gols/jogos/media, calcula
+ * hat-tricks (jogos com 3+ gols) e o melhor jogo do jogador.
+ */
+export function computeScorerBoard(
+  events: readonly EventLite[],
+): ScorerBoardRow[] {
+  // gols por (jogador, jogo)
+  const perPlayerMatch = new Map<string, Map<string, number>>();
+  for (const e of events) {
+    if (!e.playerId || e.type !== 'goal') continue;
+    const m = perPlayerMatch.get(e.playerId) ?? new Map<string, number>();
+    m.set(e.matchId, (m.get(e.matchId) ?? 0) + 1);
+    perPlayerMatch.set(e.playerId, m);
+  }
+
+  const rows: ScorerBoardRow[] = [];
+  for (const [playerId, matchMap] of perPlayerMatch.entries()) {
+    let goals = 0;
+    let hatTricks = 0;
+    let bestGame = 0;
+    for (const c of matchMap.values()) {
+      goals += c;
+      if (c >= 3) hatTricks += 1;
+      if (c > bestGame) bestGame = c;
+    }
+    const played = matchMap.size;
+    rows.push({
+      playerId,
+      goals,
+      matches: played,
+      average: played > 0 ? Math.round((goals / played) * 100) / 100 : 0,
+      hatTricks,
+      bestGame,
+    });
+  }
+
+  rows.sort((a, b) => b.goals - a.goals || b.average - a.average);
+  return rows;
+}
+
 export interface PlayerStats {
   goals: number;
   assists: number;

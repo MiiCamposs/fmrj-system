@@ -1,46 +1,118 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import { getTopScorers, type TopScorerItem } from '@/lib/db/stats';
+import {
+  getStatsBoard,
+  getTeamGoals,
+  type StatsBoardItem,
+  type TeamGoalsItem,
+} from '@/lib/db/stats';
 import { getWoRecord } from '@/lib/db/wo';
 import { listCompetitions } from '@/lib/db/competitions';
 import { PageHeader, Card, EmptyState, ErrorState } from '@/components/ui/ui';
 
 export const dynamic = 'force-dynamic';
 
-function ScorerTable({ scorers }: { scorers: TopScorerItem[] }) {
-  if (scorers.length === 0) {
+function ScorerTable({ rows }: { rows: StatsBoardItem[] }) {
+  if (rows.length === 0) {
     return (
       <p className="text-sm text-neutral-500">Nenhum gol registrado ainda.</p>
     );
   }
   return (
     <div className="overflow-x-auto rounded-lg border border-neutral-200 bg-white">
-      <table className="w-full min-w-[480px] text-sm">
+      <table className="w-full min-w-[600px] text-sm">
         <thead className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase text-neutral-500">
           <tr>
-            <th className="px-4 py-2 text-left">#</th>
-            <th className="px-4 py-2 text-left">Jogador</th>
-            <th className="px-4 py-2 text-left">Time</th>
-            <th className="px-4 py-2 text-center">Jogos</th>
-            <th className="px-4 py-2 text-center">Gols</th>
+            <th className="px-3 py-2 text-left">#</th>
+            <th className="px-3 py-2 text-left">Jogador</th>
+            <th className="px-3 py-2 text-left">Time</th>
+            <th className="px-2 py-2 text-center" title="Jogos em que marcou">
+              J
+            </th>
+            <th className="px-2 py-2 text-center" title="Gols">G</th>
+            <th className="px-2 py-2 text-center" title="Gols por jogo">
+              Média
+            </th>
+            <th className="px-2 py-2 text-center" title="Hat-tricks (3+ gols)">
+              HT
+            </th>
+            <th className="px-2 py-2 text-center" title="Mais gols em um jogo">
+              Melhor
+            </th>
           </tr>
         </thead>
         <tbody>
-          {scorers.map((s, i) => (
+          {rows.map((s, i) => (
             <tr
               key={s.playerId}
               className="border-b border-neutral-100 last:border-0"
             >
-              <td className="px-4 py-2 text-neutral-500">{i + 1}</td>
-              <td className="px-4 py-2 font-medium text-neutral-900">
+              <td className="px-3 py-2 text-neutral-500">{i + 1}</td>
+              <td className="px-3 py-2 font-medium text-neutral-900">
                 {s.playerNickname || s.playerName}
               </td>
-              <td className="px-4 py-2 text-neutral-600">{s.teamName}</td>
-              <td className="px-4 py-2 text-center text-neutral-600">
+              <td className="px-3 py-2 text-neutral-600">{s.teamName}</td>
+              <td className="px-2 py-2 text-center text-neutral-600">
                 {s.matches}
               </td>
-              <td className="px-4 py-2 text-center font-bold text-neutral-900">
+              <td className="px-2 py-2 text-center font-bold text-neutral-900">
                 {s.goals}
+              </td>
+              <td className="px-2 py-2 text-center text-neutral-600">
+                {s.average.toFixed(2)}
+              </td>
+              <td className="px-2 py-2 text-center text-neutral-600">
+                {s.hatTricks || ''}
+              </td>
+              <td className="px-2 py-2 text-center text-neutral-600">
+                {s.bestGame || ''}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function TeamGoalsTable({ teams }: { teams: TeamGoalsItem[] }) {
+  if (teams.length === 0) {
+    return <p className="text-sm text-neutral-500">Sem gols de times ainda.</p>;
+  }
+  return (
+    <div className="overflow-x-auto rounded-lg border border-neutral-200 bg-white">
+      <table className="w-full min-w-[520px] text-sm">
+        <thead className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase text-neutral-500">
+          <tr>
+            <th className="px-3 py-2 text-left">#</th>
+            <th className="px-3 py-2 text-left">Time</th>
+            <th className="px-2 py-2 text-center" title="Jogos">J</th>
+            <th className="px-2 py-2 text-center" title="Gols marcados">GM</th>
+            <th className="px-2 py-2 text-center" title="Gols sofridos">GS</th>
+            <th className="px-2 py-2 text-center" title="Saldo">SG</th>
+          </tr>
+        </thead>
+        <tbody>
+          {teams.map((t, i) => (
+            <tr
+              key={t.teamId}
+              className="border-b border-neutral-100 last:border-0"
+            >
+              <td className="px-3 py-2 text-neutral-500">{i + 1}</td>
+              <td className="px-3 py-2 font-medium text-neutral-900">
+                {t.teamName}
+              </td>
+              <td className="px-2 py-2 text-center text-neutral-600">
+                {t.games}
+              </td>
+              <td className="px-2 py-2 text-center font-bold text-neutral-900">
+                {t.scored}
+              </td>
+              <td className="px-2 py-2 text-center text-neutral-600">
+                {t.conceded}
+              </td>
+              <td className="px-2 py-2 text-center text-neutral-600">
+                {t.balance > 0 ? `+${t.balance}` : t.balance}
               </td>
             </tr>
           ))}
@@ -60,10 +132,11 @@ export default async function StatisticsPage({
   let content;
   try {
     const supabase = await createClient();
-    const [geral, woRecord, competitions] = await Promise.all([
-      getTopScorers(supabase, {}, 20),
+    const [geral, woRecord, competitions, teamGoals] = await Promise.all([
+      getStatsBoard(supabase, {}, 30),
       getWoRecord(supabase),
       listCompetitions(supabase),
+      getTeamGoals(supabase, {}),
     ]);
     const visible = competitions.filter((c) => c.status !== 'archived');
 
@@ -71,7 +144,7 @@ export default async function StatisticsPage({
     const selected =
       visible.find((c) => c.slug === comp) ?? visible[0] ?? null;
     const compScorers = selected
-      ? await getTopScorers(supabase, { competitionId: selected.id }, 20)
+      ? await getStatsBoard(supabase, { competitionId: selected.id }, 30)
       : [];
 
     content = (
@@ -87,7 +160,7 @@ export default async function StatisticsPage({
               description="Os gols vêm das súmulas das partidas e dos chaveamentos."
             />
           ) : (
-            <ScorerTable scorers={geral} />
+            <ScorerTable rows={geral} />
           )}
         </section>
 
@@ -115,9 +188,17 @@ export default async function StatisticsPage({
                   </Link>
                 ))}
               </div>
-              {selected && <ScorerTable scorers={compScorers} />}
+              {selected && <ScorerTable rows={compScorers} />}
             </>
           )}
+        </section>
+
+        {/* Ataque e defesa dos times */}
+        <section>
+          <h2 className="mb-3 font-semibold text-neutral-800">
+            Ataque e defesa dos times
+          </h2>
+          <TeamGoalsTable teams={teamGoals} />
         </section>
 
         {/* Registro de W.O. */}

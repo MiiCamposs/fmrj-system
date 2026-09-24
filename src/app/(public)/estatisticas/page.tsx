@@ -1,7 +1,12 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
-import { getTopScorers, type TopScorerItem } from '@/lib/db/stats';
+import {
+  getStatsBoard,
+  getTeamGoals,
+  type StatsBoardItem,
+  type TeamGoalsItem,
+} from '@/lib/db/stats';
 import { listCompetitions } from '@/lib/db/competitions';
 import { EmptyState } from '@/components/ui/ui';
 
@@ -12,8 +17,8 @@ export const metadata: Metadata = {
   description: 'Artilharia geral e por competição da União Brasileira de Mamoball.',
 };
 
-function ScorerTable({ scorers }: { scorers: TopScorerItem[] }) {
-  if (scorers.length === 0) {
+function StatsTable({ rows }: { rows: StatsBoardItem[] }) {
+  if (rows.length === 0) {
     return (
       <EmptyState
         title="Nenhum gol registrado ainda."
@@ -23,24 +28,40 @@ function ScorerTable({ scorers }: { scorers: TopScorerItem[] }) {
   }
   return (
     <div className="overflow-x-auto rounded-lg border border-neutral-200 bg-white">
-      <table className="w-full min-w-[480px] text-sm">
+      <table className="w-full min-w-[600px] text-sm">
         <thead className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase text-neutral-500">
           <tr>
-            <th className="px-4 py-2 text-left">#</th>
-            <th className="px-4 py-2 text-left">Jogador</th>
-            <th className="px-4 py-2 text-left">Time</th>
-            <th className="px-4 py-2 text-center">Jogos</th>
-            <th className="px-4 py-2 text-center">Gols</th>
+            <th className="px-3 py-2 text-left">#</th>
+            <th className="px-3 py-2 text-left">Jogador</th>
+            <th className="px-3 py-2 text-left">Time</th>
+            <th className="px-2 py-2 text-center" title="Jogos em que marcou">
+              J
+            </th>
+            <th className="px-2 py-2 text-center" title="Gols">
+              G
+            </th>
+            <th className="px-2 py-2 text-center" title="Gols por jogo">
+              Média
+            </th>
+            <th className="px-2 py-2 text-center" title="Hat-tricks (3+ gols)">
+              HT
+            </th>
+            <th
+              className="px-2 py-2 text-center"
+              title="Mais gols em um só jogo"
+            >
+              Melhor
+            </th>
           </tr>
         </thead>
         <tbody>
-          {scorers.map((s, i) => (
+          {rows.map((s, i) => (
             <tr
               key={s.playerId}
               className="border-b border-neutral-100 last:border-0"
             >
-              <td className="px-4 py-2 text-neutral-500">{i + 1}</td>
-              <td className="px-4 py-2">
+              <td className="px-3 py-2 text-neutral-500">{i + 1}</td>
+              <td className="px-3 py-2">
                 <Link
                   href={`/jogadores/${s.playerId}`}
                   className="font-medium text-neutral-900 hover:text-fmrj"
@@ -48,12 +69,81 @@ function ScorerTable({ scorers }: { scorers: TopScorerItem[] }) {
                   {s.playerNickname || s.playerName}
                 </Link>
               </td>
-              <td className="px-4 py-2 text-neutral-600">{s.teamName}</td>
-              <td className="px-4 py-2 text-center text-neutral-600">
+              <td className="px-3 py-2 text-neutral-600">{s.teamName}</td>
+              <td className="px-2 py-2 text-center text-neutral-600">
                 {s.matches}
               </td>
-              <td className="px-4 py-2 text-center font-bold text-neutral-900">
+              <td className="px-2 py-2 text-center font-bold text-neutral-900">
                 {s.goals}
+              </td>
+              <td className="px-2 py-2 text-center text-neutral-600">
+                {s.average.toFixed(2)}
+              </td>
+              <td className="px-2 py-2 text-center text-neutral-600">
+                {s.hatTricks || ''}
+              </td>
+              <td className="px-2 py-2 text-center text-neutral-600">
+                {s.bestGame || ''}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function TeamGoalsTable({ teams }: { teams: TeamGoalsItem[] }) {
+  if (teams.length === 0) {
+    return (
+      <EmptyState
+        title="Sem gols de times ainda."
+        description="Assim que houver resultados, o ataque e a defesa aparecem aqui."
+      />
+    );
+  }
+  return (
+    <div className="overflow-x-auto rounded-lg border border-neutral-200 bg-white">
+      <table className="w-full min-w-[520px] text-sm">
+        <thead className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase text-neutral-500">
+          <tr>
+            <th className="px-3 py-2 text-left">#</th>
+            <th className="px-3 py-2 text-left">Time</th>
+            <th className="px-2 py-2 text-center" title="Jogos">
+              J
+            </th>
+            <th className="px-2 py-2 text-center" title="Gols marcados">
+              GM
+            </th>
+            <th className="px-2 py-2 text-center" title="Gols sofridos">
+              GS
+            </th>
+            <th className="px-2 py-2 text-center" title="Saldo de gols">
+              SG
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {teams.map((t, i) => (
+            <tr
+              key={t.teamId}
+              className="border-b border-neutral-100 last:border-0"
+            >
+              <td className="px-3 py-2 text-neutral-500">{i + 1}</td>
+              <td className="px-3 py-2 font-medium text-neutral-900">
+                {t.teamName}
+              </td>
+              <td className="px-2 py-2 text-center text-neutral-600">
+                {t.games}
+              </td>
+              <td className="px-2 py-2 text-center font-bold text-neutral-900">
+                {t.scored}
+              </td>
+              <td className="px-2 py-2 text-center text-neutral-600">
+                {t.conceded}
+              </td>
+              <td className="px-2 py-2 text-center text-neutral-600">
+                {t.balance > 0 ? `+${t.balance}` : t.balance}
               </td>
             </tr>
           ))}
@@ -70,25 +160,28 @@ export default async function EstatisticasPage({
 }) {
   const { comp } = await searchParams;
 
-  let geral: TopScorerItem[] = [];
+  let geral: StatsBoardItem[] = [];
   let visible: Awaited<ReturnType<typeof listCompetitions>> = [];
   let selected: (typeof visible)[number] | null = null;
-  let compScorers: TopScorerItem[] = [];
+  let compRows: StatsBoardItem[] = [];
+  let teamGoals: TeamGoalsItem[] = [];
 
   try {
     const supabase = await createClient();
-    const [g, competitions] = await Promise.all([
-      getTopScorers(supabase, {}, 20),
+    const [g, competitions, tg] = await Promise.all([
+      getStatsBoard(supabase, {}, 30),
       listCompetitions(supabase),
+      getTeamGoals(supabase, {}),
     ]);
     geral = g;
+    teamGoals = tg;
     visible = competitions.filter((c) => c.status !== 'archived');
     selected = visible.find((c) => c.slug === comp) ?? visible[0] ?? null;
     if (selected) {
-      compScorers = await getTopScorers(
+      compRows = await getStatsBoard(
         supabase,
         { competitionId: selected.id },
-        20,
+        30,
       );
     }
   } catch {
@@ -110,7 +203,7 @@ export default async function EstatisticasPage({
         <h2 className="mb-3 text-lg font-bold text-neutral-900">
           Artilharia geral
         </h2>
-        <ScorerTable scorers={geral} />
+        <StatsTable rows={geral} />
       </section>
 
       {visible.length > 0 && (
@@ -133,9 +226,16 @@ export default async function EstatisticasPage({
               </Link>
             ))}
           </div>
-          {selected && <ScorerTable scorers={compScorers} />}
+          {selected && <StatsTable rows={compRows} />}
         </section>
       )}
+
+      <section className="mt-10">
+        <h2 className="mb-3 text-lg font-bold text-neutral-900">
+          Ataque e defesa dos times
+        </h2>
+        <TeamGoalsTable teams={teamGoals} />
+      </section>
     </div>
   );
 }
