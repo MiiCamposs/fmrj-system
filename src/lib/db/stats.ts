@@ -15,6 +15,7 @@ import {
   bracketGoalEvents,
   resolveBracket,
   slotScore,
+  OWN_GOAL,
 } from '@/lib/domain/bracket';
 import { listEventsInScope } from './events';
 
@@ -284,4 +285,141 @@ export async function getTeamGoals(
   }));
   items.sort((a, b) => b.scored - a.scored || b.balance - a.balance);
   return items;
+}
+
+export interface BiggestWin {
+  winnerName: string;
+  winnerLogo: string | null;
+  winnerScore: number;
+  loserName: string;
+  loserLogo: string | null;
+  loserScore: number;
+  context: string;
+}
+export interface FinalsScorer {
+  playerId: string;
+  name: string;
+  goals: number;
+}
+export interface StatsExtras {
+  biggestWin: BiggestWin | null;
+  finalsTop: FinalsScorer[];
+}
+
+/** Destaques que nao cabem no placar por jogador: maior goleada da federacao e
+ *  os artilheiros das finais (gols marcados em finais de mata-mata). */
+export async function getStatsExtras(supabase: DbClient): Promise<StatsExtras> {
+  const { data: comps } = await supabase
+    .from('competitions')
+    .select('id, name');
+  const compName = new Map((comps ?? []).map((c) => [c.id, c.name]));
+
+  interface G {
+    a: string;
+    b: string;
+    sa: number;
+    sb: number;
+    compId: string;
+  }
+  const games: G[] = [];
+  const finalsGoals = new Map<string, number>();
+
+  const { data: matches } = await supabase
+    .from('matches')
+    .select('home_team_id, away_team_id, home_score, away_score, competition_id')
+    .eq('status', 'finished');
+  for (const m of matches ?? []) {
+    if (
+      m.home_score == null ||
+      m.away_score == null ||
+      !m.home_team_id ||
+      !m.away_team_id
+    )
+      continue;
+    games.push({
+      a: m.home_team_id,
+      b: m.away_team_id,
+      sa: m.home_score,
+      sb: m.away_score,
+      compId: m.competition_id,
+    });
+  }
+
+  const { data: seasons } = await supabase
+    .from('seasons')
+    .select('competition_id, bracket')
+    .not('bracket', 'is', null);
+  for (const s of seasons ?? []) {
+    const b = resolveBracket(normalizeBracket(s.bracket));
+    const slots = [...b.quarterfinals, ...b.semifinals, b.final];
+    for (const slot of slots) {
+      if (!slot.home || !slot.away) continue;
+      const sc = slotScore(slot);
+      games.push({
+        a: slot.home,
+        b: slot.away,
+        sa: sc.home,
+        sb: sc.away,
+        compId: s.competition_id,
+      });
+    }
+    const f = b.final;
+    if (f.home && f.away && !f.noShow) {
+      for (const pid of [...f.homeGoals, ...f.awayGoals]) {
+        if (pid && pid !== OWN_GOAL)
+          finalsGoals.set(pid, (finalsGoals.get(pid) ?? 0) + 1);
+      }
+    }
+  }
+
+  let best: G | null = null;
+  let bestMargin = 0;
+  for (const g of games) {
+    if (g.sa === g.sb) continue;
+    const margin = Math.abs(g.sa - g.sb);
+    if (margin > bestMargin) {
+      bestMargin = margin;
+      best = g;
+    }
+  }
+
+  let biggestWin: BiggestWin | null = null;
+  if (best) {
+    const winnerId = best.sa > best.sb ? best.a : best.b;
+    const loserId = best.sa > best.sb ? best.b : best.a;
+    const { data: teams } = await supabase
+      .from('teams')
+      .select('id, name, logo_url')
+      .in('id', [winnerId, loserId]);
+    const tn = new Map((teams ?? []).map((t) => [t.id, t]));
+    biggestWin = {
+      winnerName: tn.get(winnerId)?.name ?? '—',
+      winnerLogo: tn.get(winnerId)?.logo_url ?? null,
+      winnerScore: Math.max(best.sa, best.sb),
+      loserName: tn.get(loserId)?.name ?? '—',
+      loserLogo: tn.get(loserId)?.logo_url ?? null,
+      loserScore: Math.min(best.sa, best.sb),
+      context: compName.get(best.compId) ?? '',
+    };
+  }
+
+  let finalsTop: FinalsScorer[] = [];
+  const finalIds = Array.from(finalsGoals.keys());
+  if (finalIds.length > 0) {
+    const { data: players } = await supabase
+      .from('players')
+      .select('id, name, nickname')
+      .in('id', finalIds);
+    const pn = new Map((players ?? []).map((p) => [p.id, p]));
+    finalsTop = finalIds
+      .map((id) => ({
+        playerId: id,
+        name: pn.get(id)?.nickname || pn.get(id)?.name || '—',
+        goals: finalsGoals.get(id) ?? 0,
+      }))
+      .sort((a, b) => b.goals - a.goals)
+      .slice(0, 5);
+  }
+
+  return { biggestWin, finalsTop };
 }

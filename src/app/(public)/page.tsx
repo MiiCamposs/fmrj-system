@@ -12,7 +12,6 @@ const QUICK_LINKS = [
   { href: '/jogos', label: 'Jogos e resultados' },
   { href: '/times', label: 'Times' },
   { href: '/bid', label: 'BID (inscrições)' },
-  { href: '/artilharia', label: 'Artilharia' },
   { href: '/estatisticas', label: 'Estatísticas' },
   { href: '/registro', label: 'Registro de W.O.' },
   { href: '/noticias', label: 'Notícias' },
