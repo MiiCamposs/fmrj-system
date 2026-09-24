@@ -28,7 +28,7 @@ export async function createNewsAction(
     if (!title) throw new Error('O título é obrigatório.');
 
     const supabase = createAdminClient();
-    const slug = (input.slug?.trim() || slugify(title)).trim();
+    const slug = slugify(input.slug?.trim() || title);
     if (!slug) throw new Error('Slug inválido.');
 
     const post = await createNews(supabase, {
@@ -67,7 +67,7 @@ export async function updateNewsAction(
     if (!title) throw new Error('O título é obrigatório.');
 
     const supabase = createAdminClient();
-    const slug = (input.slug?.trim() || slugify(title)).trim();
+    const slug = slugify(input.slug?.trim() || title);
     if (!slug) throw new Error('Slug inválido.');
 
     await updateNews(supabase, id, {

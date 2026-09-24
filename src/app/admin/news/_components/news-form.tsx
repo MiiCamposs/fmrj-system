@@ -50,7 +50,7 @@ export function NewsForm({ post }: { post?: NewsPostRow }) {
   const [busyLabel, setBusyLabel] = useState('Salvando...');
   const [error, setError] = useState<string | null>(null);
 
-  const effectiveSlug = slugTouched ? slug : slugify(title);
+  const effectiveSlug = slugify(slugTouched ? slug : title);
 
   function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0] ?? null;
