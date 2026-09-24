@@ -12,6 +12,7 @@ const LINKS: { href: string; label: string }[] = [
   { href: '/times', label: 'Times' },
   { href: '/bid', label: 'BID' },
   { href: '/artilharia', label: 'Artilharia' },
+  { href: '/estatisticas', label: 'Estatísticas' },
   { href: '/registro', label: 'Registro' },
   { href: '/noticias', label: 'Notícias' },
   { href: '/museu', label: 'Museu' },
