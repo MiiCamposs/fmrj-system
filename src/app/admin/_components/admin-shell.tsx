@@ -127,7 +127,7 @@ export function AdminShell({
                 <span className="flex items-center rounded-md bg-fmrj-dark px-2 py-1">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/ubm-logo.webp"
+                    src="/ubm-logo.png"
                     alt="UBM"
                     className="h-6 w-auto object-contain"
                   />

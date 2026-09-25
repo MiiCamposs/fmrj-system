@@ -102,7 +102,7 @@ export default async function PublicHome() {
         <div className="relative flex flex-col items-center gap-6 px-6 py-10 text-center sm:flex-row sm:px-10 sm:py-14 sm:text-left">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/ubm-logo.webp"
+            src="/ubm-logo.png"
             alt="UBM"
             className="h-28 w-auto shrink-0 object-contain drop-shadow-[0_0_28px_rgba(225,29,40,0.55)] sm:h-40"
           />

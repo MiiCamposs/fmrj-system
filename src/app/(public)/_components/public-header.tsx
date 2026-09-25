@@ -44,12 +44,12 @@ export function PublicHeader() {
     : { href: '/entrar', label: 'Entrar' };
 
   return (
-    <header className="sticky top-0 z-30 border-b border-fmrj-dark/40 bg-fmrj-dark text-white">
+    <header className="sticky top-0 z-30 border-b border-fmrj-red/30 bg-fmrj-dark text-white shadow-[0_2px_20px_-8px_rgba(220,38,38,0.5)]">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-2.5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/ubm-logo.webp"
+            src="/ubm-logo.png"
             alt="UBM"
             className="h-9 w-auto shrink-0 object-contain"
           />
