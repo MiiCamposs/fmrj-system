@@ -122,7 +122,7 @@ function TeamsSection({ teams }: { teams: TeamGoalsItem[] }) {
   return (
     <div className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl border border-fmrj-red/30 bg-gradient-to-br from-green-50 to-white p-4">
+        <div className="rounded-2xl border border-fmrj-red/40 bg-white p-4">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-fmrj-red">
             ⚔️ Melhor ataque
           </p>
@@ -133,8 +133,8 @@ function TeamsSection({ teams }: { teams: TeamGoalsItem[] }) {
             {bestAttack.scored} gols marcados em {bestAttack.games} jogo(s)
           </p>
         </div>
-        <div className="rounded-2xl border border-neutral-300 bg-gradient-to-br from-neutral-50 to-white p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-600">
+        <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
             🛡️ Melhor defesa
           </p>
           <p className="mt-2 font-display text-xl font-black text-neutral-900">
