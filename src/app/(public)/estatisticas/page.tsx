@@ -36,9 +36,7 @@ function StatCard({
   return (
     <div
       className={`rounded-2xl border p-4 ${
-        accent
-          ? 'border-fmrj-yellow/30 bg-gradient-to-br from-amber-50 to-white'
-          : 'border-neutral-200 bg-white'
+        accent ? 'border-fmrj-red/40 bg-white' : 'border-neutral-200 bg-white'
       }`}
     >
       <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
