@@ -145,7 +145,7 @@ function BracketFixtureCard({ f }: { f: BracketFixture }) {
       className="block rounded-lg border border-neutral-200 bg-white p-4 transition hover:border-fmrj"
     >
       <div className="mb-2 flex items-center justify-between text-xs">
-        <span className="truncate font-semibold uppercase tracking-wide text-fmrj-green">
+        <span className="truncate font-semibold uppercase tracking-wide text-fmrj-red">
           {f.competitionName}
         </span>
         <span className="shrink-0 text-neutral-400">{f.phase}</span>
@@ -205,7 +205,7 @@ function FixtureSide({
       </span>
       <span
         className={`text-sm font-bold tabular-nums ${
-          decided && winner ? 'text-fmrj-green' : 'text-neutral-500'
+          decided && winner ? 'text-fmrj-red' : 'text-neutral-500'
         }`}
       >
         {score}

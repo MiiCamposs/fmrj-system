@@ -63,7 +63,7 @@ function Side({
   const tally = goalTally(goals);
   return (
     <div
-      className={`px-2.5 py-2 ${winner ? 'bg-fmrj-green/10' : ''} ${
+      className={`px-2.5 py-2 ${winner ? 'bg-fmrj-red/10' : ''} ${
         loser ? 'opacity-60' : ''
       }`}
     >
@@ -84,7 +84,7 @@ function Side({
         <span
           className={`flex h-6 min-w-[24px] items-center justify-center rounded-md px-1 text-sm font-bold tabular-nums ${
             winner
-              ? 'bg-fmrj-green text-white'
+              ? 'bg-fmrj-red text-white'
               : team
                 ? 'bg-neutral-100 text-neutral-600'
                 : 'text-transparent'

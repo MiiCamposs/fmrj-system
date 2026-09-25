@@ -124,8 +124,8 @@ function TeamsSection({ teams }: { teams: TeamGoalsItem[] }) {
   return (
     <div className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl border border-fmrj-green/30 bg-gradient-to-br from-green-50 to-white p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-fmrj-green">
+        <div className="rounded-2xl border border-fmrj-red/30 bg-gradient-to-br from-green-50 to-white p-4">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-fmrj-red">
             ⚔️ Melhor ataque
           </p>
           <p className="mt-2 font-display text-xl font-black text-neutral-900">

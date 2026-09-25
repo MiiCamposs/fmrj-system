@@ -208,7 +208,7 @@ export function NewsForm({ post }: { post?: NewsPostRow }) {
           type="file"
           accept="image/*"
           onChange={onFileChange}
-          className="block w-full text-sm text-neutral-600 file:mr-3 file:rounded-md file:border-0 file:bg-fmrj file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-fmrj-green"
+          className="block w-full text-sm text-neutral-600 file:mr-3 file:rounded-md file:border-0 file:bg-fmrj file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-fmrj-red"
         />
         <p className="mt-1 text-xs text-neutral-400">
           JPG, PNG ou WebP. Enviada direto do seu navegador (sem limite da

@@ -49,13 +49,10 @@ export function PublicHeader() {
         <Link href="/" className="flex items-center gap-2.5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/escudo.png"
-            alt="Escudo da UBM"
-            className="h-10 w-10 shrink-0 object-contain"
+            src="/ubm-logo.webp"
+            alt="UBM"
+            className="h-9 w-auto shrink-0 object-contain"
           />
-          <span className="font-display text-lg font-extrabold tracking-tight">
-            UBM
-          </span>
           <span className="hidden text-sm font-medium text-white/60 lg:inline">
             União Brasileira de Mamoball
           </span>
@@ -84,7 +81,7 @@ export function PublicHeader() {
           </Link>
           <Link
             href={accountLink.href}
-            className="ml-1 rounded-md bg-fmrj-green px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-fmrj-green/90"
+            className="ml-1 rounded-md bg-fmrj-red px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-fmrj-red/90"
           >
             {accountLink.label}
           </Link>

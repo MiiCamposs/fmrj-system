@@ -59,7 +59,7 @@ export function FinalHighlight({ final }: { final: HomeFinal }) {
     <div className="relative overflow-hidden rounded-2xl bg-fmrj-dark text-white ring-1 ring-white/10">
       <div
         aria-hidden
-        className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-fmrj-green via-fmrj-yellow to-fmrj-green"
+        className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-fmrj-red via-fmrj-yellow to-fmrj-red"
       />
       <div className="p-5 sm:p-6">
         <div className="flex items-center justify-between gap-2">
@@ -121,7 +121,7 @@ export function FinalHighlight({ final }: { final: HomeFinal }) {
         <div className="mt-4 text-center">
           <Link
             href={`/competicoes/${final.competitionSlug}`}
-            className="text-sm font-medium text-fmrj-green hover:underline"
+            className="text-sm font-medium text-fmrj-red hover:underline"
           >
             Ver chaveamento completo →
           </Link>

@@ -124,14 +124,13 @@ export function AdminShell({
                 ☰
               </button>
               <Link href="/admin" className="flex items-center gap-2">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/escudo.png"
-                  alt="Escudo da UBM"
-                  className="h-9 w-9 shrink-0 object-contain"
-                />
-                <span className="font-display font-extrabold text-neutral-900">
-                  UBM
+                <span className="flex items-center rounded-md bg-fmrj-dark px-2 py-1">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/ubm-logo.webp"
+                    alt="UBM"
+                    className="h-6 w-auto object-contain"
+                  />
                 </span>
                 <span className="hidden text-sm text-neutral-400 sm:inline">
                   Administração

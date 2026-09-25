@@ -78,7 +78,7 @@ function FeaturedCard({ post }: { post: Post }) {
         )}
       </div>
       <div className="flex flex-col justify-center p-6 sm:p-8">
-        <span className="text-xs font-semibold uppercase tracking-wider text-fmrj-green">
+        <span className="text-xs font-semibold uppercase tracking-wider text-fmrj-red">
           Destaque · {formatDate(post.published_at)}
         </span>
         <h2 className="mt-2 font-display text-2xl font-black leading-tight text-neutral-900 group-hover:text-fmrj sm:text-3xl">

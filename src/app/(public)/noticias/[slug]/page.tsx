@@ -56,7 +56,7 @@ export default async function NoticiaPage({
       </Link>
 
       <header className="mt-4">
-        <span className="text-xs font-semibold uppercase tracking-wider text-fmrj-green">
+        <span className="text-xs font-semibold uppercase tracking-wider text-fmrj-red">
           {formatDate(post.published_at)}
         </span>
         <h1 className="mt-2 font-display text-3xl font-black leading-tight text-neutral-900 sm:text-4xl">

@@ -89,14 +89,22 @@ export default async function PublicHome() {
       <div className="relative overflow-hidden rounded-2xl bg-fmrj-dark text-white">
         <div
           aria-hidden
-          className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-fmrj-green via-fmrj-yellow to-fmrj-green"
+          className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-fmrj-red via-fmrj-yellow to-fmrj-red"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(70% 90% at 28% 45%, rgba(225,29,40,0.42), transparent 68%)',
+          }}
         />
         <div className="relative flex flex-col items-center gap-6 px-6 py-10 text-center sm:flex-row sm:px-10 sm:py-14 sm:text-left">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/escudo.png"
-            alt="Escudo da UBM"
-            className="h-32 w-32 shrink-0 object-contain drop-shadow-lg sm:h-40 sm:w-40"
+            src="/ubm-logo.webp"
+            alt="UBM"
+            className="h-28 w-auto shrink-0 object-contain drop-shadow-[0_0_28px_rgba(225,29,40,0.55)] sm:h-40"
           />
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
