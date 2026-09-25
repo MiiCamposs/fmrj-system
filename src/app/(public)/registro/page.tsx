@@ -74,7 +74,7 @@ export default async function RegistroPage() {
                         )}
                         {r.slug ? (
                           <Link
-                            href={`/times/${r.slug}`}
+                            href={`/registro/${r.slug}`}
                             className="font-medium text-neutral-900 hover:text-fmrj"
                           >
                             {r.teamName}
