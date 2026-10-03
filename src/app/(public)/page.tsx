@@ -1,8 +1,7 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { listPublishedNews } from '@/lib/db/news';
-import { getHomeFinals } from '@/lib/db/brackets-home';
-import { FinalHighlight } from '@/components/final-highlight';
+import { listCompetitions } from '@/lib/db/competitions';
 import { formatDate } from '@/lib/format';
 
 export const dynamic = 'force-dynamic';
@@ -17,6 +16,12 @@ const QUICK_LINKS = [
   { href: '/noticias', label: 'Notícias' },
   { href: '/museu', label: 'Museu' },
 ];
+
+interface Division {
+  name: string;
+  slug: string;
+  logoUrl: string | null;
+}
 
 function Section({
   title,
@@ -42,34 +47,124 @@ function Section({
   );
 }
 
-function QuickAccessCard() {
-  return (
-    <div className="xl:sticky xl:top-4">
-      <h2 className="mb-3 text-lg font-bold text-neutral-900">Acesso rápido</h2>
-      <nav className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
-        {QUICK_LINKS.map((l) => (
-          <Link
-            key={l.href}
-            href={l.href}
-            className="flex items-center justify-between border-b border-neutral-100 px-4 py-3 text-sm font-medium text-neutral-700 transition last:border-0 hover:bg-neutral-50 hover:text-fmrj"
+/** Card grande de uma divisão (Série A em vermelho, Série B em prata). */
+function DivisionCard({
+  tier,
+  division,
+}: {
+  tier: 'A' | 'B';
+  division: Division | null;
+}) {
+  const isA = tier === 'A';
+  const accent = isA ? '#e11d28' : '#aab7c7';
+  const glow = isA ? 'rgba(225,29,40,0.30)' : 'rgba(170,183,199,0.20)';
+  const crestGlow = isA ? 'rgba(225,29,40,0.55)' : 'rgba(170,183,199,0.40)';
+  const tag = isA ? 'Divisão de elite' : 'Acesso à elite';
+  const desc = isA
+    ? 'Os melhores do Mamoball. Pontos corridos e, no fim, o mata-mata dos 8 classificados.'
+    : 'O caminho até a Série A. Suba de divisão e dispute a elite.';
+  const fullTitle = division?.name ?? `Série ${tier} UBM`;
+  const displayTitle = fullTitle.replace(/\s*UBM\s*$/i, '');
+
+  const inner = (
+    <div
+      className="group relative flex h-full flex-col overflow-hidden rounded-2xl border p-6 transition-transform duration-200 group-hover:-translate-y-0.5 sm:p-7"
+      style={{
+        borderColor: isA ? 'rgba(225,29,40,0.45)' : 'rgba(170,183,199,0.35)',
+        background: 'linear-gradient(160deg, #181820 0%, #0c0c11 100%)',
+      }}
+    >
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{ background: `radial-gradient(75% 70% at 82% 0%, ${glow}, transparent 62%)` }}
+      />
+      <div
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-[3px]"
+        style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }}
+      />
+
+      <div className="relative flex items-center gap-4">
+        {division?.logoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={division.logoUrl}
+            alt=""
+            className="h-16 w-16 shrink-0 object-contain sm:h-20 sm:w-20"
+            style={{ filter: `drop-shadow(0 0 16px ${crestGlow})` }}
+          />
+        ) : (
+          <span
+            className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border font-display text-3xl font-black sm:h-20 sm:w-20 sm:text-4xl"
+            style={{ borderColor: accent, color: accent, boxShadow: `0 0 24px ${glow}` }}
           >
-            {l.label}
-            <span aria-hidden className="text-neutral-300">
+            {tier}
+          </span>
+        )}
+        <div className="min-w-0">
+          <p
+            className="text-[11px] font-semibold uppercase tracking-[0.22em]"
+            style={{ color: accent }}
+          >
+            {tag}
+          </p>
+          <h3 className="font-display text-2xl font-black leading-tight text-white sm:text-3xl">
+            {displayTitle}
+          </h3>
+        </div>
+      </div>
+
+      <p className="relative mt-4 flex-1 text-sm leading-relaxed text-white/65">
+        {desc}
+      </p>
+
+      <div className="relative mt-5">
+        {division ? (
+          <span
+            className="inline-flex items-center gap-1.5 text-sm font-bold"
+            style={{ color: accent }}
+          >
+            Ver a {displayTitle}
+            <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
               →
             </span>
-          </Link>
-        ))}
-      </nav>
+          </span>
+        ) : (
+          <span className="inline-flex items-center rounded-full border border-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white/40">
+            Em breve
+          </span>
+        )}
+      </div>
     </div>
+  );
+
+  if (!division) {
+    return <div className="group h-full opacity-80">{inner}</div>;
+  }
+  return (
+    <Link href={`/competicoes/${division.slug}`} className="group block h-full">
+      {inner}
+    </Link>
   );
 }
 
 export default async function PublicHome() {
   let configured = true;
-  let finals: Awaited<ReturnType<typeof getHomeFinals>> = [];
+  let serieA: Division | null = null;
+  let serieB: Division | null = null;
+
   try {
     const supabase = await createClient();
-    finals = await getHomeFinals(supabase, 4);
+    const comps = (await listCompetitions(supabase)).filter(
+      (c) => c.status !== 'archived',
+    );
+    const pick = (re: RegExp): Division | null => {
+      const c = comps.find((x) => re.test(x.name));
+      return c ? { name: c.name, slug: c.slug, logoUrl: c.logo_url } : null;
+    };
+    serieA = pick(/s[ée]rie\s*a\b/i);
+    serieB = pick(/s[ée]rie\s*b\b/i);
   } catch {
     configured = false;
   }
@@ -129,39 +224,46 @@ export default async function PublicHome() {
         </div>
       )}
 
-      {/* Grandes Finais em destaque + Acesso rápido na lateral */}
-      {finals.length > 0 ? (
-        <div className="mt-8 xl:flex xl:items-start xl:gap-6">
-          <div className="min-w-0 xl:flex-1">
-            <h2 className="mb-3 text-lg font-bold text-neutral-900">
-              Grandes Finais
-            </h2>
-            <div className="grid gap-5 lg:grid-cols-2">
-              {finals.map((f, i) => (
-                <FinalHighlight key={i} final={f} />
-              ))}
+      {/* Divisões em destaque */}
+      {configured && (
+        <section className="mt-8">
+          <div className="mb-4 flex items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-fmrj">
+                As divisões da UBM
+              </p>
+              <h2 className="mt-1 font-display text-2xl font-black text-neutral-900">
+                Série A e Série B
+              </h2>
             </div>
+            <Link
+              href="/competicoes"
+              className="shrink-0 text-sm font-medium text-fmrj hover:underline"
+            >
+              Ver todas
+            </Link>
           </div>
-
-          <aside className="mt-8 xl:mt-0 xl:w-64 xl:shrink-0">
-            <QuickAccessCard />
-          </aside>
-        </div>
-      ) : (
-        <Section title="Acesso rápido">
-          <div className="flex flex-wrap gap-2">
-            {QUICK_LINKS.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className="rounded-md border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition hover:border-fmrj hover:text-fmrj"
-              >
-                {l.label}
-              </Link>
-            ))}
+          <div className="grid gap-5 md:grid-cols-2">
+            <DivisionCard tier="A" division={serieA} />
+            <DivisionCard tier="B" division={serieB} />
           </div>
-        </Section>
+        </section>
       )}
+
+      {/* Acesso rápido */}
+      <Section title="Acesso rápido">
+        <div className="flex flex-wrap gap-2">
+          {QUICK_LINKS.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="rounded-md border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition hover:border-fmrj hover:text-fmrj"
+            >
+              {l.label}
+            </Link>
+          ))}
+        </div>
+      </Section>
 
       {/* Últimas notícias */}
       {news.length > 0 && (
