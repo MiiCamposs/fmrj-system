@@ -35,7 +35,11 @@ export function CompetitionForm({
   const [description, setDescription] = useState(
     competition?.description ?? '',
   );
-  const [logoUrl, setLogoUrl] = useState(competition?.logo_url ?? '');
+  const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    competition?.logo_url ?? null,
+  );
+  const [removeLogo, setRemoveLogo] = useState(false);
   const [status, setStatus] = useState<CompetitionStatus>(
     competition?.status ?? 'planning',
   );
@@ -44,6 +48,19 @@ export function CompetitionForm({
   const [error, setError] = useState<string | null>(null);
 
   const effectiveSlug = slugTouched ? slug : slugify(name);
+
+  function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0] ?? null;
+    setFile(f);
+    setRemoveLogo(false);
+    setPreviewUrl(f ? URL.createObjectURL(f) : (competition?.logo_url ?? null));
+  }
+
+  function clearLogo() {
+    setFile(null);
+    setPreviewUrl(null);
+    setRemoveLogo(true);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,22 +71,22 @@ export function CompetitionForm({
     }
     setLoading(true);
 
-    const result = isEdit
-      ? await updateCompetitionAction(competition!.id, {
-          name,
-          slug: effectiveSlug,
-          description,
-          logoUrl,
-          status,
-        })
-      : await createCompetitionAction({
-          name,
-          slug: effectiveSlug,
-          description,
-          logoUrl,
-          status,
-          seasonYear: seasonYear ? Number(seasonYear) : null,
-        });
+    const form = new FormData();
+    form.set('name', name);
+    form.set('slug', effectiveSlug);
+    form.set('description', description);
+    form.set('status', status);
+    if (file) form.set('logo', file);
+    if (removeLogo) form.set('removeLogo', '1');
+
+    let result: Awaited<ReturnType<typeof createCompetitionAction>>;
+    if (isEdit) {
+      form.set('existingLogo', competition!.logo_url ?? '');
+      result = await updateCompetitionAction(competition!.id, form);
+    } else {
+      if (seasonYear) form.set('seasonYear', seasonYear);
+      result = await createCompetitionAction(form);
+    }
 
     setLoading(false);
 
@@ -132,14 +149,42 @@ export function CompetitionForm({
 
       <div>
         <label className="mb-1 block text-sm font-medium text-neutral-700">
-          Logo (URL)
+          Logo
         </label>
-        <input
-          className={inputClasses}
-          value={logoUrl}
-          onChange={(e) => setLogoUrl(e.target.value)}
-          placeholder="https://..."
-        />
+        <div className="flex items-center gap-4">
+          {previewUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={previewUrl}
+              alt="Logo"
+              className="h-16 w-16 shrink-0 rounded-md border border-neutral-200 bg-white object-contain p-1"
+            />
+          ) : (
+            <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-md border border-dashed border-neutral-300 text-[10px] text-neutral-400">
+              sem logo
+            </span>
+          )}
+          <div className="min-w-0">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={onFileChange}
+              className="block w-full text-sm text-neutral-600 file:mr-3 file:rounded-md file:border-0 file:bg-fmrj file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-fmrj-red"
+            />
+            {previewUrl && (
+              <button
+                type="button"
+                onClick={clearLogo}
+                className="mt-1 text-xs font-medium text-red-600 hover:underline"
+              >
+                Remover logo
+              </button>
+            )}
+            <p className="mt-1 text-xs text-neutral-400">
+              Escolha um arquivo da sua galeria (PNG, JPG ou WebP, até 5 MB).
+            </p>
+          </div>
+        </div>
       </div>
 
       <div>

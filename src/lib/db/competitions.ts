@@ -13,6 +13,30 @@ import type {
 import type { DbClient } from '@/lib/supabase/types';
 import type { BracketData } from '@/lib/domain/bracket';
 
+const LOGO_BUCKET = 'logos';
+
+/**
+ * Faz upload da logo de uma competicao no bucket publico 'logos' (pasta
+ * competitions/) e devolve a URL publica. Mesmo bucket dos escudos dos times.
+ */
+export async function uploadCompetitionLogo(
+  supabase: DbClient,
+  file: File,
+): Promise<string> {
+  const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+  const path = `competitions/${crypto.randomUUID()}.${ext}`;
+  const bytes = await file.arrayBuffer();
+
+  const { error } = await supabase.storage.from(LOGO_BUCKET).upload(path, bytes, {
+    contentType: file.type || 'image/png',
+    upsert: false,
+  });
+  if (error) throw error;
+
+  const { data } = supabase.storage.from(LOGO_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
 export async function listCompetitions(
   supabase: DbClient,
 ): Promise<CompetitionRow[]> {

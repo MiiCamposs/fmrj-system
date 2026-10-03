@@ -11,6 +11,7 @@ import {
   deleteSeason,
   removeTeamFromSeason,
   updateSeasonBracket,
+  uploadCompetitionLogo,
 } from '@/lib/db/competitions';
 import { normalizeBracket, type BracketData } from '@/lib/domain/bracket';
 import { ensureSeasonTeam } from '@/lib/db/registrations';
@@ -19,35 +20,59 @@ import { actionError, type ActionResult } from '@/lib/actions/result';
 import { slugify } from '@/lib/domain/slug';
 import type { CompetitionStatus } from '@/types/database';
 
-export async function createCompetitionAction(input: {
-  name: string;
-  slug?: string;
-  description?: string;
-  logoUrl?: string;
-  status?: CompetitionStatus;
-  seasonYear?: number | null;
-}): Promise<ActionResult<{ slug: string }>> {
+const MAX_LOGO_BYTES = 5 * 1024 * 1024; // 5 MB
+
+/** Resolve a logo a partir do FormData: nova imagem > remover > manter. */
+async function resolveCompetitionLogo(
+  supabase: ReturnType<typeof createAdminClient>,
+  form: FormData,
+  existing: string | null,
+): Promise<string | null> {
+  if (form.get('removeLogo') === '1') return null;
+  const image = form.get('logo');
+  if (image instanceof File && image.size > 0) {
+    if (image.size > MAX_LOGO_BYTES) {
+      throw new Error('A logo deve ter no máximo 5 MB.');
+    }
+    if (!image.type.startsWith('image/')) {
+      throw new Error('O arquivo enviado não é uma imagem.');
+    }
+    return uploadCompetitionLogo(supabase, image);
+  }
+  return existing;
+}
+
+export async function createCompetitionAction(
+  form: FormData,
+): Promise<ActionResult<{ slug: string }>> {
   try {
     const ctx = await requireAdmin();
-    if (!input.name?.trim()) throw new Error('Nome e obrigatório.');
+    const name = String(form.get('name') ?? '').trim();
+    if (!name) throw new Error('Nome e obrigatório.');
 
     const supabase = createAdminClient();
-    const slug = (input.slug?.trim() || slugify(input.name)).trim();
+    const slug = (String(form.get('slug') ?? '').trim() || slugify(name)).trim();
     if (!slug) throw new Error('Slug inválido.');
 
+    const logoUrl = await resolveCompetitionLogo(supabase, form, null);
+    const description = String(form.get('description') ?? '').trim() || null;
+    const statusRaw = String(form.get('status') ?? '').trim();
+    const status = statusRaw ? (statusRaw as CompetitionStatus) : undefined;
+
     const competition = await createCompetition(supabase, {
-      name: input.name,
+      name,
       slug,
-      description: input.description ?? null,
-      logoUrl: input.logoUrl ?? null,
-      status: input.status,
+      description,
+      logoUrl,
+      status,
     });
 
     // Temporada opcional inicial.
-    if (input.seasonYear) {
+    const seasonYear = Number(String(form.get('seasonYear') ?? '').trim());
+    if (seasonYear && seasonYear >= 1900) {
       await createSeason(supabase, {
         competitionId: competition.id,
-        year: input.seasonYear,
+        year: seasonYear,
         status: 'active',
       });
     }
@@ -62,6 +87,7 @@ export async function createCompetitionAction(input: {
 
     revalidatePath('/admin/competitions');
     revalidatePath('/admin');
+    revalidatePath('/competicoes');
     return { ok: true, data: { slug: competition.slug } };
   } catch (e) {
     return actionError(e);
@@ -70,27 +96,41 @@ export async function createCompetitionAction(input: {
 
 export async function updateCompetitionAction(
   id: string,
-  input: {
-    name?: string;
-    slug?: string;
-    description?: string;
-    logoUrl?: string;
-    status?: CompetitionStatus;
-  },
+  form: FormData,
 ): Promise<ActionResult<{ slug: string }>> {
   try {
     const ctx = await requireAdmin();
+    const name = String(form.get('name') ?? '').trim();
+    if (!name) throw new Error('Nome e obrigatório.');
+
     const supabase = createAdminClient();
-    const updated = await updateCompetition(supabase, id, input);
+    const slug = (String(form.get('slug') ?? '').trim() || slugify(name)).trim();
+    if (!slug) throw new Error('Slug inválido.');
+
+    const existingLogo = String(form.get('existingLogo') ?? '') || null;
+    const logoUrl = await resolveCompetitionLogo(supabase, form, existingLogo);
+    const description = String(form.get('description') ?? '').trim() || null;
+    const statusRaw = String(form.get('status') ?? '').trim();
+    const status = statusRaw ? (statusRaw as CompetitionStatus) : undefined;
+
+    const updated = await updateCompetition(supabase, id, {
+      name,
+      slug,
+      description,
+      logoUrl,
+      status,
+    });
     await writeAuditLog({
       adminId: ctx.admin.id,
       action: 'competition.update',
       entity: 'competition',
       entityId: id,
-      data: { ...input },
+      data: { name, slug },
     });
     revalidatePath('/admin/competitions');
     revalidatePath(`/admin/competitions/${updated.slug}`);
+    revalidatePath('/competicoes');
+    revalidatePath(`/competicoes/${updated.slug}`);
     return { ok: true, data: { slug: updated.slug } };
   } catch (e) {
     return actionError(e);
