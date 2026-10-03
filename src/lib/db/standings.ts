@@ -37,21 +37,30 @@ export interface CompetitionZones {
   relegationSpots: number;
 }
 
-/** Le quantas vagas de classificacao/rebaixamento a competicao declara. */
+/**
+ * Le quantas vagas de classificacao/rebaixamento a competicao declara.
+ * Defensivo: se as colunas ainda nao existem (migration 0015 nao aplicada) ou
+ * a leitura falha, devolve zeros em vez de quebrar a pagina. Zona com 0 vagas
+ * simplesmente nao e exibida.
+ */
 export async function getCompetitionZones(
   supabase: DbClient,
   competitionId: string,
 ): Promise<CompetitionZones> {
-  const { data, error } = await supabase
-    .from('competitions')
-    .select('playoff_spots, relegation_spots')
-    .eq('id', competitionId)
-    .maybeSingle();
-  if (error) throw error;
-  return {
-    playoffSpots: data?.playoff_spots ?? 0,
-    relegationSpots: data?.relegation_spots ?? 0,
-  };
+  try {
+    const { data, error } = await supabase
+      .from('competitions')
+      .select('playoff_spots, relegation_spots')
+      .eq('id', competitionId)
+      .maybeSingle();
+    if (error) return { playoffSpots: 0, relegationSpots: 0 };
+    return {
+      playoffSpots: data?.playoff_spots ?? 0,
+      relegationSpots: data?.relegation_spots ?? 0,
+    };
+  } catch {
+    return { playoffSpots: 0, relegationSpots: 0 };
+  }
 }
 
 export async function getStandings(

@@ -572,13 +572,14 @@ async function ScoringLoader({
   competitionSlug: string;
 }) {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from('competitions')
-    .select(
-      'points_win, points_draw, points_loss, tiebreakers, regulation, playoff_spots, relegation_spots',
-    )
-    .eq('id', competitionId)
-    .maybeSingle();
+  const [{ data }, zones] = await Promise.all([
+    supabase
+      .from('competitions')
+      .select('points_win, points_draw, points_loss, tiebreakers, regulation')
+      .eq('id', competitionId)
+      .maybeSingle(),
+    getCompetitionZones(supabase, competitionId),
+  ]);
   if (!data) return null;
   return (
     <ScoringForm
@@ -590,8 +591,8 @@ async function ScoringLoader({
         pointsLoss: data.points_loss,
         tiebreakers: data.tiebreakers,
         regulation: data.regulation,
-        playoffSpots: data.playoff_spots,
-        relegationSpots: data.relegation_spots,
+        playoffSpots: zones.playoffSpots,
+        relegationSpots: zones.relegationSpots,
       }}
     />
   );
