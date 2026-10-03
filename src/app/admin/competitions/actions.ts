@@ -260,6 +260,8 @@ export async function updateScoringAction(input: {
   pointsLoss: number;
   tiebreakers: string[];
   regulation: string | null;
+  playoffSpots?: number;
+  relegationSpots?: number;
 }): Promise<ActionResult> {
   try {
     const ctx = await requireAdmin();
@@ -272,6 +274,12 @@ export async function updateScoringAction(input: {
         points_loss: input.pointsLoss,
         tiebreakers: input.tiebreakers,
         regulation: input.regulation?.trim() || null,
+        ...(input.playoffSpots !== undefined
+          ? { playoff_spots: Math.max(0, Math.trunc(input.playoffSpots)) }
+          : {}),
+        ...(input.relegationSpots !== undefined
+          ? { relegation_spots: Math.max(0, Math.trunc(input.relegationSpots)) }
+          : {}),
       })
       .eq('id', input.competitionId);
     if (error) throw error;

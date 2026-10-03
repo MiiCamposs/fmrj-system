@@ -9,7 +9,7 @@ import {
 import { getSeasonPlayers } from '@/lib/db/registrations';
 import { listConflicts } from '@/lib/db/conflicts';
 import { listMatchesInScope } from '@/lib/db/matches';
-import { getStandings } from '@/lib/db/standings';
+import { getStandings, getCompetitionZones } from '@/lib/db/standings';
 import { listTeams } from '@/lib/db/teams';
 import {
   Breadcrumbs,
@@ -24,7 +24,12 @@ import {
 } from '@/components/ui/badge';
 import { Fixture } from '@/components/match/fixture';
 import { StandingsTable } from '@/components/standings-table';
-import { seasonLabel, formatLabel, isKnockout } from '@/lib/domain/season';
+import {
+  seasonLabel,
+  formatLabel,
+  isKnockout,
+  hasLeaguePlayoff,
+} from '@/lib/domain/season';
 import { normalizeBracket } from '@/lib/domain/bracket';
 import { BracketView } from '@/components/bracket-view';
 import type { SeasonRow } from '@/types/database';
@@ -361,10 +366,16 @@ async function TabContent({
   }
 
   if (tab === 'standings') {
-    if (isKnockout(season?.format)) {
-      const [seasonTeams, seasonPlayers] = await Promise.all([
+    const leaguePlayoff = hasLeaguePlayoff(season?.format);
+
+    if (isKnockout(season?.format) || leaguePlayoff) {
+      const [seasonTeams, seasonPlayers, rows, zones] = await Promise.all([
         getSeasonTeams(supabase, scope),
         getSeasonPlayers(supabase, scope),
+        leaguePlayoff ? getStandings(supabase, scope) : Promise.resolve([]),
+        leaguePlayoff
+          ? getCompetitionZones(supabase, competition.id)
+          : Promise.resolve({ playoffSpots: 0, relegationSpots: 0 }),
       ]);
       const squads: Record<string, { id: string; name: string }[]> = {};
       for (const p of seasonPlayers) {
@@ -373,14 +384,44 @@ async function TabContent({
           list.push({ id: p.playerId, name: p.nickname || p.name });
         }
       }
-      return (
+      const editor = (
         <BracketEditor
           competitionSlug={slug}
           seasonId={scope.seasonId}
           teams={seasonTeams.map((t) => ({ id: t.teamId, name: t.teamName }))}
           squads={squads}
           initialBracket={normalizeBracket(season?.bracket)}
+          seeds={leaguePlayoff ? rows.map((r) => r.teamId) : []}
         />
+      );
+      if (!leaguePlayoff) return editor;
+      return (
+        <div className="space-y-8">
+          <section>
+            <h3 className="mb-2 font-semibold text-neutral-800">
+              Classificação (pontos corridos)
+            </h3>
+            {rows.length > 0 ? (
+              <StandingsTable
+                rows={rows}
+                zones={{
+                  playoffSpots: zones.playoffSpots,
+                  relegationSpots: zones.relegationSpots,
+                  playoffLabel: 'Classificado às quartas',
+                  relegationLabel: 'Rebaixamento',
+                }}
+              />
+            ) : (
+              <EmptyState title="Sem partidas encerradas para classificar ainda." />
+            )}
+          </section>
+          <section>
+            <h3 className="mb-2 font-semibold text-neutral-800">
+              Playoffs (mata-mata dos classificados)
+            </h3>
+            {editor}
+          </section>
+        </div>
       );
     }
     const rows = await getStandings(supabase, scope);
@@ -392,15 +433,20 @@ async function TabContent({
 
   // overview (default)
   const knockout = isKnockout(season?.format);
-  const [seasonTeams, players, allConflicts, matches, standings] =
+  const leaguePlayoff = hasLeaguePlayoff(season?.format);
+  const [seasonTeams, players, allConflicts, matches, standings, zones] =
     await Promise.all([
       getSeasonTeams(supabase, scope),
       getSeasonPlayers(supabase, scope),
       listConflicts(supabase, { status: 'all' }),
       listMatchesInScope(supabase, scope),
       knockout ? Promise.resolve([]) : getStandings(supabase, scope),
+      leaguePlayoff
+        ? getCompetitionZones(supabase, competition.id)
+        : Promise.resolve({ playoffSpots: 0, relegationSpots: 0 }),
     ]);
-  const bracket = knockout ? normalizeBracket(season?.bracket) : null;
+  const bracket =
+    knockout || leaguePlayoff ? normalizeBracket(season?.bracket) : null;
   const bracketFilled =
     !!bracket &&
     (bracket.quarterfinals.some((s) => s.home || s.away) ||
@@ -462,9 +508,41 @@ async function TabContent({
               <h3 className="mb-2 font-semibold text-neutral-800">
                 Classificação
               </h3>
-              <StandingsTable rows={standings} />
+              <StandingsTable
+                rows={standings}
+                zones={
+                  leaguePlayoff
+                    ? {
+                        playoffSpots: zones.playoffSpots,
+                        relegationSpots: zones.relegationSpots,
+                        playoffLabel: 'Classificado às quartas',
+                        relegationLabel: 'Rebaixamento',
+                      }
+                    : undefined
+                }
+              />
             </div>
           )}
+      {leaguePlayoff && bracketFilled && (
+        <div>
+          <h3 className="mb-2 font-semibold text-neutral-800">
+            Playoffs (mata-mata)
+          </h3>
+          <BracketView
+            bracket={bracket!}
+            teams={seasonTeams.map((t) => ({
+              id: t.teamId,
+              name: t.teamName,
+              logo: t.logoUrl,
+              short: t.shortName,
+            }))}
+            players={players.map((p) => ({
+              id: p.playerId,
+              name: p.nickname || p.name,
+            }))}
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -496,7 +574,9 @@ async function ScoringLoader({
   const supabase = await createClient();
   const { data } = await supabase
     .from('competitions')
-    .select('points_win, points_draw, points_loss, tiebreakers, regulation')
+    .select(
+      'points_win, points_draw, points_loss, tiebreakers, regulation, playoff_spots, relegation_spots',
+    )
     .eq('id', competitionId)
     .maybeSingle();
   if (!data) return null;
@@ -510,6 +590,8 @@ async function ScoringLoader({
         pointsLoss: data.points_loss,
         tiebreakers: data.tiebreakers,
         regulation: data.regulation,
+        playoffSpots: data.playoff_spots,
+        relegationSpots: data.relegation_spots,
       }}
     />
   );

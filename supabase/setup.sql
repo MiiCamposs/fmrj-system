@@ -689,7 +689,11 @@ alter table competitions
   add column points_loss integer not null default 0,
   add column tiebreakers text[] not null
     default array['points', 'wins', 'goal_difference', 'goals_for'],
-  add column regulation  text;
+  add column regulation  text,
+  -- Zonas da tabela (divisoes): vagas de classificacao/acesso (topo) e de
+  -- rebaixamento (base). 0 = nao mostra a zona. Ver migration 0015.
+  add column playoff_spots    integer not null default 0,
+  add column relegation_spots integer not null default 0;
 
 -- -----------------------------------------------------------------------------
 -- 2) matches: local, rotulo de rodada e integridade.

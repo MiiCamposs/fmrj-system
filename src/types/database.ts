@@ -70,6 +70,8 @@ export interface Database {
           points_loss: number;
           tiebreakers: string[];
           regulation: string | null;
+          playoff_spots: number;
+          relegation_spots: number;
           created_at: string;
           updated_at: string;
         };
@@ -85,6 +87,8 @@ export interface Database {
           points_loss?: number;
           tiebreakers?: string[];
           regulation?: string | null;
+          playoff_spots?: number;
+          relegation_spots?: number;
           created_at?: string;
           updated_at?: string;
         };

@@ -31,12 +31,16 @@ export function BracketEditor({
   teams,
   squads,
   initialBracket,
+  seeds = [],
 }: {
   competitionSlug: string;
   seasonId: string;
   teams: TeamOpt[];
   squads: Record<string, SquadPlayer[]>;
   initialBracket: BracketData;
+  /** Ids dos times em ordem de classificacao (0 = 1o lugar). Habilita o
+   *  botao de semear as quartas com os 8 primeiros. */
+  seeds?: string[];
 }) {
   const router = useRouter();
   const toast = useToast();
@@ -44,6 +48,31 @@ export function BracketEditor({
   const [loading, setLoading] = useState(false);
 
   const resolved = resolveBracket(bracket);
+
+  // Semeia as quartas com os 8 primeiros (1x8, 4x5, 2x7, 3x6), mantendo 1o e
+  // 2o em chaves opostas (so se encontram na final). Mantem as semis/final,
+  // que serao recalculadas pelos novos vencedores.
+  function seedQuarters() {
+    const s = seeds;
+    const pairs: [number, number][] = [
+      [0, 7],
+      [3, 4],
+      [1, 6],
+      [2, 5],
+    ];
+    setBracket((prev) => {
+      const next: BracketData = structuredClone(prev);
+      next.quarterfinals = pairs.map(([h, a]) => ({
+        home: s[h] ?? null,
+        away: s[a] ?? null,
+        homeGoals: [],
+        awayGoals: [],
+        noShow: null,
+      }));
+      return next;
+    });
+    toast.show('Quartas preenchidas com os 8 primeiros. Confira e salve.', 'success');
+  }
 
   function teamName(id: string | null): string | null {
     if (!id) return null;
@@ -219,6 +248,23 @@ export function BracketEditor({
         de gols e conta na <strong>artilharia</strong>. Preencha só as{' '}
         <strong>quartas</strong>; o vencedor sobe sozinho.
       </p>
+
+      {seeds.length >= 2 && (
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-3">
+          <p className="flex-1 text-sm text-neutral-700">
+            Classificação pronta? Semeie as quartas com os{' '}
+            <strong>8 primeiros</strong> da tabela (1º×8º, 4º×5º, 2º×7º, 3º×6º).
+          </p>
+          <button
+            type="button"
+            className={buttonClasses.secondary}
+            onClick={seedQuarters}
+            disabled={loading}
+          >
+            Preencher com os 8 primeiros
+          </button>
+        </div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-3 rounded-xl border border-neutral-200 p-4">

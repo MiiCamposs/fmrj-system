@@ -12,6 +12,10 @@ export interface SeasonFormatOption {
 export const SEASON_FORMATS: SeasonFormatOption[] = [
   { value: 'pontos_corridos', label: 'Pontos corridos (turno único)' },
   { value: 'pontos_corridos_ida_volta', label: 'Pontos corridos (ida e volta)' },
+  {
+    value: 'liga_playoff',
+    label: 'Pontos corridos + Playoffs (8 classificados às quartas)',
+  },
   { value: 'grupos', label: 'Fase de grupos' },
   { value: 'grupos_mata_mata', label: 'Fase de grupos + mata-mata' },
   { value: 'dois_grupos_mata_mata', label: 'Dois grupos + mata-mata' },
@@ -35,6 +39,15 @@ export function formatLabel(value: string | null | undefined): string {
 /** Formatos que sao mata-mata puro (mostram chaveamento no lugar da tabela). */
 export function isKnockout(format: string | null | undefined): boolean {
   return format === 'mata_mata' || format === 'mata_mata_ida_volta';
+}
+
+/**
+ * Formato de liga (pontos corridos) que, ao fim, leva os classificados a um
+ * mata-mata de 8 (quartas -> semi -> final). Mostra a TABELA e o CHAVEAMENTO
+ * na mesma edicao. Nao e knockout puro: a classificacao continua sendo a tabela.
+ */
+export function hasLeaguePlayoff(format: string | null | undefined): boolean {
+  return format === 'liga_playoff';
 }
 
 /** Nome de exibicao da edicao: usa o nome dado, senao "Temporada <ano>". */

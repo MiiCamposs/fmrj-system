@@ -30,6 +30,30 @@ export async function getScoringConfig(
   };
 }
 
+export interface CompetitionZones {
+  /** Vagas de classificacao/acesso no TOPO da tabela (verde). 0 = sem zona. */
+  playoffSpots: number;
+  /** Vagas de rebaixamento na BASE da tabela (vermelho). 0 = sem zona. */
+  relegationSpots: number;
+}
+
+/** Le quantas vagas de classificacao/rebaixamento a competicao declara. */
+export async function getCompetitionZones(
+  supabase: DbClient,
+  competitionId: string,
+): Promise<CompetitionZones> {
+  const { data, error } = await supabase
+    .from('competitions')
+    .select('playoff_spots, relegation_spots')
+    .eq('id', competitionId)
+    .maybeSingle();
+  if (error) throw error;
+  return {
+    playoffSpots: data?.playoff_spots ?? 0,
+    relegationSpots: data?.relegation_spots ?? 0,
+  };
+}
+
 export async function getStandings(
   supabase: DbClient,
   scope: { competitionId: string; seasonId: string },

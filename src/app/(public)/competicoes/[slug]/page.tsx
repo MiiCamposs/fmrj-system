@@ -7,8 +7,18 @@ import {
   listSeasons,
   getSeasonTeams,
 } from '@/lib/db/competitions';
-import { getStandings, getScoringConfig } from '@/lib/db/standings';
-import { seasonLabel, formatLabel, isKnockout } from '@/lib/domain/season';
+import {
+  getStandings,
+  getScoringConfig,
+  getCompetitionZones,
+  type CompetitionZones,
+} from '@/lib/db/standings';
+import {
+  seasonLabel,
+  formatLabel,
+  isKnockout,
+  hasLeaguePlayoff,
+} from '@/lib/domain/season';
 import { normalizeBracket } from '@/lib/domain/bracket';
 import { BracketView } from '@/components/bracket-view';
 import type { SeasonRow } from '@/types/database';
@@ -47,6 +57,25 @@ export async function generateMetadata({
     /* ignore */
   }
   return { title: 'Competição — UBM' };
+}
+
+/** Converte as vagas da competicao em props da tabela (ou undefined se nenhuma). */
+function zonesProps(
+  zones: CompetitionZones,
+  playoffLabel = 'Classificação',
+): {
+  playoffSpots: number;
+  relegationSpots: number;
+  playoffLabel: string;
+  relegationLabel: string;
+} | undefined {
+  if (zones.playoffSpots <= 0 && zones.relegationSpots <= 0) return undefined;
+  return {
+    playoffSpots: zones.playoffSpots,
+    relegationSpots: zones.relegationSpots,
+    playoffLabel,
+    relegationLabel: 'Rebaixamento',
+  };
 }
 
 export default async function PublicCompetitionPage({
@@ -144,6 +173,8 @@ async function PublicTabContent({
   const scope = { competitionId: competition.id, seasonId };
 
   if (tab === 'classificacao') {
+    const leaguePlayoff = hasLeaguePlayoff(season?.format);
+
     if (isKnockout(season?.format)) {
       const [seasonTeams, seasonPlayers] = await Promise.all([
         getSeasonTeams(supabase, scope),
@@ -174,11 +205,71 @@ async function PublicTabContent({
         <BracketView bracket={bracket} teams={teams} players={players} />
       );
     }
-    const rows = await getStandings(supabase, scope);
-    return rows.length ? (
-      <StandingsTable rows={rows} linkTeams />
-    ) : (
-      <EmptyState title="Classificação indisponível." description="Ainda não há partidas encerradas nesta temporada." />
+
+    const [rows, zones] = await Promise.all([
+      getStandings(supabase, scope),
+      getCompetitionZones(supabase, competition.id),
+    ]);
+    if (rows.length === 0) {
+      return (
+        <EmptyState
+          title="Classificação indisponível."
+          description="Ainda não há partidas encerradas nesta temporada."
+        />
+      );
+    }
+
+    if (!leaguePlayoff) {
+      return <StandingsTable rows={rows} linkTeams zones={zonesProps(zones)} />;
+    }
+
+    // Liga + playoffs: tabela com zonas + chaveamento dos classificados.
+    const [seasonTeams, seasonPlayers] = await Promise.all([
+      getSeasonTeams(supabase, scope),
+      getSeasonPlayers(supabase, scope),
+    ]);
+    const bracket = normalizeBracket(season?.bracket);
+    const bracketReady =
+      bracket.quarterfinals.some((s) => s.home || s.away) ||
+      bracket.semifinals.some((s) => s.home || s.away) ||
+      !!bracket.final.home ||
+      !!bracket.final.away;
+    return (
+      <div className="space-y-8">
+        <section>
+          <h2 className="mb-2 font-bold text-neutral-900">
+            Classificação (pontos corridos)
+          </h2>
+          <StandingsTable
+            rows={rows}
+            linkTeams
+            zones={zonesProps(zones, 'Classificado às quartas')}
+          />
+        </section>
+        <section>
+          <h2 className="mb-2 font-bold text-neutral-900">Playoffs</h2>
+          {bracketReady ? (
+            <BracketView
+              bracket={bracket}
+              teams={seasonTeams.map((t) => ({
+                id: t.teamId,
+                name: t.teamName,
+                logo: t.logoUrl,
+                short: t.shortName,
+              }))}
+              players={seasonPlayers.map((p) => ({
+                id: p.playerId,
+                name: p.nickname || p.name,
+              }))}
+            />
+          ) : (
+            <EmptyState
+              title="Mata-mata em breve."
+              description="Assim que a fase de pontos corridos terminar, os 8 classificados aparecem aqui."
+            />
+          )}
+        </section>
+      </div>
     );
   }
 
@@ -338,50 +429,77 @@ async function PublicTabContent({
 
   // visao-geral (default)
   const knockout = isKnockout(season?.format);
-  const [standings, upcoming, results, seasonTeams, seasonPlayers] =
+  const leaguePlayoff = hasLeaguePlayoff(season?.format);
+  const needsBracket = knockout || leaguePlayoff;
+  const [standings, upcoming, results, seasonTeams, seasonPlayers, zones] =
     await Promise.all([
       knockout ? Promise.resolve([]) : getStandings(supabase, scope),
       listMatches(supabase, { ...scope, status: 'scheduled' }),
       listMatches(supabase, { ...scope, status: 'finished' }),
-      knockout ? getSeasonTeams(supabase, scope) : Promise.resolve([]),
-      knockout ? getSeasonPlayers(supabase, scope) : Promise.resolve([]),
+      needsBracket ? getSeasonTeams(supabase, scope) : Promise.resolve([]),
+      needsBracket ? getSeasonPlayers(supabase, scope) : Promise.resolve([]),
+      leaguePlayoff
+        ? getCompetitionZones(supabase, competition.id)
+        : Promise.resolve<CompetitionZones>({
+            playoffSpots: 0,
+            relegationSpots: 0,
+          }),
     ]);
 
-  const bracket = knockout ? normalizeBracket(season?.bracket) : null;
+  const bracket = needsBracket ? normalizeBracket(season?.bracket) : null;
   const bracketFilled =
     !!bracket &&
     (bracket.quarterfinals.some((s) => s.home || s.away) ||
       bracket.semifinals.some((s) => s.home || s.away) ||
       !!bracket.final.home ||
       !!bracket.final.away);
+  const bracketTeams = seasonTeams.map((t) => ({
+    id: t.teamId,
+    name: t.teamName,
+    logo: t.logoUrl,
+    short: t.shortName,
+  }));
+  const bracketPlayers = seasonPlayers.map((p) => ({
+    id: p.playerId,
+    name: p.nickname || p.name,
+  }));
 
   return (
     <div className="space-y-8">
-      {knockout
-        ? bracketFilled && (
-            <section>
-              <h2 className="mb-2 font-bold text-neutral-900">Mata-mata</h2>
-              <BracketView
-                bracket={bracket!}
-                teams={seasonTeams.map((t) => ({
-                  id: t.teamId,
-                  name: t.teamName,
-                  logo: t.logoUrl,
-                  short: t.shortName,
-                }))}
-                players={seasonPlayers.map((p) => ({
-                  id: p.playerId,
-                  name: p.nickname || p.name,
-                }))}
-              />
-            </section>
-          )
-        : standings.length > 0 && (
-            <section>
-              <h2 className="mb-2 font-bold text-neutral-900">Classificação</h2>
-              <StandingsTable rows={standings.slice(0, 6)} linkTeams />
-            </section>
-          )}
+      {knockout && bracketFilled && (
+        <section>
+          <h2 className="mb-2 font-bold text-neutral-900">Mata-mata</h2>
+          <BracketView
+            bracket={bracket!}
+            teams={bracketTeams}
+            players={bracketPlayers}
+          />
+        </section>
+      )}
+      {!knockout && standings.length > 0 && (
+        <section>
+          <h2 className="mb-2 font-bold text-neutral-900">Classificação</h2>
+          <StandingsTable
+            rows={leaguePlayoff ? standings : standings.slice(0, 6)}
+            linkTeams
+            zones={
+              leaguePlayoff
+                ? zonesProps(zones, 'Classificado às quartas')
+                : undefined
+            }
+          />
+        </section>
+      )}
+      {leaguePlayoff && bracketFilled && (
+        <section>
+          <h2 className="mb-2 font-bold text-neutral-900">Playoffs</h2>
+          <BracketView
+            bracket={bracket!}
+            teams={bracketTeams}
+            players={bracketPlayers}
+          />
+        </section>
+      )}
       <div className="grid gap-6 lg:grid-cols-2">
         <section>
           <h2 className="mb-2 font-bold text-neutral-900">Próximos jogos</h2>
