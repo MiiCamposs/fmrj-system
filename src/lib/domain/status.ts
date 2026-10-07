@@ -60,7 +60,7 @@ export const matchStatusLabel: Record<MatchStatus, string> = {
   live: 'Ao vivo',
   finished: 'Encerrada',
   postponed: 'Adiada',
-  cancelled: 'Cancelada',
+  cancelled: 'Anulada',
 };
 
 export const matchStatusVariant: Record<MatchStatus, BadgeVariant> = {

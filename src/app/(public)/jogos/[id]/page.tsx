@@ -124,7 +124,7 @@ export default async function PublicMatchPage({
             ) : match.status === 'postponed' ? (
               <div className="text-sm font-medium text-amber-600">Adiada</div>
             ) : match.status === 'cancelled' ? (
-              <div className="text-sm font-medium text-red-600">Cancelada</div>
+              <div className="text-sm font-medium text-red-600">Anulada</div>
             ) : (
               <div className="text-sm text-neutral-400">
                 <div className="text-2xl font-bold text-neutral-300">x</div>

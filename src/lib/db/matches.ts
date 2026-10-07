@@ -254,6 +254,29 @@ export async function setMatchResult(
   return data;
 }
 
+/**
+ * Anula a partida: sem placar e sem W.O., status 'cancelled'. Como a
+ * classificacao so conta partidas 'finished' com placar, ninguem pontua.
+ */
+export async function annulMatch(
+  supabase: DbClient,
+  id: string,
+): Promise<MatchRow> {
+  const { data, error } = await supabase
+    .from('matches')
+    .update({
+      home_score: null,
+      away_score: null,
+      wo_no_show_team_id: null,
+      status: 'cancelled',
+    })
+    .eq('id', id)
+    .select('*')
+    .single();
+  if (error) throw error;
+  return data;
+}
+
 export async function setMatchStatus(
   supabase: DbClient,
   id: string,

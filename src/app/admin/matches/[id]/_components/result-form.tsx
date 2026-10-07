@@ -4,9 +4,17 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { inputClasses, buttonClasses } from '@/components/ui/ui';
 import { useToast } from '@/components/ui/toast';
-import { setResultAction } from '../../actions';
+import { setResultAction, annulMatchAction } from '../../actions';
 
 const WO_SCORE = 3;
+
+type Mode = 'normal' | 'wo' | 'annul';
+
+const MODE_LABEL: Record<Mode, string> = {
+  normal: 'Placar',
+  wo: 'W.O.',
+  annul: 'Anular',
+};
 
 export function ResultForm({
   matchId,
@@ -18,6 +26,7 @@ export function ResultForm({
   homeScore,
   awayScore,
   woNoShowTeamId,
+  annulled,
 }: {
   matchId: string;
   competitionSlug?: string;
@@ -28,11 +37,12 @@ export function ResultForm({
   homeScore: number | null;
   awayScore: number | null;
   woNoShowTeamId: string | null;
+  annulled: boolean;
 }) {
   const router = useRouter();
   const toast = useToast();
-  const [mode, setMode] = useState<'normal' | 'wo'>(
-    woNoShowTeamId ? 'wo' : 'normal',
+  const [mode, setMode] = useState<Mode>(
+    annulled ? 'annul' : woNoShowTeamId ? 'wo' : 'normal',
   );
   const [home, setHome] = useState(homeScore?.toString() ?? '');
   const [away, setAway] = useState(awayScore?.toString() ?? '');
@@ -45,6 +55,23 @@ export function ResultForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+
+    if (mode === 'annul') {
+      const annulResult = await annulMatchAction({
+        id: matchId,
+        competitionSlug,
+      });
+      setLoading(false);
+      if (!annulResult.ok) {
+        toast.show(annulResult.error, 'error');
+        return;
+      }
+      setHome('');
+      setAway('');
+      toast.show('Jogo anulado. Ninguém pontua.', 'success');
+      router.refresh();
+      return;
+    }
 
     let payload: {
       id: string;
@@ -90,7 +117,7 @@ export function ResultForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       <div className="inline-flex rounded-md border border-neutral-300 p-0.5 text-sm">
-        {(['normal', 'wo'] as const).map((m) => (
+        {(['normal', 'wo', 'annul'] as const).map((m) => (
           <button
             key={m}
             type="button"
@@ -101,12 +128,34 @@ export function ResultForm({
                 : 'text-neutral-600 hover:text-neutral-900'
             }`}
           >
-            {m === 'normal' ? 'Placar' : 'W.O.'}
+            {MODE_LABEL[m]}
           </button>
         ))}
       </div>
 
-      {mode === 'normal' ? (
+      {mode === 'annul' ? (
+        <div className="space-y-2">
+          <p className="text-sm text-neutral-600">
+            Use quando <strong>as duas equipes não marcaram a partida</strong>.
+            O jogo fica anulado: sem placar, ninguém ganha ponto na
+            classificação e nenhum W.O. é registrado. Se já houver placar ou
+            W.O. lançado neste jogo, ele é apagado.
+          </p>
+          {annulled ? (
+            <p className="text-sm font-medium text-red-600">
+              Este jogo está anulado. Para desfazer, lance um placar ou um W.O.
+            </p>
+          ) : (
+            <button
+              type="submit"
+              className={buttonClasses.primary}
+              disabled={loading}
+            >
+              {loading ? 'Anulando...' : 'Anular jogo'}
+            </button>
+          )}
+        </div>
+      ) : mode === 'normal' ? (
         <div className="flex flex-wrap items-end gap-3">
           <div>
             <label className="mb-1 block text-xs text-neutral-500">

@@ -96,6 +96,7 @@ export default async function AdminMatchPage({
             homeScore={match.home_score}
             awayScore={match.away_score}
             woNoShowTeamId={match.wo_no_show_team_id}
+            annulled={match.status === 'cancelled'}
           />
         </Card>
 

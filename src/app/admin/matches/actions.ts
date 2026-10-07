@@ -7,6 +7,7 @@ import {
   createMatch,
   updateMatch,
   setMatchResult,
+  annulMatch,
   setMatchStatus,
   deleteMatch,
   getMatchById,
@@ -168,6 +169,32 @@ export async function setResultAction(input: {
         awayScore: input.awayScore,
         wo: input.woNoShowTeamId ?? null,
       },
+    });
+    revalidatePath('/registro');
+    revalidatePath('/admin');
+    revalidateSports(input.competitionSlug);
+    revalidatePath(`/admin/matches/${input.id}`);
+    revalidatePath(`/jogos/${input.id}`);
+    return { ok: true };
+  } catch (e) {
+    return actionError(e);
+  }
+}
+
+export async function annulMatchAction(input: {
+  id: string;
+  competitionSlug?: string;
+}): Promise<ActionResult> {
+  try {
+    const ctx = await requireAdmin();
+    const supabase = createAdminClient();
+    await annulMatch(supabase, input.id);
+    await writeAuditLog({
+      adminId: ctx.admin.id,
+      action: 'result.update',
+      entity: 'match',
+      entityId: input.id,
+      data: { annulled: true },
     });
     revalidatePath('/registro');
     revalidatePath('/admin');
